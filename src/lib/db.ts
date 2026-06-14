@@ -32,6 +32,7 @@ export interface Poem {
   difficulty: number
   examFrequency: number
   type: string
+  collection_label?: string
   author_info?: AuthorInfo | null
   exam_points?: ExamPoint[]
 }

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useStore } from '../store'
 import { useUserStore } from '../store/user'
@@ -7,8 +7,9 @@ import { Search, ChevronRight, BookOpen, Star, Heart } from 'lucide-react'
 import collectionsData from '../data/collections.json'
 
 var TYPES = ['全部', '诗', '词', '文言文']
-var GRADE_NAMES = ['全部', '一', '二', '三', '四', '五', '六', '七', '八', '九', '高一', '高二', '高三']
-var GRADE_FULL = ['全部', '一年级', '二年级', '三年级', '四年级', '五年级', '六年级', '七年级', '八年级', '九年级', '高一', '高二', '高三']
+var GRADE_NAMES = ['全部', '一', '二', '三', '四', '五', '六', '七', '八', '九']
+var GRADE_FULL = ['全部', '一年级', '二年级', '三年级', '四年级', '五年级', '六年级', '七年级', '八年级', '九年级']
+var COLLECTION_NAMES = ['全部', '高中必修（上册）', '高中必修（下册）', '高中选修（上册）', '高中选修（中册）', '高中选修（下册）']
 
 var DIFFICULTY_COLORS = ['', 'text-green-600', 'text-amber-600', 'text-red-600']
 var DIFFICULTY_BG = ['', 'bg-green-100 dark:bg-green-900/30', 'bg-amber-100 dark:bg-amber-900/30', 'bg-red-100 dark:bg-red-900/30']
@@ -45,6 +46,7 @@ export default function PoemList() {
   var [search, setSearch] = useState('')
   var [diffFilter, setDiffFilter] = useState(0)
   var [selectedCollection, setSelectedCollectionState] = useState(searchParams.get('collection') || '')
+  var [collectionLabel, setCollectionLabel] = useState('全部')
   var [favorites, setFavorites] = useState<any[]>([])
   var currentUser = useUserStore(function(s) { return s.currentUser })
 
@@ -70,6 +72,7 @@ export default function PoemList() {
         if (grade > 0 && p.grade !== grade) return false
         if (type !== '全部' && p.type !== type) return false
         if (diffFilter > 0 && p.difficulty !== diffFilter) return false
+        if (collectionLabel !== '全部' && p.collection_label !== collectionLabel) return false
         if (search) {
           var q = search.toLowerCase()
           return p.title.includes(q) || p.author.includes(q) || p.content.some(function(l) { return l.includes(q) })
@@ -98,15 +101,15 @@ export default function PoemList() {
       {/* Tabs */}
       <div className="flex gap-1 rounded-lg bg-muted p-0.5 w-fit">
         <button onClick={function() { setTab('syllabus'); setSelectedCollection('') }}
-          className={tab === 'syllabus' ? 'px-3 py-1.5 text-xs font-medium rounded-md bg-card text-foreground shadow-sm' : 'px-3 py-1.5 text-xs font-medium rounded-md text-muted-foreground hover:text-foreground'}>
+          className={tab === 'syllabus' ? 'px-4 py-2 text-sm font-medium rounded-md bg-card text-foreground shadow-sm' : 'px-4 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground'}>
           教程同步
         </button>
         <button onClick={function() { setTab('extra'); setSelectedCollection('') }}
-          className={tab === 'extra' ? 'px-3 py-1.5 text-xs font-medium rounded-md bg-card text-foreground shadow-sm' : 'px-3 py-1.5 text-xs font-medium rounded-md text-muted-foreground hover:text-foreground'}>
+          className={tab === 'extra' ? 'px-4 py-2 text-sm font-medium rounded-md bg-card text-foreground shadow-sm' : 'px-4 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground'}>
           课外
         </button>
         <button onClick={function() { setTab('favorites') }}
-          className={tab === 'favorites' ? 'px-3 py-1.5 text-xs font-medium rounded-md bg-card text-foreground shadow-sm' : 'px-3 py-1.5 text-xs font-medium rounded-md text-muted-foreground hover:text-foreground'}>
+          className={tab === 'favorites' ? 'px-4 py-2 text-sm font-medium rounded-md bg-card text-foreground shadow-sm' : 'px-4 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground'}>
           收藏
         </button>
       </div>
@@ -143,6 +146,18 @@ export default function PoemList() {
                 )
               })}
             </div>
+            {(grade === 0) && (
+              <div className="flex gap-1 rounded-lg bg-muted p-0.5">
+                {COLLECTION_NAMES.map(function(name) {
+                  return (
+                    <button key={name} onClick={function() { setCollectionLabel(name) }}
+                      className={collectionLabel === name ? 'px-3 py-1.5 rounded-md text-sm font-medium bg-card text-foreground shadow-sm' : 'px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground'}>
+                      {name}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
           {/* Grade */}
@@ -177,7 +192,7 @@ export default function PoemList() {
                   <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
                     <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{p.type}</span>
                     <span className={'text-[10px] px-1.5 py-0.5 rounded-full ' + (DIFFICULTY_BG[p.difficulty] || 'bg-muted') + ' ' + (DIFFICULTY_COLORS[p.difficulty] || 'text-muted-foreground')}>难度{p.difficulty}</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{GRADE_FULL[p.grade] || ''}</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{p.collection_label || GRADE_FULL[p.grade] || ''}</span>
                     {p.examFrequency > 0 && <span className="text-[10px] text-amber-500 flex items-center gap-0.5 ml-auto">
                       {Array.from({ length: Math.min(p.examFrequency, 5) }).map(function(_, i) { return <Star key={i} className="h-2.5 w-2.5 fill-current" /> })}
                     </span>}
