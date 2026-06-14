@@ -6,8 +6,24 @@ import { Search, Check, BookOpen, Flame, CalendarDays, TrendingUp, History, Chev
 import { useNavigate } from 'react-router-dom'
 
 const TYPES = ['全部', '诗', '词', '文言文']
-const GRADE_NAMES = ['全部', '一', '二', '三', '四', '五', '六', '七', '八', '九', '高一', '高二', '高三']
-const GRADE_FULL = ['全部', '一年级', '二年级', '三年级', '四年级', '五年级', '六年级', '七年级', '八年级', '九年级', '高一', '高二', '高三']
+const GRADE_NAMES = ['全部', '一', '二', '三', '四', '五', '六', '七', '八', '九']
+const GRADE_FULL = ['全部', '一年级', '二年级', '三年级', '四年级', '五年级', '六年级', '七年级', '八年级', '九年级']
+const COLLECTION_NAMES = ['全部', '高中必修（上册）', '高中必修（下册）', '高中选修（上册）', '高中选修（中册）', '高中选修（下册）']
+const GRADE_TERM_LABEL: Record<string, string> = {
+  '10-1': '高中必修（上册）',
+  '10-2': '高中必修（下册）',
+  '11-1': '高中选修（上册）',
+  '11-2': '高中选修（中册）',
+  '12-1': '高中选修（下册）',
+  '12-2': '高中选修（下册）',
+}
+
+function getGradeLabel(p: any): string {
+  if (p.collection_label) return p.collection_label
+  var key = p.grade + '-' + p.term
+  if (GRADE_TERM_LABEL[key]) return GRADE_TERM_LABEL[key]
+  return GRADE_FULL[p.grade] || ''
+}
 
 export default function Progress() {
   var navigate = useNavigate()
@@ -17,6 +33,8 @@ export default function Progress() {
   var [tab, setTab] = useState('progress')
   var [grade, setGrade] = useState(0)
   var [type, setType] = useState('全部')
+  var [diffFilter, setDiffFilter] = useState(0)
+  var [collectionLabel, setCollectionLabel] = useState('全部')
   var [search, setSearch] = useState('')
   var [completed, setCompleted] = useState<Set<string>>(new Set())
   var [dailyStats, setDailyStats] = useState<Record<string, number>>({})
@@ -100,9 +118,24 @@ export default function Progress() {
 
   var totalPages = Math.ceil(recordTotal / pageSize)
 
+  var COLLECTION_GRADE_MAP: Record<string, { grade: number; term: number }> = {
+    '高中必修（上册）': { grade: 10, term: 1 },
+    '高中必修（下册）': { grade: 10, term: 2 },
+    '高中选修（上册）': { grade: 11, term: 1 },
+    '高中选修（中册）': { grade: 11, term: 2 },
+    '高中选修（下册）': { grade: 12, term: 1 },
+  }
+
   var filtered = poems.filter(function(p) {
     if (grade > 0 && p.grade !== grade) return false
     if (type !== '全部' && p.type !== type) return false
+    if (diffFilter > 0 && p.difficulty !== diffFilter) return false
+    if (collectionLabel !== '全部') {
+      var mapping = COLLECTION_GRADE_MAP[collectionLabel]
+      if (mapping) {
+        if (p.grade !== mapping.grade || p.term !== mapping.term) return false
+      }
+    }
     if (search) {
       var q = search.toLowerCase()
       return p.title.includes(q) || p.author.includes(q)
@@ -227,21 +260,45 @@ export default function Progress() {
               onChange={function(e) { setSearch(e.target.value) }}
               className="w-full pl-9 pr-3 py-2 rounded-xl border bg-card text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
           </div>
-          <div className="flex gap-1 rounded-lg bg-muted p-0.5 w-fit">
-            {TYPES.map(function(t) {
-              return (
-                <button key={t} onClick={function() { setType(t) }}
-                  className={type === t ? 'px-2.5 py-1 text-xs font-medium rounded-md bg-card text-foreground shadow-sm' : 'px-2.5 py-1 text-xs font-medium rounded-md text-muted-foreground hover:text-foreground'}>
-                  {t}
-                </button>
-              )
-            })}
+          <div className="flex flex-wrap gap-2">
+            <div className="flex gap-1 rounded-lg bg-muted p-0.5">
+              {TYPES.map(function(t) {
+                return (
+                  <button key={t} onClick={function() { setType(t) }}
+                    className={type === t ? 'px-3 py-1.5 rounded-md text-sm font-medium bg-card text-foreground shadow-sm' : 'px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground'}>
+                    {t}
+                  </button>
+                )
+              })}
+            </div>
+            <div className="flex gap-1 rounded-lg bg-muted p-0.5">
+              {[{ v: 0, l: '全部' }, { v: 1, l: '简单' }, { v: 2, l: '中等' }, { v: 3, l: '困难' }].map(function(d) {
+                return (
+                  <button key={d.v} onClick={function() { setDiffFilter(d.v) }}
+                    className={diffFilter === d.v ? 'px-3 py-1.5 rounded-md text-sm font-medium bg-card text-foreground shadow-sm' : 'px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground'}>
+                    {d.l}
+                  </button>
+                )
+              })}
+            </div>
+            {grade === 0 && (
+              <div className="flex gap-1 rounded-lg bg-muted p-0.5">
+                {COLLECTION_NAMES.map(function(name) {
+                  return (
+                    <button key={name} onClick={function() { setCollectionLabel(name) }}
+                      className={collectionLabel === name ? 'px-3 py-1.5 rounded-md text-sm font-medium bg-card text-foreground shadow-sm' : 'px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground'}>
+                      {name}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </div>
-          <div className="flex gap-1.5 flex-wrap pb-1">
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-1">
             {GRADE_NAMES.map(function(name, i) {
               return (
                 <button key={i} onClick={function() { setGrade(i) }}
-                  className={'shrink-0 px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ' + (grade === i ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground')}>
+                  className={'shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ' + (grade === i ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground')}>
                   {name}
                 </button>
               )
@@ -263,7 +320,7 @@ export default function Progress() {
               </div>
               <div className="flex items-center gap-1 mt-1">
                 <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{p.type}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{GRADE_FULL[p.grade]}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{getGradeLabel(p)}</span>
               </div>
                 </div>
               )
