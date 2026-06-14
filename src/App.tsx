@@ -41,7 +41,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/poems" element={<PoemList />} />
-        <Route path="/poem/:title" element={<PoemDetail />} />
+        <Route path="/poems/:title" element={<PoemDetail />} />
         <Route path="/study-plan" element={<StudyPlan />} />
         <Route path="/study-plan/:planName" element={<StudyPlan />} />
         <Route path="/progress" element={<Progress />} />

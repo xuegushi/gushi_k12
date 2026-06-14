@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useStore } from '../store'
 import { useSelectionStore } from '../store/selection'
 import { useUserStore } from '../store/user'
 import { db } from '../lib/db'
-import { ArrowLeft, Volume2, Heart, BookOpen, User, GraduationCap, Play, ChevronDown, Star, Languages, Sparkles } from 'lucide-react'
+import { ArrowLeft, Volume2, Heart, BookOpen, User, GraduationCap, Play, ChevronDown, Star, Languages, Sparkles, Check, X } from 'lucide-react'
 import { PinyinText } from '../components/PinyinText'
 import { chat } from '../lib/ai'
+import { getNextReviewDate } from '../lib/recitation'
+import ReciteDialog from '../components/ReciteDialog'
 
 const GRADE_FULL = ['', '一年级', '二年级', '三年级', '四年级', '五年级', '六年级', '七年级', '八年级', '九年级', '高一', '高二', '高三']
 
@@ -18,6 +20,7 @@ export default function PoemDetail() {
   var [tab, setTab] = useState('content')
   var [isFav, setIsFav] = useState(false)
   var [showPy, setShowPy] = useState(false)
+  var [reciting, setReciting] = useState(false)
   var [aiLoading, setAiLoading] = useState('')
   var [aiContent, setAiContent] = useState<Record<string, string>>({})
   var navigate = useNavigate()
@@ -71,6 +74,25 @@ export default function PoemDetail() {
     setAiLoading('')
   }
 
+  var handleRecite = async function(remembered: boolean) {
+    if (!poem) return
+    var user = useUserStore.getState().currentUser
+    if (!user) return
+    var existing = await db.reviewRecords.where({ userId: user.id, poemTitle: poem.title }).first()
+    var now = new Date()
+    if (existing) {
+      var ns = remembered ? Math.min(existing.stage + 1, 6) : 0
+      if (ns >= 6) { await db.reviewRecords.delete(existing.id!) }
+      else { await db.reviewRecords.update(existing.id!, { stage: ns, lastReviewedAt: now, nextReviewAt: getNextReviewDate(ns, now), reviewCount: (existing.reviewCount || 0) + 1 }) }
+    } else {
+      var ns = remembered ? 1 : 0
+      await db.reviewRecords.add({ userId: user.id, poemTitle: poem.title, poemAuthor: poem.author || '', stage: ns, lastReviewedAt: now, nextReviewAt: getNextReviewDate(ns, now), reviewCount: 1 })
+    }
+    setReciting(false)
+  }
+
+  var closeRecite = function() { setReciting(false) }
+
   return (
     <div className="page-enter">
       <div className="flex items-center gap-2 mb-4">
@@ -110,40 +132,34 @@ export default function PoemDetail() {
             )
           })}
         </div>
-        {poem.grade > 0 && (
         <div className="flex-1" />
-        )}
-        {poem.grade > 0 && (
-        <button onClick={function() { setShowPy(!showPy) }}
-          className={'px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ' + (showPy ? 'bg-card text-foreground shadow-sm border' : 'text-muted-foreground hover:text-foreground border border-transparent')}>
-          <Languages className="h-3.5 w-3.5 inline mr-0.5" />拼音
-        </button>
-        )}
+        <div className="flex items-center gap-2">
+          <button onClick={function() { setShowPy(!showPy) }}
+            className={'inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ' + (showPy ? 'bg-card text-foreground shadow-sm' : 'bg-card text-muted-foreground')}>
+            <Languages className="h-3.5 w-3.5" />拼音
+          </button>
+          <button onClick={function() { speak(poem.content.join('，')) }} className="inline-flex items-center gap-1 rounded-lg border bg-card px-2.5 py-1.5 text-xs font-medium card-hover">
+            <Volume2 className="h-3.5 w-3.5 text-primary" /> {poem.grade > 0 ? '朗读全诗' : '朗读'}
+          </button>
+          {poem.grade > 0 && (
+            <button onClick={function() { setReciting(true) }} className="inline-flex items-center gap-1 rounded-lg bg-primary text-primary-foreground px-2.5 py-1.5 text-xs font-medium card-hover">
+              <Play className="h-3.5 w-3.5" /> 开始背诵
+            </button>
+          )}
+        </div>
       </div>
 
       {tab === 'content' ? (
         <div className="space-y-4">
-          <div className={'gap-3 lg:gap-4 ' + (poem.grade > 0 ? 'grid grid-cols-2' : 'flex items-center justify-end')}>
-            <button onClick={function() { speak(poem.content.join('，')) }} className={'flex items-center justify-center gap-2 rounded-xl border bg-card text-sm font-medium card-hover ' + (poem.grade > 0 ? 'py-3 lg:py-3.5' : 'px-4 py-2')}>
-              <Volume2 className="h-4 w-4 text-primary" /> {poem.grade > 0 ? '朗读全诗' : '朗读'}
-            </button>
-            {poem.grade > 0 && (
-              <Link to={'/review?poem=' + encodeURIComponent(poem.title)} className="flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 lg:py-3.5 text-sm font-medium card-hover">
-                <Play className="h-4 w-4" /> 开始背诵
-              </Link>
-            )}
-            {poem.grade === 0 && (
-              <button onClick={function() { setShowPy(!showPy) }}
-                className={'px-4 py-2 rounded-xl border text-sm font-medium transition-colors ' + (showPy ? 'bg-card text-foreground shadow-sm' : 'bg-card text-muted-foreground')}>
-                <Languages className="h-4 w-4 inline mr-1" />拼音
-              </button>
-            )}
-          </div>
-          <div className="rounded-xl lg:rounded-2xl bg-gradient-to-b from-muted/50 to-muted/30 p-6 lg:p-10">
-            {poem.content.map(function(line, i) {
-              return <p key={i} className="text-center text-lg lg:text-xl leading-8 lg:leading-10 font-poem tracking-wide"><PinyinText text={line} show={showPy} /></p>
-            })}
-          </div>
+            {reciting ? <div className="text-center text-lg lg:text-xl leading-8 lg:leading-10 font-poem tracking-wide text-muted-foreground/40">
+              {poem.content.map(function(line, i) {
+                return <p key={i}>{line.replace(/[\u4e00-\u9fff]/g, '**')}</p>
+              })}
+            </div> : <div className="rounded-xl lg:rounded-2xl bg-gradient-to-b from-muted/50 to-muted/30 p-6 lg:p-10">
+              {poem.content.map(function(line, i) {
+                return <p key={i} className="text-center text-lg lg:text-xl leading-8 lg:leading-10 font-poem tracking-wide"><PinyinText text={line} show={showPy} /></p>
+              })}
+            </div>}
           {poem.author_info && AuthorInfo(poem)}
           {poem.translation ? TextBlock(poem.translation, '译文', 'emerald') : (
             <div className="rounded-xl border bg-card p-4">
@@ -214,6 +230,7 @@ export default function PoemDetail() {
           {poem.exam_points && poem.exam_points.length > 0 && ExamPoints(poem.exam_points)}
         </div>
       )}
+      {reciting ? <ReciteDialog poem={poem} onResult={handleRecite} onClose={closeRecite} /> : null}
     </div>
   )
 }

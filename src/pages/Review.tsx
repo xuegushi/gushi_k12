@@ -77,11 +77,28 @@ export default function Review() {
   }
 
   // Recitation mode from poem detail
+  var handleTargetReview = async function(remembered: boolean) {
+    if (!targetPoem) return
+    var user = useUserStore.getState().currentUser
+    if (!user) return
+    var existing = await db.reviewRecords.where({ userId: user.id, poemTitle: targetPoem.title }).first()
+    var now = new Date()
+    if (existing) {
+      var ns = remembered ? Math.min(existing.stage + 1, getMaxStage() + 1) : 0
+      if (ns > getMaxStage()) { await db.reviewRecords.delete(existing.id!) }
+      else { await db.reviewRecords.update(existing.id!, { stage: ns, lastReviewedAt: now, nextReviewAt: getNextReviewDate(ns, now), reviewCount: (existing.reviewCount || 0) + 1 }) }
+    } else {
+      var ns = remembered ? 1 : 0
+      await db.reviewRecords.add({ userId: user.id, poemTitle: targetPoem.title, poemAuthor: targetPoem.author || '', stage: ns, lastReviewedAt: now, nextReviewAt: getNextReviewDate(ns, now), reviewCount: 1 })
+    }
+    loadReviewRecords()
+  }
+
   if (targetPoem) {
     return (
       <div className="space-y-4 animate-fade-up">
         <div className="flex items-center gap-2">
-          <Link to={'/poem/' + encodeURIComponent(targetPoem.title)} className="p-1 -ml-1 text-muted-foreground hover:text-foreground">
+          <Link to={'/poems/' + encodeURIComponent(targetPoem.title)} className="p-1 -ml-1 text-muted-foreground hover:text-foreground">
             <RotateCcw className="h-5 w-5" />
           </Link>
           <div className="flex items-center gap-2">
@@ -105,10 +122,10 @@ export default function Review() {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <button onClick={function() { handleReview('forgotten') }} className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 py-3 text-sm text-red-600 font-medium">
+          <button onClick={function() { handleTargetReview(false) }} className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 py-3 text-sm text-red-600 font-medium">
             <X className="h-4 w-4 inline mr-1" /> 不熟
           </button>
-          <button onClick={function() { handleReview('remembered') }} className="rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/20 py-3 text-sm text-emerald-600 font-medium">
+          <button onClick={function() { handleTargetReview(true) }} className="rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/20 py-3 text-sm text-emerald-600 font-medium">
             <Check className="h-4 w-4 inline mr-1" /> 背出了
           </button>
         </div>

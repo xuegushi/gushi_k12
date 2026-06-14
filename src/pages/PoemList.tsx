@@ -1,7 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useStore } from '../store'
-import { Search, ChevronRight, BookOpen, Star } from 'lucide-react'
+import { useUserStore } from '../store/user'
+import { db } from '../lib/db'
+import { Search, ChevronRight, BookOpen, Star, Heart } from 'lucide-react'
 import collectionsData from '../data/collections.json'
 
 var TYPES = ['全部', '诗', '词', '文言文']
@@ -43,6 +45,17 @@ export default function PoemList() {
   var [search, setSearch] = useState('')
   var [diffFilter, setDiffFilter] = useState(0)
   var [selectedCollection, setSelectedCollectionState] = useState(searchParams.get('collection') || '')
+  var [favorites, setFavorites] = useState<any[]>([])
+  var currentUser = useUserStore(function(s) { return s.currentUser })
+
+  useEffect(function() {
+    if (!currentUser) return
+    db.favorites.where('userId').equals(currentUser.id!).toArray().then(function(favs) {
+      var poemMap = new Map(poems.map(function(p) { return [p.title, p] }))
+      setFavorites(favs.map(function(f) { return { ...f, poem: poemMap.get(f.poemTitle) } }).filter(function(f) { return f.poem }))
+    })
+  }, [currentUser, poems, tab])
+
   var setSelectedCollection = function(name: string) {
     setSelectedCollectionState(name)
     if (name) {
@@ -53,6 +66,7 @@ export default function PoemList() {
   // Compute filtered list
   var filtered = tab === 'syllabus'
     ? poems.filter(function(p) {
+        if (p.grade === 0) return false
         if (grade > 0 && p.grade !== grade) return false
         if (type !== '全部' && p.type !== type) return false
         if (diffFilter > 0 && p.difficulty !== diffFilter) return false
@@ -63,6 +77,8 @@ export default function PoemList() {
         return true
       })
     : []
+
+  var count = tab === 'favorites' ? favorites.length : tab === 'extra' ? poems.filter(function(p) { return p.grade === 0 }).length : filtered.length
 
   if (!poemsLoaded || poems.length === 0) {
     return <div className="py-16 text-center text-sm text-muted-foreground">加载中...</div>
@@ -76,7 +92,7 @@ export default function PoemList() {
           <BookOpen className="h-4 w-4" />
         </div>
         <h1 className="text-lg font-bold">诗词库</h1>
-        <span className="text-xs text-muted-foreground">{filtered.length} 首</span>
+        <span className="text-xs text-muted-foreground">{count} 首</span>
       </div>
 
       {/* Tabs */}
@@ -88,6 +104,10 @@ export default function PoemList() {
         <button onClick={function() { setTab('extra'); setSelectedCollection('') }}
           className={tab === 'extra' ? 'px-3 py-1.5 text-xs font-medium rounded-md bg-card text-foreground shadow-sm' : 'px-3 py-1.5 text-xs font-medium rounded-md text-muted-foreground hover:text-foreground'}>
           课外
+        </button>
+        <button onClick={function() { setTab('favorites') }}
+          className={tab === 'favorites' ? 'px-3 py-1.5 text-xs font-medium rounded-md bg-card text-foreground shadow-sm' : 'px-3 py-1.5 text-xs font-medium rounded-md text-muted-foreground hover:text-foreground'}>
+          收藏
         </button>
       </div>
 
@@ -168,7 +188,7 @@ export default function PoemList() {
             {filtered.length === 0 && <div className="col-span-full text-center py-16 text-sm text-muted-foreground">没有找到匹配的诗词</div>}
           </div>
         </div>
-      ) : (
+      ) : tab === 'extra' ? (
         <div>
           {/* Search */}
           <div className="relative mb-4">
@@ -252,7 +272,31 @@ export default function PoemList() {
             </div>
           )}
         </div>
-      )}
+      )
+      : null}
+      {tab === 'favorites' ? <div>
+        {favorites.length === 0 ? <div className="text-center py-16 text-sm text-muted-foreground">还没有收藏的诗词</div> : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {favorites.map(function(f) {
+              return (
+                <div key={f.poemTitle} onClick={function() { navigate('/poems/' + encodeURIComponent(f.poemTitle)) }}
+                  className="group rounded-xl border bg-card p-4 card-hover cursor-pointer">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold truncate group-hover:text-primary transition-colors">{f.poem.title}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">{f.poem.dynasty} · {f.poem.author}</p>
+                    </div>
+                    <Heart className="h-4 w-4 text-red-500 fill-red-500 shrink-0 mt-1" />
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{f.poem.type || '诗'}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div> : null}
     </div>
   )
 }

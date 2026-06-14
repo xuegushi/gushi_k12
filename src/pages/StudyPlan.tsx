@@ -6,6 +6,7 @@ import { db } from '../lib/db'
 import { ensureDefaultPlans, togglePoemComplete, resetPlanProgress } from '../lib/studyPlan'
 import { getNextReviewDate } from '../lib/recitation'
 import PoemContent from '../components/PoemContent'
+import ReciteDialog from '../components/ReciteDialog'
 import { Check, RotateCcw, ChevronRight, Library, Volume2, X } from 'lucide-react'
 
 export default function StudyPlan() {
@@ -17,6 +18,10 @@ export default function StudyPlan() {
   var [selected, setSelected] = useState<any | null>(null)
   var [loading, setLoading] = useState(true)
   var [recitePoem, setRecitePoem] = useState<any | null>(null)
+  var [tab, setTab] = useState('plan')
+  var [dueReviews, setDueReviews] = useState<any[]>([])
+  var [reviewIdx, setReviewIdx] = useState(0)
+  var [reviewDone, setReviewDone] = useState(false)
 
   useEffect(function() {
     var user = currentUser
@@ -32,6 +37,19 @@ export default function StudyPlan() {
       })
     })
   }, [currentUser, planName])
+
+  useEffect(function() {
+    if (tab !== 'review' || !currentUser) return
+    db.reviewRecords.where('userId').equals(currentUser.id!).toArray().then(function(all) {
+      var today = new Date()
+      today.setHours(0, 0, 0, 0)
+      var due = all.filter(function(r) { return new Date(r.nextReviewAt) <= today && r.stage <= 6 })
+      due.sort(function(a, b) { return new Date(a.nextReviewAt).getTime() - new Date(b.nextReviewAt).getTime() })
+      setDueReviews(due)
+      setReviewIdx(0)
+      setReviewDone(due.length === 0)
+    })
+  }, [tab, currentUser])
 
   function pct(p: any) { return Math.round(((p.completedTitles?.length || 0) / (p.poemTitles?.length || 1)) * 100) }
 
@@ -55,6 +73,40 @@ export default function StudyPlan() {
     if (poem) setRecitePoem(poem)
   }
 
+  var handleReviewResult = async function(record: any, remembered: boolean) {
+    if (!record) return
+    var ns = remembered ? Math.min(record.stage + 1, 6) : 0
+    if (ns >= 6) { await db.reviewRecords.delete(record.id) }
+    else { await db.reviewRecords.update(record.id, { stage: ns, lastReviewedAt: new Date(), nextReviewAt: getNextReviewDate(ns, new Date()), reviewCount: (record.reviewCount || 0) + 1 }) }
+    if (reviewIdx + 1 >= dueReviews.length) { setReviewDone(true) }
+    else { setReviewIdx(function(i) { return i + 1 }) }
+  }
+
+  var finishRecite = async function(remembered: boolean) {
+    if (!recitePoem || !currentUser) return
+    var existing = await db.reviewRecords.where({ userId: currentUser.id, poemTitle: recitePoem.title }).first()
+    var now = new Date()
+    var stage = 0
+    var reviewCount = 1
+    if (existing) {
+      stage = remembered ? Math.min(existing.stage + 1, 6) : 0
+      reviewCount = (existing.reviewCount || 0) + 1
+      await db.reviewRecords.update(existing.id, { stage: stage, lastReviewedAt: now, nextReviewAt: getNextReviewDate(stage, now), reviewCount: reviewCount })
+    } else {
+      stage = remembered ? 1 : 0
+      await db.reviewRecords.add({ userId: currentUser.id, poemTitle: recitePoem.title, poemAuthor: recitePoem.author || '', stage: stage, lastReviewedAt: now, nextReviewAt: getNextReviewDate(stage, now), reviewCount: 1 })
+    }
+    if (selected && remembered) {
+      var titles = selected.completedTitles || []
+      if (!titles.includes(recitePoem.title)) {
+        titles.push(recitePoem.title)
+        await db.studyPlans.update(selected.id, { completedTitles: titles })
+        setSelected({ ...selected, completedTitles: [...titles] })
+      }
+    }
+    setRecitePoem(null)
+  }
+
   if (loading) return <div className="py-16 text-center text-sm text-muted-foreground">加载中...</div>
   if (!loading && plans.length === 0) return <div className="py-16 text-center text-sm text-muted-foreground">暂无计划</div>
   if (planName && !selected) return <div className="py-16 text-center text-sm text-muted-foreground">计划未找到</div>
@@ -68,7 +120,13 @@ export default function StudyPlan() {
           </div>
           <h1 className="text-lg font-bold">学习</h1>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+        <div className="flex gap-1 rounded-lg bg-muted p-1 w-fit">
+          <button onClick={function() { setTab('plan') }}
+            className={'px-5 py-2 text-sm font-medium rounded-md ' + (tab === 'plan' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}>学习计划</button>
+          <button onClick={function() { setTab('review') }}
+            className={'px-5 py-2 text-sm font-medium rounded-md ' + (tab === 'review' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}>复习</button>
+        </div>
+        {tab === 'plan' ? <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
           {plans.map(function(p) {
             return (
               <button key={p.id} onClick={function() { navigate('/study-plan/' + encodeURIComponent(p.name)) }}
@@ -87,8 +145,37 @@ export default function StudyPlan() {
               </button>
             )
           })}
-        </div>
-        {recitePoem ? reciteDialog(recitePoem, function(r) { finishRecite(r) }, function() { setRecitePoem(null) }) : null}
+          </div> : null}
+        {tab === 'review' ? <div className="space-y-3">
+          {reviewDone ? <div className="text-center py-8 text-sm text-muted-foreground"><p>今日复习已完成</p></div>
+          : dueReviews.length === 0 ? <div className="py-8 text-center text-sm text-muted-foreground">暂无待复习</div>
+          : <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">{reviewIdx + 1}/{dueReviews.length}</span>
+            </div>
+            <div className="h-1 rounded-full bg-muted overflow-hidden">
+              <div className="h-full rounded-full bg-primary transition-all" style={{ width: ((reviewIdx + 1) / dueReviews.length) * 100 + '%' }} />
+            </div>
+            <div className="rounded-xl border bg-card p-4 text-center space-y-2">
+              <h2 className="text-lg font-bold font-poem">{dueReviews[reviewIdx]?.poemTitle}</h2>
+              <p className="text-xs text-muted-foreground">{dueReviews[reviewIdx]?.poemAuthor}</p>
+              <div className="flex justify-center gap-1.5">
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">阶段{dueReviews[reviewIdx]?.stage}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={function() { handleReviewResult(dueReviews[reviewIdx], false) }}
+                className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 py-2.5 text-sm text-red-600 font-medium">
+                忘记了
+              </button>
+              <button onClick={function() { handleReviewResult(dueReviews[reviewIdx], true) }}
+                className="rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/20 py-2.5 text-sm text-emerald-600 font-medium">
+                记住了
+              </button>
+            </div>
+          </div>}
+        </div> : null}
+        {recitePoem ? <ReciteDialog poem={recitePoem} onResult={function(r) { finishRecite(r) }} onClose={function() { setRecitePoem(null) }} /> : null}
       </div>
     )
   }
@@ -126,41 +213,7 @@ export default function StudyPlan() {
           })}
         </div>
       </div>
-      {recitePoem ? reciteDialog(recitePoem, function(r) { finishRecite(r) }, function() { setRecitePoem(null) }) : null}
-    </div>
-  )
-}
-
-function reciteDialog(poem: any, onResult: Function, onClose: Function) {
-  if (!poem) return null
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={function() { onClose() }}>
-      <div className="bg-background rounded-2xl shadow-xl max-w-lg w-full max-h-[85vh] overflow-y-auto" onClick={function(e) { e.stopPropagation() }}>
-        <div className="p-4 lg:p-5 space-y-4">
-          <div className="flex items-center gap-2">
-            <button onClick={function() { onClose() }} className="text-sm text-muted-foreground">&times; 关闭</button>
-            <div className="flex-1" />
-            <button onClick={function() { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(poem.content.join('，')); u.lang = 'zh-CN'; u.rate = 0.85; window.speechSynthesis.speak(u) } }} className="inline-flex items-center gap-1 rounded-lg border bg-card px-2.5 py-1 text-xs font-medium">
-              <Volume2 className="h-3.5 w-3.5 text-primary" /> 朗读
-            </button>
-          </div>
-          <div className="text-center py-2 border-b">
-            <h2 className="text-lg font-bold font-poem">{poem.title}</h2>
-            <p className="text-xs text-muted-foreground mt-1">{poem.dynasty} · {poem.author}</p>
-          </div>
-          <div className="rounded-xl bg-gradient-to-b from-muted/50 to-muted/30 p-4">
-            <PoemContent content={poem.content} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <button onClick={function() { onResult(false) }} className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 py-3 text-sm text-red-600 font-medium">
-              <X className="h-4 w-4 inline mr-1" /> 忘记了
-            </button>
-            <button onClick={function() { onResult(true) }} className="rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/20 py-3 text-sm text-emerald-600 font-medium">
-              <Check className="h-4 w-4 inline mr-1" /> 记住了
-            </button>
-          </div>
-        </div>
-      </div>
+      {recitePoem ? <ReciteDialog poem={recitePoem} onResult={function(r) { finishRecite(r) }} onClose={function() { setRecitePoem(null) }} /> : null}
     </div>
   )
 }

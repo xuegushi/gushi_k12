@@ -254,7 +254,7 @@ export default function Progress() {
               var done = completed.has(p.title)
               return (
             <div key={p.title + '-' + p.author + '-' + p.grade}
-              onClick={function() { navigate('/poem/' + encodeURIComponent(p.title)) }}
+              onClick={function() {               navigate('/poems/' + encodeURIComponent(p.title)) }}
               className={'rounded-xl border p-2.5 cursor-pointer card-hover ' + (done ? 'bg-card border-emerald-200 dark:border-emerald-900/50' : 'bg-card')}>
               <div className="flex items-center gap-1.5">
                 {done && <Check className="h-3.5 w-3.5 shrink-0 text-emerald-500" />}

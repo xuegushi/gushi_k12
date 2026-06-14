@@ -8,9 +8,8 @@ export async function initPoems() {
   const storedVersion = localStorage.getItem('poems_data_version')
 
   if (storedVersion !== DATA_VERSION) {
-    // Clear poems and plans when data version changes
+    // Clear poems only when data version changes; keep study plans intact
     await db.poems.clear()
-    await db.studyPlans.clear()
     localStorage.setItem('poems_data_version', DATA_VERSION)
   }
 
