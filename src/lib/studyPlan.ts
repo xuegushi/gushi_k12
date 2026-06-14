@@ -3,12 +3,12 @@ import { useUserStore } from '../store/user'
 import { getNextReviewDate } from './recitation'
 
 export function getPlanLabel(grade: number, term: number): string {
-  if (grade === 10 && term === 1) return '必修（上册）'
-  if (grade === 10 && term === 2) return '必修（下册）'
-  if (grade === 11 && term === 1) return '选修（上册）'
-  if (grade === 11 && term === 2) return '选修（中册）'
-  if (grade === 12 && term === 1) return '选修（下册）'
-  if (grade === 12 && term === 2) return '选修（下册）'
+  if (grade === 10 && term === 1) return '高中必修（上册）'
+  if (grade === 10 && term === 2) return '高中必修（下册）'
+  if (grade === 11 && term === 1) return '高中选修（上册）'
+  if (grade === 11 && term === 2) return '高中选修（中册）'
+  if (grade === 12 && term === 1) return '高中选修（下册）'
+  if (grade === 12 && term === 2) return '高中选修（下册）'
   const gn = ['一', '二', '三', '四', '五', '六', '七', '八', '九']
   const tn = term === 1 ? '上学期' : '下学期'
   return grade <= 9 ? `${gn[grade - 1]}年级${tn}` : ''
@@ -28,10 +28,29 @@ export function getAllPlanConfigs(): { grade: number; term: number }[] {
   return configs
 }
 
+const COLLECTION_TO_GRADE_TERM: Record<string, { grade: number; term: number }> = {
+  '高中必修（上册）': { grade: 10, term: 1 },
+  '高中必修（下册）': { grade: 10, term: 2 },
+  '高中选修（上册）': { grade: 11, term: 1 },
+  '高中选修（中册）': { grade: 11, term: 2 },
+  '高中选修（下册）': { grade: 12, term: 1 },
+}
+
 export async function ensureDefaultPlans(): Promise<void> {
   const user = useUserStore.getState().currentUser
   if (!user) return
   const existing = await db.studyPlans.where('userId').equals(user.id!).toArray()
+
+  // Update existing high school plan names to add "高中" prefix
+  for (const plan of existing) {
+    if (plan.grade >= 10) {
+      const newName = getPlanLabel(plan.grade, plan.term)
+      if (plan.name !== newName) {
+        await db.studyPlans.update(plan.id!, { name: newName })
+      }
+    }
+  }
+
   const existingKeys = new Set(existing.map(p => `${p.grade}-${p.term}`))
   const configs = getAllPlanConfigs()
   const allPoems = await db.poems.toArray()
@@ -40,7 +59,13 @@ export async function ensureDefaultPlans(): Promise<void> {
     const key = `${cfg.grade}-${cfg.term}`
     if (existingKeys.has(key)) continue
 
-    const matching = allPoems.filter(p => p.grade === cfg.grade && p.term === cfg.term)
+    const matching = allPoems.filter(p => {
+      if (p.collection_label) {
+        const mapping = COLLECTION_TO_GRADE_TERM[p.collection_label]
+        return mapping && mapping.grade === cfg.grade && mapping.term === cfg.term
+      }
+      return p.grade === cfg.grade && p.term === cfg.term
+    })
     // Deduplicate by title
     const seen = new Set<string>()
     const titles: string[] = []
