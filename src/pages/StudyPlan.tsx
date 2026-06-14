@@ -55,24 +55,6 @@ export default function StudyPlan() {
     if (poem) setRecitePoem(poem)
   }
 
-  async function finishRecite(remembered: boolean) {
-    var p = recitePoem
-    if (!p || !selected) { setRecitePoem(null); return }
-    if (remembered) await handleToggle(p.title, true)
-    var user = useUserStore.getState().currentUser
-    if (!user || !p) { setRecitePoem(null); return }
-    var existing = await db.reviewRecords.where('userId').equals(user.id!).and(function(r) { return r.poemTitle === p.title }).first()
-    var now = new Date()
-    if (existing) {
-      var ns = remembered ? Math.min(existing.stage + 1, 6) : 0
-      if (ns >= 6) { await db.reviewRecords.delete(existing.id!) }
-      else { await db.reviewRecords.update(existing.id!, { stage: ns, lastReviewedAt: now, nextReviewAt: getNextReviewDate(ns, now), reviewCount: (existing.reviewCount || 0) + 1 }) }
-    } else if (remembered) {
-      await db.reviewRecords.add({ userId: user.id!, poemTitle: p.title, poemAuthor: p.author, stage: 1, lastReviewedAt: now, nextReviewAt: getNextReviewDate(1, now), reviewCount: 1 })
-    }
-    setRecitePoem(null)
-  }
-
   if (loading) return <div className="py-16 text-center text-sm text-muted-foreground">加载中...</div>
   if (!loading && plans.length === 0) return <div className="py-16 text-center text-sm text-muted-foreground">暂无计划</div>
   if (planName && !selected) return <div className="py-16 text-center text-sm text-muted-foreground">计划未找到</div>
@@ -84,7 +66,7 @@ export default function StudyPlan() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600">
             <Library className="h-4 w-4" />
           </div>
-          <h1 className="text-lg font-bold">学习计划</h1>
+          <h1 className="text-lg font-bold">学习</h1>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
           {plans.map(function(p) {
