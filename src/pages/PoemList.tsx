@@ -177,7 +177,7 @@ export default function PoemList() {
             {filtered.map(function(p) {
               return (
                 <div key={p.title + '-' + p.author + '-' + p.grade}
-                  onClick={function() { navigate('/poem/' + encodeURIComponent(p.title)) }}
+                  onClick={function() { navigate('/poems/' + encodeURIComponent(p.title)) }}
                   className="group rounded-xl border bg-card p-4 card-hover cursor-pointer">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
@@ -265,7 +265,7 @@ export default function PoemList() {
                     {colPoems.map(function(p) {
                       return (
                         <div key={p.title}
-                          onClick={function() { navigate('/poem/' + encodeURIComponent(p.title)) }}
+                          onClick={function() { navigate('/poems/' + encodeURIComponent(p.title)) }}
                           className="group rounded-xl border bg-card p-4 card-hover cursor-pointer">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1 min-w-0">
