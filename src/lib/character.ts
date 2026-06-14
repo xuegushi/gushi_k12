@@ -41,7 +41,7 @@ export function getCharInfo(char: string): CharDetail | null {
   return {
     char,
     pinyin: p,
-    strokeCount: stroke,
+    strokeCount: typeof stroke === 'number' ? stroke : 0,
     radical,
     words,
     explain,

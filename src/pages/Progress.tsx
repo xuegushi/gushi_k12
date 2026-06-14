@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useStore } from '../store'
 import { useUserStore } from '../store/user'
 import { db } from '../lib/db'
-import { Search, Check, BookOpen, Flame, CalendarDays, TrendingUp, History, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react'
+import { Search, Check, BookOpen, Flame, TrendingUp, History, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 const TYPES = ['全部', '诗', '词', '文言文']
@@ -236,7 +236,7 @@ export default function Progress() {
               })}
             </div>
             <div className="grid grid-cols-3 gap-3">
-              {[['小学', [1, 2, 3, 4, 5, 6]], ['初中', [7, 8, 9]], ['高中', [10, 11, 12]]].map(function([label, grades]) {
+              {([['小学', [1, 2, 3, 4, 5, 6]], ['初中', [7, 8, 9]], ['高中', [10, 11, 12]]] as [string, number[]][]).map(function([label, grades]) {
                 var t = poems.filter(function(p) { return grades.includes(p.grade) }).length
                 var d = poems.filter(function(p) { return grades.includes(p.grade) && completed.has(p.title) }).length
                 var pp = t > 0 ? Math.round(d / t * 100) : 0

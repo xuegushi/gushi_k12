@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+
 import { useUserStore } from '../store/user'
 import { useUIConfig, type ColorScheme } from '../store/ui'
 import { Sun, Moon, Info, User, ChevronRight, Palette, Sparkles } from 'lucide-react'

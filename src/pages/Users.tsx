@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useUserStore } from '../store/user'
-import { User, Check, Plus, ChevronRight, LogOut } from 'lucide-react'
+import { User, Check, Plus, ChevronRight } from 'lucide-react'
 
 export default function Users() {
   const { users, currentUser, switchUser, createUser } = useUserStore()

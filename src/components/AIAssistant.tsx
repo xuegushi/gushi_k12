@@ -49,7 +49,8 @@ export default function AIAssistant() {
   useEffect(function() {
     if (!currentCfg) { setAvailModels([]); return }
     // Use hardcoded list first
-    var platform = getPlatforms().find(function(p) { return p.id === currentCfg.platform })
+    var cfg = currentCfg
+    var platform = getPlatforms().find(function(p) { return p.id === cfg.platform })
     if (platform) setAvailModels(platform.models)
     // Try API fetch
     fetchModels(currentCfg.platform, currentCfg.apiKey).then(function(list) {
@@ -242,7 +243,7 @@ export default function AIAssistant() {
             <p className="text-sm text-muted-foreground mb-4">确定要删除这条记录吗？</p>
             <div className="flex gap-2 justify-end">
               <button onClick={function() { setDeleteTarget(null) }} className="px-3 py-1.5 rounded-lg border text-sm">取消</button>
-              <button onClick={function() { deleteMsg(deleteTarget); setDeleteTarget(null) }} className="px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-sm font-medium">删除</button>
+              <button onClick={function() { if (deleteTarget !== null) { deleteMsg(deleteTarget); setDeleteTarget(null) } }} className="px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-sm font-medium">删除</button>
             </div>
           </div>
         </div>

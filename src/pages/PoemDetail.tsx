@@ -4,7 +4,7 @@ import { useStore } from '../store'
 import { useSelectionStore } from '../store/selection'
 import { useUserStore } from '../store/user'
 import { db } from '../lib/db'
-import { ArrowLeft, Volume2, Heart, BookOpen, User, GraduationCap, Play, ChevronDown, Star, Languages, Sparkles, Check, X } from 'lucide-react'
+import { ArrowLeft, Volume2, Heart, BookOpen, User, GraduationCap, Play, ChevronDown, Star, Languages, Sparkles } from 'lucide-react'
 import { PinyinText } from '../components/PinyinText'
 import { chat } from '../lib/ai'
 import { getNextReviewDate } from '../lib/recitation'
@@ -28,21 +28,23 @@ export default function PoemDetail() {
 
   useEffect(function() {
     if (!poem || !userId) return
-    db.favorites.where('userId').equals(userId).and(function(f) { return f.poemTitle === poem.title }).first().then(function(f) { setIsFav(!!f) })
+    var p = poem
+    db.favorites.where('userId').equals(userId).and(function(f) { return f.poemTitle === p.title }).first().then(function(f) { setIsFav(!!f) })
     useSelectionStore.getState().setPoemContext({
-      title: poem.title, author: poem.author, content: poem.content.join(''),
+      title: p.title, author: p.author, content: p.content.join(''),
     })
     return function() { useSelectionStore.getState().setPoemContext(null) }
   }, [poem])
 
   var toggleFav = async function() {
     if (!poem || !userId) return
+    var p = poem
     if (isFav) {
-      var f = await db.favorites.where('userId').equals(userId).and(function(f) { return f.poemTitle === poem.title }).first()
+      var f = await db.favorites.where('userId').equals(userId).and(function(f) { return f.poemTitle === p.title }).first()
       if (f && f.id) await db.favorites.delete(f.id)
       setIsFav(false)
     } else {
-      await db.favorites.add({ userId: userId, poemTitle: poem.title, createdAt: new Date() })
+      await db.favorites.add({ userId: userId, poemTitle: p.title, createdAt: new Date() })
       setIsFav(true)
     }
   }
@@ -58,6 +60,8 @@ export default function PoemDetail() {
 
   if (!poem) return <div className="py-24 text-center text-sm text-muted-foreground">诗词未找到</div>
 
+  var p = poem
+
   var generateContent = async function(field: string, prompt: string) {
     if (!poem) return
     var aiConfigs = useStore.getState().aiConfigs
@@ -65,7 +69,7 @@ export default function PoemDetail() {
     if (!cfg) return
     setAiLoading(field)
     try {
-      var fullPrompt = prompt + '\n\n诗词：《' + poem.title + '》' + poem.author + '\n' + poem.content.join('')
+      var fullPrompt = prompt + '\n\n诗词：《' + p.title + '》' + p.author + '\n' + p.content.join('')
       var reply = await chat(cfg.platform, cfg.apiKey, [{ role: 'user', content: fullPrompt }], cfg.model)
       setAiContent(function(prev) { return { ...prev, [field]: reply } })
     } catch (err: any) {
@@ -78,7 +82,7 @@ export default function PoemDetail() {
     if (!poem) return
     var user = useUserStore.getState().currentUser
     if (!user) return
-    var existing = await db.reviewRecords.where({ userId: user.id, poemTitle: poem.title }).first()
+    var existing = await db.reviewRecords.where({ userId: user.id, poemTitle: p.title }).first()
     var now = new Date()
     if (existing) {
       var ns = remembered ? Math.min(existing.stage + 1, 6) : 0
@@ -86,7 +90,7 @@ export default function PoemDetail() {
       else { await db.reviewRecords.update(existing.id!, { stage: ns, lastReviewedAt: now, nextReviewAt: getNextReviewDate(ns, now), reviewCount: (existing.reviewCount || 0) + 1 }) }
     } else {
       var ns = remembered ? 1 : 0
-      await db.reviewRecords.add({ userId: user.id, poemTitle: poem.title, poemAuthor: poem.author || '', stage: ns, lastReviewedAt: now, nextReviewAt: getNextReviewDate(ns, now), reviewCount: 1 })
+      await db.reviewRecords.add({ userId: user.id!, poemTitle: p.title, poemAuthor: p.author || '', stage: ns, lastReviewedAt: now, nextReviewAt: getNextReviewDate(ns, now), reviewCount: 1 })
     }
     setReciting(false)
   }
@@ -108,14 +112,14 @@ export default function PoemDetail() {
       </div>
 
       <div className="text-center py-6 lg:py-8 border-b mb-4">
-        <h1 className="text-2xl lg:text-3xl font-bold font-poem tracking-wide">{poem.title}</h1>
-        <p className="text-sm lg:text-base text-muted-foreground mt-2">{poem.dynasty} · {poem.author}</p>
+        <h1 className="text-2xl lg:text-3xl font-bold font-poem tracking-wide">{p.title}</h1>
+        <p className="text-sm lg:text-base text-muted-foreground mt-2">{p.dynasty} · {p.author}</p>
         <div className="flex justify-center gap-2 mt-3 flex-wrap">
-          <span className="text-xs px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{poem.type}</span>
-          <span className="text-xs px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground">{GRADE_FULL[poem.grade]}</span>
-          <span className="text-xs px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground">难度 {poem.difficulty}</span>
-          {poem.examFrequency > 0 && <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 flex items-center gap-0.5">
-            {Array.from({ length: Math.min(poem.examFrequency, 5) }).map(function(_, i) { return <Star key={i} className="h-3 w-3 fill-current" /> })}
+          <span className="text-xs px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{p.type}</span>
+          <span className="text-xs px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground">{GRADE_FULL[p.grade]}</span>
+          <span className="text-xs px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground">难度 {p.difficulty}</span>
+          {p.examFrequency > 0 && <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 flex items-center gap-0.5">
+            {Array.from({ length: Math.min(p.examFrequency, 5) }).map(function(_, i) { return <Star key={i} className="h-3 w-3 fill-current" /> })}
           </span>}
         </div>
       </div>
@@ -138,10 +142,10 @@ export default function PoemDetail() {
             className={'inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ' + (showPy ? 'bg-card text-foreground shadow-sm' : 'bg-card text-muted-foreground')}>
             <Languages className="h-3.5 w-3.5" />拼音
           </button>
-          <button onClick={function() { speak(poem.content.join('，')) }} className="inline-flex items-center gap-1 rounded-lg border bg-card px-2.5 py-1.5 text-xs font-medium card-hover">
-            <Volume2 className="h-3.5 w-3.5 text-primary" /> {poem.grade > 0 ? '朗读全诗' : '朗读'}
+          <button onClick={function() { speak(p.content.join('，')) }} className="inline-flex items-center gap-1 rounded-lg border bg-card px-2.5 py-1.5 text-xs font-medium card-hover">
+            <Volume2 className="h-3.5 w-3.5 text-primary" /> {p.grade > 0 ? '朗读全诗' : '朗读'}
           </button>
-          {poem.grade > 0 && (
+          {p.grade > 0 && (
             <button onClick={function() { setReciting(true) }} className="inline-flex items-center gap-1 rounded-lg bg-primary text-primary-foreground px-2.5 py-1.5 text-xs font-medium card-hover">
               <Play className="h-3.5 w-3.5" /> 开始背诵
             </button>
@@ -152,16 +156,16 @@ export default function PoemDetail() {
       {tab === 'content' ? (
         <div className="space-y-4">
             {reciting ? <div className="text-center text-lg lg:text-xl leading-8 lg:leading-10 font-poem tracking-wide text-muted-foreground/40">
-              {poem.content.map(function(line, i) {
+              {p.content.map(function(line, i) {
                 return <p key={i}>{line.replace(/[\u4e00-\u9fff]/g, '**')}</p>
               })}
             </div> : <div className="rounded-xl lg:rounded-2xl bg-gradient-to-b from-muted/50 to-muted/30 p-6 lg:p-10">
-              {poem.content.map(function(line, i) {
+              {p.content.map(function(line, i) {
                 return <p key={i} className="text-center text-lg lg:text-xl leading-8 lg:leading-10 font-poem tracking-wide"><PinyinText text={line} show={showPy} /></p>
               })}
             </div>}
-          {poem.author_info && AuthorInfo(poem)}
-          {poem.translation ? TextBlock(poem.translation, '译文', 'emerald') : (
+          {p.author_info && AuthorInfo(poem)}
+          {p.translation ? TextBlock(p.translation, '译文', 'emerald') : (
             <div className="rounded-xl border bg-card p-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
@@ -176,7 +180,7 @@ export default function PoemDetail() {
               {aiContent.translation && <div className="text-sm text-muted-foreground whitespace-pre-wrap">{aiContent.translation}</div>}
             </div>
           )}
-          {poem.annotation ? CollapseBlock(poem.annotation, '注释', 'amber') : (
+          {p.annotation ? CollapseBlock(p.annotation, '注释', 'amber') : (
             <details className="rounded-xl border bg-card">
               <summary className="text-sm font-medium p-4 lg:p-5 cursor-pointer flex items-center gap-1.5 text-muted-foreground" style={{ listStyle: 'none' }}>
                 <span className="flex items-center gap-1.5 flex-1">
@@ -192,7 +196,7 @@ export default function PoemDetail() {
               {aiContent.annotation && <div className="px-4 lg:px-5 pb-4 lg:pb-5 text-sm whitespace-pre-wrap text-muted-foreground">{aiContent.annotation}</div>}
             </details>
           )}
-          {poem.appreciation ? CollapseBlock(poem.appreciation, '赏析', 'sky') : (
+          {p.appreciation ? CollapseBlock(p.appreciation, '赏析', 'sky') : (
             <details className="rounded-xl border bg-card">
               <summary className="text-sm font-medium p-4 lg:p-5 cursor-pointer flex items-center gap-1.5 text-muted-foreground" style={{ listStyle: 'none' }}>
                 <span className="flex items-center gap-1.5 flex-1">
@@ -208,7 +212,7 @@ export default function PoemDetail() {
               {aiContent.appreciation && <div className="px-4 lg:px-5 pb-4 lg:pb-5 text-sm whitespace-pre-wrap text-muted-foreground">{aiContent.appreciation}</div>}
             </details>
           )}
-          {poem.background ? CollapseBlock(poem.background, '创作背景', 'purple') : (
+          {p.background ? CollapseBlock(p.background, '创作背景', 'purple') : (
             <details className="rounded-xl border bg-card">
               <summary className="text-sm font-medium p-4 lg:p-5 cursor-pointer flex items-center gap-1.5 text-muted-foreground" style={{ listStyle: 'none' }}>
                 <span className="flex items-center gap-1.5 flex-1">
@@ -227,7 +231,7 @@ export default function PoemDetail() {
         </div>
       ) : (
         <div className="space-y-3 lg:space-y-4">
-          {poem.exam_points && poem.exam_points.length > 0 && ExamPoints(poem.exam_points)}
+          {p.exam_points && p.exam_points.length > 0 && ExamPoints(p.exam_points)}
         </div>
       )}
       {reciting ? <ReciteDialog poem={poem} onResult={handleRecite} onClose={closeRecite} /> : null}

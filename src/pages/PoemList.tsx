@@ -254,8 +254,6 @@ export default function PoemList() {
                     <h2 className="text-sm font-medium mb-2 text-muted-foreground">{group}</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                       {colList.map(function([name, poemTitles]) {
-                        // Count poems that exist in our data
-                        var existing = poemTitles.filter(function(t) { return poems.some(function(p) { return p.title === t }) }).length
                         return (
                           <button key={name} onClick={function() { setSelectedCollection(name) }}
                             className="text-left rounded-xl border bg-card p-3 card-hover">

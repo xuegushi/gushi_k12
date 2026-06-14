@@ -3,11 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../store'
 import { useUserStore } from '../store/user'
 import { db } from '../lib/db'
-import { ensureDefaultPlans, togglePoemComplete, resetPlanProgress } from '../lib/studyPlan'
+import { ensureDefaultPlans, resetPlanProgress } from '../lib/studyPlan'
 import { getNextReviewDate } from '../lib/recitation'
-import PoemContent from '../components/PoemContent'
 import ReciteDialog from '../components/ReciteDialog'
-import { Check, RotateCcw, ChevronRight, Library, Volume2, X } from 'lucide-react'
+import { Check, RotateCcw, ChevronRight, Library } from 'lucide-react'
 
 export default function StudyPlan() {
   var navigate = useNavigate()
@@ -27,11 +26,11 @@ export default function StudyPlan() {
     var user = currentUser
     if (!user) { user = useUserStore.getState().currentUser; if (!user) { setLoading(false); return } }
     ensureDefaultPlans().then(function() {
-      db.studyPlans.where('userId').equals(user.id!).toArray().then(function(all) {
+      db.studyPlans.where('userId').equals(user!.id!).toArray().then(function(all) {
         setPlans(all)
         setLoading(false)
         if (planName) {
-          var p = all.find(function(x) { return x.name === decodeURIComponent(planName) })
+          var p = all.find(function(x) { return x.name === decodeURIComponent(planName || '') })
           if (p) setSelected(p)
         }
       })
@@ -52,14 +51,6 @@ export default function StudyPlan() {
   }, [tab, currentUser])
 
   function pct(p: any) { return Math.round(((p.completedTitles?.length || 0) / (p.poemTitles?.length || 1)) * 100) }
-
-  async function handleToggle(title: string, checked: boolean) {
-    if (!selected) return
-    await togglePoemComplete(selected.id!, title, checked)
-    var updated = await db.studyPlans.get(selected.id!)
-    setSelected(updated)
-    setPlans(await db.studyPlans.where('userId').equals(currentUser!.id!).toArray())
-  }
 
   async function handleReset() {
     if (!selected) return
@@ -91,10 +82,10 @@ export default function StudyPlan() {
     if (existing) {
       stage = remembered ? Math.min(existing.stage + 1, 6) : 0
       reviewCount = (existing.reviewCount || 0) + 1
-      await db.reviewRecords.update(existing.id, { stage: stage, lastReviewedAt: now, nextReviewAt: getNextReviewDate(stage, now), reviewCount: reviewCount })
+      await db.reviewRecords.update(existing.id!, { stage: stage, lastReviewedAt: now, nextReviewAt: getNextReviewDate(stage, now), reviewCount: reviewCount })
     } else {
       stage = remembered ? 1 : 0
-      await db.reviewRecords.add({ userId: currentUser.id, poemTitle: recitePoem.title, poemAuthor: recitePoem.author || '', stage: stage, lastReviewedAt: now, nextReviewAt: getNextReviewDate(stage, now), reviewCount: 1 })
+      await db.reviewRecords.add({ userId: currentUser!.id!, poemTitle: recitePoem.title, poemAuthor: recitePoem.author || '', stage: stage, lastReviewedAt: now, nextReviewAt: getNextReviewDate(stage, now), reviewCount: 1 })
     }
     if (selected && remembered) {
       var titles = selected.completedTitles || []
@@ -195,7 +186,7 @@ export default function StudyPlan() {
         </div>
         <p className="text-xs text-muted-foreground text-right">{selected?.completedTitles?.length || 0}/{selected?.poemTitles?.length || 0} 已完成</p>
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
-          {selected?.poemTitles?.map(function(title, idx) {
+          {selected?.poemTitles?.map(function(title: string, idx: number) {
             var done = selected?.completedTitles?.includes(title)
             return (
               <div key={title + '-' + idx} className={'rounded-xl border p-5 card-hover cursor-pointer transition-colors ' + (done ? 'bg-muted/30 border-muted' : 'bg-card')}>

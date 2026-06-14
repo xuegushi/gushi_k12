@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useStore } from '../store'
-import { BookText, RotateCcw, Library, TrendingUp, ChevronRight, GraduationCap } from 'lucide-react'
+import { RotateCcw, Library, TrendingUp, ChevronRight } from 'lucide-react'
 
 const GRADE_MAP = [
   { grade: 1, name: '一', full: '一年级', color: 'from-emerald-400 to-emerald-500' },
@@ -103,7 +103,7 @@ export default function Home() {
           <span className="text-xs text-muted-foreground">选择年级开始学习</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
-          {GRADE_MAP.map(({ grade, name, full, color }) => {
+          {GRADE_MAP.map(({ grade, full, color }) => {
             const count = poems.filter(p => p.grade === grade).length
             return (
               <Link

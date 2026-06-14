@@ -1,7 +1,7 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useUserStore } from '../store/user'
 import { useUIConfig } from '../store/ui'
-import { BookOpen, Home, Library, Settings, TrendingUp, RotateCcw, Sun, Moon, GraduationCap, User } from 'lucide-react'
+import { BookOpen, Home, Library, Settings, TrendingUp, Sun, Moon, GraduationCap } from 'lucide-react'
 
 const NAV = [
   { path: '/', label: '首页', icon: Home },

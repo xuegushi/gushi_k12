@@ -8,7 +8,6 @@ import { Check, X, RotateCcw, Volume2, BookOpen } from 'lucide-react'
 import PoemContent from '../components/PoemContent'
 
 const STAGE_LABELS = ['第1天', '第2天', '第4天', '第7天', '第15天', '第30天', '第60天']
-const GRADE_FULL = ['', '一年级', '二年级', '三年级', '四年级', '五年级', '六年级', '七年级', '八年级', '九年级', '高一', '高二', '高三']
 
 export default function Review() {
   var poems = useStore(function(s) { return s.poems })
@@ -17,7 +16,7 @@ export default function Review() {
   var poemTitle = searchParams.get('poem')
 
   // If coming from a specific poem, show its content directly
-  var targetPoem = poemTitle ? poems.find(function(p) { return p.title === decodeURIComponent(poemTitle) }) : null
+  var targetPoem = poemTitle ? poems.find(function(p) { return p.title === decodeURIComponent(poemTitle || '') }) : null
 
   var [records, setRecords] = useState<(ReviewRecord & { poem?: any })[]>([])
   var [idx, setIdx] = useState(0)
@@ -89,36 +88,37 @@ export default function Review() {
       else { await db.reviewRecords.update(existing.id!, { stage: ns, lastReviewedAt: now, nextReviewAt: getNextReviewDate(ns, now), reviewCount: (existing.reviewCount || 0) + 1 }) }
     } else {
       var ns = remembered ? 1 : 0
-      await db.reviewRecords.add({ userId: user.id, poemTitle: targetPoem.title, poemAuthor: targetPoem.author || '', stage: ns, lastReviewedAt: now, nextReviewAt: getNextReviewDate(ns, now), reviewCount: 1 })
+      await db.reviewRecords.add({ userId: user.id!, poemTitle: targetPoem.title, poemAuthor: targetPoem.author || '', stage: ns, lastReviewedAt: now, nextReviewAt: getNextReviewDate(ns, now), reviewCount: 1 })
     }
     loadReviewRecords()
   }
 
   if (targetPoem) {
+    var tp = targetPoem
     return (
       <div className="space-y-4 animate-fade-up">
         <div className="flex items-center gap-2">
-          <Link to={'/poems/' + encodeURIComponent(targetPoem.title)} className="p-1 -ml-1 text-muted-foreground hover:text-foreground">
+          <Link to={'/poems/' + encodeURIComponent(tp.title)} className="p-1 -ml-1 text-muted-foreground hover:text-foreground">
             <RotateCcw className="h-5 w-5" />
           </Link>
           <div className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600">
             <BookOpen className="h-4 w-4" />
           </div>
-            <h1 className="text-lg font-bold">背诵 - {targetPoem.title}</h1>
+            <h1 className="text-lg font-bold">背诵 - {tp.title}</h1>
           </div>
         </div>
 
         <div className="text-center py-4 border-b">
-          <h2 className="text-xl font-bold font-poem">{targetPoem.title}</h2>
-          <p className="text-sm text-muted-foreground mt-1">{targetPoem.dynasty} · {targetPoem.author}</p>
-          <button onClick={function() { speak(targetPoem.content.join('，')) }} className="mt-2 inline-flex items-center gap-1 rounded-lg border bg-card px-2.5 py-1 text-xs font-medium card-hover">
+          <h2 className="text-xl font-bold font-poem">{tp.title}</h2>
+          <p className="text-sm text-muted-foreground mt-1">{tp.dynasty} · {tp.author}</p>
+          <button onClick={function() { speak(tp.content.join('，')) }} className="mt-2 inline-flex items-center gap-1 rounded-lg border bg-card px-2.5 py-1 text-xs font-medium card-hover">
             <Volume2 className="h-3.5 w-3.5 text-primary" /> 朗读
           </button>
         </div>
 
         <div className="rounded-xl bg-gradient-to-b from-muted/50 to-muted/30 p-4 lg:p-6">
-          <PoemContent content={targetPoem.content} onModeChange={function() {}} />
+          <PoemContent content={tp.content} onModeChange={function() {}} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -210,9 +210,9 @@ export default function Review() {
           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{STAGE_LABELS[current.stage]}</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">复习 {current.reviewCount || 0} 次</span>
         </div>
-        {current.poem && (
+            {current.poem && (
           <div className="rounded-xl bg-gradient-to-b from-muted/50 to-muted/30 p-3 mt-1">
-            {current.poem.content.map(function(line, i) {
+            {current.poem.content.map(function(line: string, i: number) {
               return <p key={i} className="text-sm leading-6 font-poem">{line}</p>
             })}
           </div>
