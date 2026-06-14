@@ -66,16 +66,3 @@ src/
 └── index.css       # 全局样式 + 5套配色方案
 ```
 
-## 数据导出
-
-```bash
-# 课内诗词导出
-node scripts/export-all.mjs
-
-# 课外诗单导出（需要 MongoDB 连接）
-node scripts/export-collections.mjs
-node scripts/export-collection-poems.mjs
-node scripts/enrich-collection-poems.mjs
-```
-
-需要 MongoDB 连接配置在 `.env` 中（参考 poetry-quiz-system 项目）。
