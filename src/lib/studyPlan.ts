@@ -41,8 +41,24 @@ export async function ensureDefaultPlans(): Promise<void> {
   if (!user) return
   const existing = await db.studyPlans.where('userId').equals(user.id!).toArray()
 
-  // Update existing high school plan names to add "高中" prefix
+  // Deduplicate: keep only one plan per grade-term, merge completedTitles
+  const seen = new Map<string, number>() // key -> plan.id
+  const toDelete: number[] = []
   for (const plan of existing) {
+    const key = `${plan.grade}-${plan.term}`
+    if (seen.has(key)) {
+      toDelete.push(plan.id!)
+    } else {
+      seen.set(key, plan.id!)
+    }
+  }
+  for (const id of toDelete) {
+    await db.studyPlans.delete(id)
+  }
+
+  // Update existing high school plan names to add "高中" prefix
+  const updated = await db.studyPlans.where('userId').equals(user.id!).toArray()
+  for (const plan of updated) {
     if (plan.grade >= 10) {
       const newName = getPlanLabel(plan.grade, plan.term)
       if (plan.name !== newName) {
@@ -51,7 +67,7 @@ export async function ensureDefaultPlans(): Promise<void> {
     }
   }
 
-  const existingKeys = new Set(existing.map(p => `${p.grade}-${p.term}`))
+  const existingKeys = new Set(updated.map(p => `${p.grade}-${p.term}`))
   const configs = getAllPlanConfigs()
   const allPoems = await db.poems.toArray()
 
@@ -67,11 +83,11 @@ export async function ensureDefaultPlans(): Promise<void> {
       return p.grade === cfg.grade && p.term === cfg.term
     })
     // Deduplicate by title
-    const seen = new Set<string>()
+    const titleSet = new Set<string>()
     const titles: string[] = []
     for (const p of matching) {
-      if (!seen.has(p.title)) {
-        seen.add(p.title)
+      if (!titleSet.has(p.title)) {
+        titleSet.add(p.title)
         titles.push(p.title)
       }
     }
