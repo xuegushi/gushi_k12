@@ -88,7 +88,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 p-4 lg:p-6 lg:max-w-screen-xl lg:mx-auto w-full">
+        <main className="flex-1 p-4 lg:p-6 lg:max-w-screen-xl lg:mx-auto w-full pb-16 max-w-full">
           {children}
         </main>
       </div>

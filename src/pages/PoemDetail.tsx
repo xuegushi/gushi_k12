@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useStore } from '../store'
 import { useSelectionStore } from '../store/selection'
 import { useUserStore } from '../store/user'
 import { db } from '../lib/db'
-import { ArrowLeft, Volume2, Heart, BookOpen, User, GraduationCap, Play, ChevronDown, Star, Languages } from 'lucide-react'
+import { ArrowLeft, Volume2, Heart, BookOpen, User, GraduationCap, Play, ChevronDown, Star, Languages, Sparkles } from 'lucide-react'
 import { PinyinText } from '../components/PinyinText'
+import { chat } from '../lib/ai'
 
 const GRADE_FULL = ['', '一年级', '二年级', '三年级', '四年级', '五年级', '六年级', '七年级', '八年级', '九年级', '高一', '高二', '高三']
 
@@ -17,6 +18,9 @@ export default function PoemDetail() {
   var [tab, setTab] = useState('content')
   var [isFav, setIsFav] = useState(false)
   var [showPy, setShowPy] = useState(false)
+  var [aiLoading, setAiLoading] = useState('')
+  var [aiContent, setAiContent] = useState<Record<string, string>>({})
+  var navigate = useNavigate()
   var userId = useUserStore(function(s) { return s.currentUser?.id })
 
   useEffect(function() {
@@ -51,13 +55,29 @@ export default function PoemDetail() {
 
   if (!poem) return <div className="py-24 text-center text-sm text-muted-foreground">诗词未找到</div>
 
+  var generateContent = async function(field: string, prompt: string) {
+    if (!poem) return
+    var aiConfigs = useStore.getState().aiConfigs
+    var cfg = aiConfigs.find(function(c) { return c.enabled && c.apiKey })
+    if (!cfg) return
+    setAiLoading(field)
+    try {
+      var fullPrompt = prompt + '\n\n诗词：《' + poem.title + '》' + poem.author + '\n' + poem.content.join('')
+      var reply = await chat(cfg.platform, cfg.apiKey, [{ role: 'user', content: fullPrompt }], cfg.model)
+      setAiContent(function(prev) { return { ...prev, [field]: reply } })
+    } catch (err: any) {
+      setAiContent(function(prev) { return { ...prev, [field]: '生成失败：' + err.message } })
+    }
+    setAiLoading('')
+  }
+
   return (
     <div className="page-enter">
       <div className="flex items-center gap-2 mb-4">
-        <Link to="/poems" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <button onClick={function() { navigate(-1) }} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="h-4 w-4" />
           返回列表
-        </Link>
+        </button>
         <div className="flex-1" />
         <button onClick={toggleFav} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <Heart className={isFav ? 'fill-red-500 text-red-500 h-4 w-4' : 'h-4 w-4'} />
@@ -90,33 +110,104 @@ export default function PoemDetail() {
             )
           })}
         </div>
+        {poem.grade > 0 && (
         <div className="flex-1" />
+        )}
+        {poem.grade > 0 && (
         <button onClick={function() { setShowPy(!showPy) }}
           className={'px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ' + (showPy ? 'bg-card text-foreground shadow-sm border' : 'text-muted-foreground hover:text-foreground border border-transparent')}>
           <Languages className="h-3.5 w-3.5 inline mr-0.5" />拼音
         </button>
+        )}
       </div>
 
       {tab === 'content' ? (
         <div className="space-y-4">
+          <div className={'gap-3 lg:gap-4 ' + (poem.grade > 0 ? 'grid grid-cols-2' : 'flex items-center justify-end')}>
+            <button onClick={function() { speak(poem.content.join('，')) }} className={'flex items-center justify-center gap-2 rounded-xl border bg-card text-sm font-medium card-hover ' + (poem.grade > 0 ? 'py-3 lg:py-3.5' : 'px-4 py-2')}>
+              <Volume2 className="h-4 w-4 text-primary" /> {poem.grade > 0 ? '朗读全诗' : '朗读'}
+            </button>
+            {poem.grade > 0 && (
+              <Link to={'/review?poem=' + encodeURIComponent(poem.title)} className="flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 lg:py-3.5 text-sm font-medium card-hover">
+                <Play className="h-4 w-4" /> 开始背诵
+              </Link>
+            )}
+            {poem.grade === 0 && (
+              <button onClick={function() { setShowPy(!showPy) }}
+                className={'px-4 py-2 rounded-xl border text-sm font-medium transition-colors ' + (showPy ? 'bg-card text-foreground shadow-sm' : 'bg-card text-muted-foreground')}>
+                <Languages className="h-4 w-4 inline mr-1" />拼音
+              </button>
+            )}
+          </div>
           <div className="rounded-xl lg:rounded-2xl bg-gradient-to-b from-muted/50 to-muted/30 p-6 lg:p-10">
             {poem.content.map(function(line, i) {
               return <p key={i} className="text-center text-lg lg:text-xl leading-8 lg:leading-10 font-poem tracking-wide"><PinyinText text={line} show={showPy} /></p>
             })}
           </div>
-          <div className="grid grid-cols-2 gap-3 lg:gap-4">
-            <button onClick={function() { speak(poem.content.join('，')) }} className="flex items-center justify-center gap-2 rounded-xl border bg-card py-3 lg:py-3.5 text-sm font-medium card-hover">
-              <Volume2 className="h-4 w-4 text-primary" /> 朗读全诗
-            </button>
-            <Link to={'/review?poem=' + encodeURIComponent(poem.title)} className="flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 lg:py-3.5 text-sm font-medium card-hover">
-              <Play className="h-4 w-4" /> 开始背诵
-            </Link>
-          </div>
           {poem.author_info && AuthorInfo(poem)}
-          {poem.translation && TextBlock(poem.translation, '译文', 'emerald')}
-          {poem.annotation && CollapseBlock(poem.annotation, '注释', 'amber')}
-          {poem.appreciation && CollapseBlock(poem.appreciation, '赏析', 'sky')}
-          {poem.background && CollapseBlock(poem.background, '创作背景', 'purple')}
+          {poem.translation ? TextBlock(poem.translation, '译文', 'emerald') : (
+            <div className="rounded-xl border bg-card p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                  <BookOpen className="h-4 w-4 text-emerald-500" /> 译文
+                </h3>
+                {aiLoading === 'translation' ? <span className="text-xs text-muted-foreground">生成中...</span> : !aiContent.translation && (
+                  <button onClick={function() { generateContent('translation', '请直接将这首古诗翻译为现代汉语，不要任何前缀、标题或额外说明') }} className="text-xs flex items-center gap-1 text-primary">
+                    <Sparkles className="h-3 w-3" /> AI生成
+                  </button>
+                )}
+              </div>
+              {aiContent.translation && <div className="text-sm text-muted-foreground whitespace-pre-wrap">{aiContent.translation}</div>}
+            </div>
+          )}
+          {poem.annotation ? CollapseBlock(poem.annotation, '注释', 'amber') : (
+            <details className="rounded-xl border bg-card">
+              <summary className="text-sm font-medium p-4 lg:p-5 cursor-pointer flex items-center gap-1.5 text-muted-foreground" style={{ listStyle: 'none' }}>
+                <span className="flex items-center gap-1.5 flex-1">
+                  <BookOpen className="h-4 w-4 text-amber-500" /> 注释
+                </span>
+                {aiLoading === 'annotation' ? <span className="text-xs text-muted-foreground">生成中...</span> : !aiContent.annotation && (
+                  <button onClick={function(e) { e.stopPropagation(); generateContent('annotation', '请直接列出这首古诗中生僻字词的注释，每条一行，不要任何前缀、标题或额外说明') }} className="text-xs flex items-center gap-1 text-primary">
+                    <Sparkles className="h-3 w-3" /> AI生成
+                  </button>
+                )}
+                <ChevronDown className="h-4 w-4 text-foreground/60 shrink-0" />
+              </summary>
+              {aiContent.annotation && <div className="px-4 lg:px-5 pb-4 lg:pb-5 text-sm whitespace-pre-wrap text-muted-foreground">{aiContent.annotation}</div>}
+            </details>
+          )}
+          {poem.appreciation ? CollapseBlock(poem.appreciation, '赏析', 'sky') : (
+            <details className="rounded-xl border bg-card">
+              <summary className="text-sm font-medium p-4 lg:p-5 cursor-pointer flex items-center gap-1.5 text-muted-foreground" style={{ listStyle: 'none' }}>
+                <span className="flex items-center gap-1.5 flex-1">
+                  <BookOpen className="h-4 w-4 text-sky-500" /> 赏析
+                </span>
+                {aiLoading === 'appreciation' ? <span className="text-xs text-muted-foreground">生成中...</span> : !aiContent.appreciation && (
+                  <button onClick={function(e) { e.stopPropagation(); generateContent('appreciation', '请对这首古诗进行赏析') }} className="text-xs flex items-center gap-1 text-primary">
+                    <Sparkles className="h-3 w-3" /> AI生成
+                  </button>
+                )}
+                <ChevronDown className="h-4 w-4 text-foreground/60 shrink-0" />
+              </summary>
+              {aiContent.appreciation && <div className="px-4 lg:px-5 pb-4 lg:pb-5 text-sm whitespace-pre-wrap text-muted-foreground">{aiContent.appreciation}</div>}
+            </details>
+          )}
+          {poem.background ? CollapseBlock(poem.background, '创作背景', 'purple') : (
+            <details className="rounded-xl border bg-card">
+              <summary className="text-sm font-medium p-4 lg:p-5 cursor-pointer flex items-center gap-1.5 text-muted-foreground" style={{ listStyle: 'none' }}>
+                <span className="flex items-center gap-1.5 flex-1">
+                  <BookOpen className="h-4 w-4 text-purple-500" /> 创作背景
+                </span>
+                {aiLoading === 'background' ? <span className="text-xs text-muted-foreground">生成中...</span> : !aiContent.background && (
+                  <button onClick={function(e) { e.stopPropagation(); generateContent('background', '请介绍这首古诗的创作背景') }} className="text-xs flex items-center gap-1 text-primary">
+                    <Sparkles className="h-3 w-3" /> AI生成
+                  </button>
+                )}
+                <ChevronDown className="h-4 w-4 text-foreground/60 shrink-0" />
+              </summary>
+              {aiContent.background && <div className="px-4 lg:px-5 pb-4 lg:pb-5 text-sm whitespace-pre-wrap text-muted-foreground">{aiContent.background}</div>}
+            </details>
+          )}
         </div>
       ) : (
         <div className="space-y-3 lg:space-y-4">

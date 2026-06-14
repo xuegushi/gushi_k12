@@ -118,13 +118,13 @@ export default function AiSettings() {
 
       {/* Tabs */}
       <div className="flex gap-1 rounded-lg bg-muted p-0.5 w-fit">
-        <button onClick={function() { setTab('config') }}
-          className={tab === 'config' ? 'px-3 py-1.5 text-xs font-medium rounded-md bg-card text-foreground shadow-sm flex items-center gap-1' : 'px-3 py-1.5 text-xs font-medium rounded-md text-muted-foreground hover:text-foreground flex items-center gap-1'}>
-          <SettingsIcon className="h-3.5 w-3.5" /> 配置
-        </button>
         <button onClick={function() { setTab('usage') }}
           className={tab === 'usage' ? 'px-3 py-1.5 text-xs font-medium rounded-md bg-card text-foreground shadow-sm flex items-center gap-1' : 'px-3 py-1.5 text-xs font-medium rounded-md text-muted-foreground hover:text-foreground flex items-center gap-1'}>
           <History className="h-3.5 w-3.5" /> 使用记录
+        </button>
+        <button onClick={function() { setTab('config') }}
+          className={tab === 'config' ? 'px-3 py-1.5 text-xs font-medium rounded-md bg-card text-foreground shadow-sm flex items-center gap-1' : 'px-3 py-1.5 text-xs font-medium rounded-md text-muted-foreground hover:text-foreground flex items-center gap-1'}>
+          <SettingsIcon className="h-3.5 w-3.5" /> 配置
         </button>
       </div>
 

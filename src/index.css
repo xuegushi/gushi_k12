@@ -230,6 +230,7 @@ body {
   @apply bg-background text-foreground;
   font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 .font-poem {
@@ -256,4 +257,4 @@ body {
 .delay-1 { animation-delay: 0.08s; }
 .delay-2 { animation-delay: 0.16s; }
 
-.page-enter { animation: fade-up 0.35s ease-out both; }
+.page-enter { animation: fade-up 0.35s ease-out both; max-width: 100%; }

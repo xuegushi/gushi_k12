@@ -86,7 +86,7 @@ export default function StudyPlan() {
           </div>
           <h1 className="text-lg font-bold">学习计划</h1>
         </div>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
           {plans.map(function(p) {
             return (
               <button key={p.id} onClick={function() { navigate('/study-plan/' + encodeURIComponent(p.name)) }}
@@ -125,18 +125,20 @@ export default function StudyPlan() {
           <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: pct(selected) + '%' }} />
         </div>
         <p className="text-xs text-muted-foreground text-right">{selected?.completedTitles?.length || 0}/{selected?.poemTitles?.length || 0} 已完成</p>
-        <div className="space-y-1">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
           {selected?.poemTitles?.map(function(title, idx) {
             var done = selected?.completedTitles?.includes(title)
             return (
-              <div key={title + '-' + idx} className={'flex items-center gap-3 rounded-xl border p-3 transition-colors ' + (done ? 'bg-muted/30 border-muted' : 'bg-card')}>
-                <div className={'flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors cursor-pointer ' + (done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-muted-foreground/30')} onClick={function() { startRecite(title) }}>
-                  {done && <Check className="h-3 w-3" />}
+              <div key={title + '-' + idx} className={'rounded-xl border p-5 card-hover cursor-pointer transition-colors ' + (done ? 'bg-muted/30 border-muted' : 'bg-card')}>
+                <div className="flex items-center gap-3">
+                  <div className={'flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors ' + (done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-muted-foreground/30')} onClick={function() { startRecite(title) }}>
+                    {done && <Check className="h-4 w-4" />}
+                  </div>
+                  <button onClick={function() { startRecite(title) }} className={'text-base text-left truncate hover:text-primary transition-colors flex-1 ' + (done ? 'line-through text-muted-foreground/60' : '')}>{title}</button>
+                  <button onClick={function() { startRecite(title) }}>
+                    <Library className={'h-5 w-5 shrink-0 ' + (done ? 'text-muted-foreground/30' : 'text-muted-foreground/50')} />
+                  </button>
                 </div>
-                <button onClick={function() { startRecite(title) }} className={'text-sm flex-1 text-left hover:text-primary transition-colors ' + (done ? 'line-through text-muted-foreground/60' : '')}>{title}</button>
-                <button onClick={function() { startRecite(title) }}>
-                  <Library className={'h-3.5 w-3.5 ' + (done ? 'text-muted-foreground/30' : 'text-muted-foreground/50')} />
-                </button>
               </div>
             )
           })}

@@ -4,7 +4,7 @@ import { db } from './db'
 const BATCH_SIZE = 100
 
 export async function initPoems() {
-  const DATA_VERSION = '7'
+  const DATA_VERSION = '10'
   const storedVersion = localStorage.getItem('poems_data_version')
 
   if (storedVersion !== DATA_VERSION) {

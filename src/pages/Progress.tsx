@@ -118,7 +118,7 @@ export default function Progress() {
   var dayNames = ['日', '一', '二', '三', '四', '五', '六']
 
   return (
-    <div className="space-y-4 page-enter">
+    <div className="space-y-4 page-enter max-w-full overflow-x-hidden">
       <div className="flex items-center gap-3">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600">
           <BookOpen className="h-4 w-4" />
@@ -140,12 +140,46 @@ export default function Progress() {
 
       {tab === 'progress' ? (
         <div className="space-y-4">
+          {/* Stats bar */}
           <div className="flex items-center gap-3">
             <div className="flex-1">
               <p className="text-lg font-bold">{totalDone}<span className="text-xs font-normal text-muted-foreground">/{total}</span></p>
             </div>
             <div className="text-right">
               <p className="text-xs text-muted-foreground">{pct}%</p>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div className="h-full rounded-full bg-indigo-500 transition-all" style={{ width: pct + '%' }} />
+          </div>
+
+          {/* Weekly activity */}
+          <div className="rounded-xl border bg-card p-3 lg:p-4">
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-1">
+              <h3 className="text-sm font-medium flex items-center gap-1.5">
+                <Flame className="h-4 w-4 text-orange-500" /> 本周学习
+              </h3>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                <span>本周 {weeklyTotal} 次</span>
+                <span>本月 {monthlyTotal} 次</span>
+                <span className="flex items-center gap-0.5"><Flame className="h-3 w-3 text-orange-500" /> {streak} 天</span>
+              </div>
+            </div>
+            <div className="flex items-end gap-px h-12 w-full">
+              {Object.entries(dailyStats).map(function([date, count]) {
+                var h = Math.max(4, (count / maxVal) * 40)
+                var d = new Date(date)
+                var isToday = date === new Date().toISOString().slice(0, 10)
+                return (
+                  <div key={date} className="flex-1 flex flex-col items-center gap-px min-w-0">
+                    <span className="text-[8px] text-muted-foreground leading-none">{count || ''}</span>
+                    <div className={'w-full rounded-sm transition-all min-h-[3px] ' + (count > 0 ? 'bg-indigo-500' : 'bg-muted')} style={{ height: h + 'px' }} />
+                    <span className={'text-[8px] leading-none ' + (isToday ? 'text-primary font-medium' : 'text-muted-foreground')}>{dayNames[d.getDay()]}</span>
+                  </div>
+                )
+              })}
             </div>
           </div>
 
@@ -203,7 +237,7 @@ export default function Progress() {
               )
             })}
           </div>
-          <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-1">
+          <div className="flex gap-1.5 flex-wrap pb-1">
             {GRADE_NAMES.map(function(name, i) {
               return (
                 <button key={i} onClick={function() { setGrade(i) }}
