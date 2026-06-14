@@ -1,73 +1,70 @@
-# React + TypeScript + Vite
+# K12 古诗学习系统
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+纯前端 K12 古诗学习应用，覆盖 1-12 年级古诗词、文言文。支持背诵记忆、知识学习、AI 辅助等完整学习流程。
 
-Currently, two official plugins are available:
+## 数据
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **321 首诗词**（小学 123 首 + 初中 128 首 + 高中 70 首）
+- **283 位作者简介**（含生平介绍、代表作品）
+- **1441 个 AI 知识点**（K1-9 全覆盖，含背诵默写/字词含义/诗句含义/修辞手法/意境分析等）
+- 数据来源：[学古诗 xuegushi.com](https://xuegushi.com)
 
-## React Compiler
+## 功能
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| 模块 | 说明 |
+|------|------|
+| 诗词浏览 | 按年级/类型/难度/考试频率筛选，关键词搜索 |
+| 诗词详情 | 原文/知识双栏，译文/注释/赏析/创作背景/作者信息 |
+| 拼音标注 | 全文拼音（pinyin-pro），多音字自动识别 |
+| 朗读 | Web Speech API 中文朗读 |
+| 背诵模式 | 艾宾浩斯遗忘曲线复习（7阶段），挖字辅助记忆 |
+| 学习计划 | 按年级/学期自动生成，勾选完成跟踪进度 |
+| AI 助手 | 通义千问 / DeepSeek / Kimi / MiniMax，用户自配 Key |
+| 划词工具 | 选中文字弹出朗读/拼音/复制/AI 分析 |
+| 知识点 | AI 生成的问答知识点，支持折叠/展开/筛选 |
+| 学习统计 | 按类型/学段统计完成率，周学习柱状图，连续天数 |
+| 主题 | 5 套配色方案 + 深色/浅色模式 |
+| 多用户 | 游客模式 + 创建用户，数据自动继承 |
 
-## Expanding the ESLint configuration
+## 技术栈
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| 类别 | 技术 |
+|------|------|
+| 框架 | React 19 + TypeScript |
+| 构建 | Vite 8 |
+| 样式 | Tailwind CSS 4 |
+| 状态管理 | Zustand |
+| 路由 | React Router v7 |
+| 本地存储 | IndexedDB (Dexie.js) |
+| 拼音 | cnchar + pinyin-pro |
+| 图标 | Lucide React |
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 快速开始
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev      # http://localhost:5177
+npm run build    # 生产构建
+npm run preview  # 预览生产版本
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 项目结构
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── pages/          # 页面组件（Home/PoemList/PoemDetail/StudyPlan/Review/Progress等）
+├── components/     # 通用组件（Layout/AIAssistant/PoemContent/PinyinText等）
+├── store/          # Zustand 状态（index/selection/ui/user）
+├── lib/            # 工具库（db.ts/ai.ts/poems.ts/recitation.ts/studyPlan.ts/character.ts）
+├── hooks/          # 自定义 Hooks
+├── data/           # 诗词 JSON 数据
+└── index.css       # 全局样式 + 配色方案
+```
+
+## 数据导出
+
+```bash
+node scripts/export-all.mjs  # 从 MongoDB 重新导出诗词数据
+```
+
+需要 MongoDB 连接配置在 `.env` 中（参考 poetry-quiz-system 项目）。
