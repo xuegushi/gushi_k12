@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, Suspense, lazy } from 'react'
 import { useStore } from './store'
 import { useUserStore } from './store/user'
 import { useUIConfig } from './store/ui'
@@ -7,15 +7,20 @@ import { initPoems } from './lib/poems'
 import Layout from './components/Layout'
 import AIAssistant from './components/AIAssistant'
 import TextSelectionToolbar from './components/TextSelectionToolbar'
-import Home from './pages/Home'
-import PoemList from './pages/PoemList'
-import PoemDetail from './pages/PoemDetail'
-import StudyPlan from './pages/StudyPlan'
-import Review from './pages/Review'
-import Progress from './pages/Progress'
-import Settings from './pages/Settings'
-import AiSettings from './pages/AiSettings'
-import Users from './pages/Users'
+
+const Home = lazy(() => import('./pages/Home'))
+const PoemList = lazy(() => import('./pages/PoemList'))
+const PoemDetail = lazy(() => import('./pages/PoemDetail'))
+const StudyPlan = lazy(() => import('./pages/StudyPlan'))
+const Review = lazy(() => import('./pages/Review'))
+const Progress = lazy(() => import('./pages/Progress'))
+const Settings = lazy(() => import('./pages/Settings'))
+const AiSettings = lazy(() => import('./pages/AiSettings'))
+const Users = lazy(() => import('./pages/Users'))
+
+function Loading() {
+  return <div className="py-16 text-center text-sm text-muted-foreground">加载中...</div>
+}
 
 export default function App() {
   const loadPoems = useStore(s => s.loadPoems)
@@ -38,18 +43,20 @@ export default function App() {
 
   return (
     <Layout>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/poems" element={<PoemList />} />
-        <Route path="/poems/:title" element={<PoemDetail />} />
-        <Route path="/study-plan" element={<StudyPlan />} />
-        <Route path="/study-plan/:planName" element={<StudyPlan />} />
-        <Route path="/progress" element={<Progress />} />
-        <Route path="/review" element={<Review />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/ai-settings" element={<AiSettings />} />
-        <Route path="/users" element={<Users />} />
-      </Routes>
+      <Suspense fallback={<Loading />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/poems" element={<PoemList />} />
+          <Route path="/poems/:title" element={<PoemDetail />} />
+          <Route path="/study-plan" element={<StudyPlan />} />
+          <Route path="/study-plan/:planName" element={<StudyPlan />} />
+          <Route path="/progress" element={<Progress />} />
+          <Route path="/review" element={<Review />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/ai-settings" element={<AiSettings />} />
+          <Route path="/users" element={<Users />} />
+        </Routes>
+      </Suspense>
       <TextSelectionToolbar />
       <AIAssistant />
     </Layout>
