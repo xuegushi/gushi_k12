@@ -1,4 +1,3 @@
-import poemsData from '../data/poems.json'
 import { db } from './db'
 
 const BATCH_SIZE = 100
@@ -13,9 +12,9 @@ export async function initPoems() {
   }
 
   const count = await db.poems.count()
-  if (count === poemsData.length) return
+  if (count > 0) return
 
-  if (count > 0) await db.poems.clear()
+  const { default: poemsData } = await import('../data/poems.json')
 
   const data = poemsData as any[]
   for (let i = 0; i < data.length; i += BATCH_SIZE) {
