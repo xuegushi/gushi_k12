@@ -7,9 +7,13 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
   },
   "dependencies": {
+    "@tauri-apps/api": "^2.11.1",
     "@tailwindcss/vite": "^4.3.1",
     "cnchar": "^3.2.6",
     "cnchar-explain": "^3.2.6",
@@ -28,6 +32,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.11.3",
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
