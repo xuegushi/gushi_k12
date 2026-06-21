@@ -10,6 +10,20 @@
 | macOS (Apple Silicon) | [下载 .dmg](https://github.com/xuegushi/gushi_k12/releases/tag/v0.1.0) |
 | 桌面版 (v0.1.0) | [GitHub Releases](https://github.com/xuegushi/gushi_k12/releases/tag/v0.1.0) |
 
+## 页面预览
+
+| 首页 | 诗词库 |
+|------|--------|
+| ![首页](public/home.png) | ![诗词库](public/poems-library.png) |
+
+| 学习计划 | 学习进度 |
+|----------|----------|
+| ![学习计划](public/study.png) | ![学习进度](public/progress.png) |
+
+| AI 设置 | 设置 |
+|---------|------|
+| ![AI 设置](public/ai-setting.png) | ![设置](public/setting.png) |
+
 ## 数据
 
 - **1057 首诗词**（课内 321 首 + 课外 736 首）
