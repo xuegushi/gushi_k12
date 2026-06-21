@@ -2,6 +2,14 @@
 
 纯前端 K12 古诗学习应用，覆盖 1-12 年级古诗词、文言文及课外经典诗单。支持背诵记忆、知识学习、AI 辅助等完整学习流程。
 
+## 下载
+
+| 平台 | 下载地址 |
+|------|----------|
+| Web版 | https://k12.xuegushi.com |
+| macOS (Apple Silicon) | [下载 .dmg](https://github.com/xuegushi/gushi_k12/releases/tag/v0.1.0) |
+| 桌面版 (v0.1.0) | [GitHub Releases](https://github.com/xuegushi/gushi_k12/releases/tag/v0.1.0) |
+
 ## 数据
 
 - **1057 首诗词**（课内 321 首 + 课外 736 首）
@@ -43,6 +51,7 @@
 | 本地存储 | IndexedDB (Dexie.js) |
 | 拼音 | cnchar + pinyin-pro |
 | 图标 | Lucide React |
+| 桌面端 | Tauri v2 |
 
 ## 快速开始
 
@@ -53,16 +62,31 @@ npm run build    # 生产构建
 npm run preview  # 预览生产版本
 ```
 
+## 桌面端开发
+
+```bash
+npm run tauri:dev    # 启动桌面端开发
+npm run tauri:build  # 构建桌面端应用
+```
+
+构建产物位于 `src-tauri/target/release/bundle/`
+
 ## 项目结构
 
 ```
-src/
-├── pages/          # 页面组件（Home/PoemList/PoemDetail/StudyPlan/Review/Progress/AiSettings等）
-├── components/     # 通用组件（Layout/AIAssistant/PoemContent/PinyinText/RecitationDialog等）
-├── store/          # Zustand 状态（index/selection/ui/user）
-├── lib/            # 工具库（db.ts/ai.ts/poems.ts/recitation.ts/studyPlan.ts/character.ts）
-├── hooks/          # 自定义 Hooks
-├── data/           # 诗词 JSON 数据 + 课外诗单数据
-└── index.css       # 全局样式 + 5套配色方案
+gushi_k12/
+├── src/
+│   ├── pages/          # 页面组件（Home/PoemList/PoemDetail/StudyPlan/Review/Progress/AiSettings等）
+│   ├── components/     # 通用组件（Layout/AIAssistant/PoemContent/PinyinText/RecitationDialog等）
+│   ├── store/          # Zustand 状态（index/selection/ui/user）
+│   ├── lib/            # 工具库（db.ts/ai.ts/poems.ts/recitation.ts/studyPlan.ts/character.ts）
+│   ├── hooks/          # 自定义 Hooks
+│   ├── data/           # 诗词 JSON 数据 + 课外诗单数据
+│   └── index.css       # 全局样式 + 5套配色方案
+├── src-tauri/          # Tauri 桌面端配置
+│   ├── src/            # Rust 源码
+│   ├── icons/          # 应用图标
+│   └── tauri.conf.json # Tauri 配置
+└── dist/               # Web 构建产物
 ```
 
