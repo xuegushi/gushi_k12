@@ -1,7 +1,7 @@
 [package]
 name = "gushi-k12"
 version = "0.1.0"
-description = "K12古诗词文言文学习"
+description = "K12古诗学习-离线版"
 authors = ["xuegushi"]
 edition = "2021"
 

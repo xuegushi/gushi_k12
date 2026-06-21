@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "古诗学习",
+  "productName": "K12古诗学习-离线版",
   "version": "0.1.0",
   "identifier": "com.gushi.k12",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "古诗学习 - K12古诗词文言文",
+        "title": "K12古诗学习-离线版",
         "width": 1200,
         "height": 800,
         "minWidth": 800,
