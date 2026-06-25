@@ -13,8 +13,8 @@
     "tauri:build": "tauri build"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2.11.1",
     "@tailwindcss/vite": "^4.3.1",
+    "@tauri-apps/api": "^2.11.1",
     "cnchar": "^3.2.6",
     "cnchar-explain": "^3.2.6",
     "cnchar-info": "^3.2.6",
@@ -23,6 +23,7 @@
     "cnchar-trad": "^3.2.6",
     "cnchar-words": "^3.2.6",
     "dexie": "^4.4.3",
+    "hanzi-writer": "^3.7.3",
     "lucide-react": "^1.18.0",
     "pinyin-pro": "^3.28.1",
     "react": "^19.2.6",
@@ -32,8 +33,8 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.11.3",
     "@eslint/js": "^10.0.1",
+    "@tauri-apps/cli": "^2.11.3",
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

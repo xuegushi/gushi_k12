@@ -102,6 +102,14 @@ export interface AiCallLog {
   createdAt: Date
 }
 
+export interface TranslationLog {
+  id?: number
+  text: string
+  direction: string
+  translated: string
+  createdAt: Date
+}
+
 class GushiDB extends Dexie {
   users!: Table<User, number>
   poems!: Table<Poem, number>
@@ -111,10 +119,11 @@ class GushiDB extends Dexie {
   aiConfigs!: Table<AiConfig, number>
   chatMessages!: Table<ChatMessage, number>
   aiCallLogs!: Table<AiCallLog, number>
+  translationLogs!: Table<TranslationLog, number>
 
   constructor() {
     super('gushi_k12')
-    this.version(9).stores({
+    this.version(10).stores({
       users: '++id, name, guest',
       poems: '++id, title, author, grade, type, difficulty',
       studyPlans: '++id, userId, grade, term',
@@ -123,6 +132,7 @@ class GushiDB extends Dexie {
       aiConfigs: '++id, userId, platform',
       chatMessages: '++id, userId, timestamp',
       aiCallLogs: '++id, platform, createdAt',
+      translationLogs: '++id, createdAt',
     })
   }
 }

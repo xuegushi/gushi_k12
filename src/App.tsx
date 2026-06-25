@@ -17,6 +17,7 @@ const Progress = lazy(() => import('./pages/Progress'))
 const Settings = lazy(() => import('./pages/Settings'))
 const AiSettings = lazy(() => import('./pages/AiSettings'))
 const Users = lazy(() => import('./pages/Users'))
+const Tools = lazy(() => import('./pages/Tools'))
 
 function Loading() {
   return <div className="py-16 text-center text-sm text-muted-foreground">加载中...</div>
@@ -54,6 +55,7 @@ export default function App() {
           <Route path="/review" element={<Review />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/ai-settings" element={<AiSettings />} />
+          <Route path="/tools" element={<Tools />} />
           <Route path="/users" element={<Users />} />
         </Routes>
       </Suspense>

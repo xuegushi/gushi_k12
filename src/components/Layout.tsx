@@ -1,12 +1,13 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useUserStore } from '../store/user'
 import { useUIConfig } from '../store/ui'
-import { BookOpen, Home, Library, Settings, TrendingUp, Sun, Moon, GraduationCap } from 'lucide-react'
+import { BookOpen, Home, Library, Settings, TrendingUp, Sun, Moon, GraduationCap, Wrench } from 'lucide-react'
 
 const NAV = [
   { path: '/', label: '首页', icon: Home },
   { path: '/poems', label: '诗词', icon: BookOpen },
   { path: '/study-plan', label: '学习', icon: Library },
+  { path: '/tools', label: '工具', icon: Wrench },
   { path: '/progress', label: '进度', icon: TrendingUp },
   { path: '/settings', label: '设置', icon: Settings },
 ]

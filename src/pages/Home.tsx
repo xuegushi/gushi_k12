@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useStore } from '../store'
-import { RotateCcw, Library, TrendingUp, ChevronRight } from 'lucide-react'
+import { RotateCcw, Library, TrendingUp, ChevronRight, Wrench } from 'lucide-react'
 
 const GRADE_MAP = [
   { grade: 1, name: '一', full: '一年级', color: 'from-emerald-400 to-emerald-500' },
@@ -87,6 +87,22 @@ export default function Home() {
             <div>
               <p className="font-semibold">学习进度</p>
               <p className="text-xs lg:text-sm text-muted-foreground mt-0.5">查看学习统计和完成情况</p>
+            </div>
+          </div>
+          <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/20 group-hover:text-muted-foreground/50 transition-colors" />
+        </Link>
+
+        <Link
+          to="/tools"
+          className="group relative overflow-hidden rounded-xl border bg-card p-4 lg:p-5 card-hover"
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-900/30 text-orange-600">
+              <Wrench className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="font-semibold">工具箱</p>
+              <p className="text-xs lg:text-sm text-muted-foreground mt-0.5">翻译 · 朗读 · 字迹演练</p>
             </div>
           </div>
           <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/20 group-hover:text-muted-foreground/50 transition-colors" />
