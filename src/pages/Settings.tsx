@@ -109,6 +109,29 @@ export default function Settings() {
           <p>诗词来源：<a href="https://xuegushi.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@学古诗 xuegushi.com</a></p>
         </div>
       </div>
+
+      {/* Support */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-medium text-muted-foreground">支持一下</h2>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl border bg-card p-3 text-center">
+            <img src="/wx_zs.jpg" alt="微信赞赏" className="mx-auto w-full max-w-32 rounded-lg" />
+            <p className="mt-1.5 text-xs text-muted-foreground">微信赞赏</p>
+          </div>
+          <div className="rounded-xl border bg-card p-3 text-center">
+            <img src="/zfb_zs.jpg" alt="支付宝赞赏" className="mx-auto w-full max-w-32 rounded-lg" />
+            <p className="mt-1.5 text-xs text-muted-foreground">支付宝赞赏</p>
+          </div>
+          <div className="rounded-xl border bg-card p-3 text-center">
+            <img src="/wechat.jpg" alt="微信公众号" className="mx-auto w-full max-w-32 rounded-lg" />
+            <p className="mt-1.5 text-xs text-muted-foreground">微信公众号</p>
+          </div>
+          <div className="rounded-xl border bg-card p-3 text-center">
+            <img src="/xcx.jpg" alt="小程序" className="mx-auto w-full max-w-32 rounded-lg" />
+            <p className="mt-1.5 text-xs text-muted-foreground">小程序</p>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
