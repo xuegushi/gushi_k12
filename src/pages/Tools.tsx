@@ -386,7 +386,8 @@ function HandwritingPanel() {
 
         var cnchar = (await import('cnchar')).default
         await import('cnchar-order')
-        var strokeCount = cnchar.stroke(char, 'order')?.length || 0
+        var strokes = cnchar.stroke(char, 'order')
+        var strokeCount = Array.isArray(strokes) ? strokes.length : (typeof strokes === 'number' ? strokes : 0)
 
         var commonMeanings: Record<string, string> = {
           '日': '太阳', '月': '月亮', '水': '无色无味的液体', '火': '燃烧产生的光焰',
