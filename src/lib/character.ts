@@ -9,6 +9,7 @@ export interface CharDetail {
   char: string
   pinyin: string
   strokeCount: number
+  strokeOrder?: string[]
   radical?: string
   words?: string[]
   explain?: string
@@ -19,13 +20,20 @@ export function getCharInfo(char: string): CharDetail | null {
 
   var p = pinyin(char, { toneType: 'symbol' })
   var stroke = cnchar.stroke(char)
+  var strokeOrder: string[] | undefined
   var radical: string | undefined
   var words: string[] | undefined
   var explain: string | undefined
 
   try {
     var r = cnchar.radical(char)
-    if (r) radical = String(r)
+    if (r) {
+      if (typeof r === 'string') radical = r
+      else if (Array.isArray(r) && r.length > 0) {
+        var item = r[0]
+        radical = typeof item === 'string' ? item : String(item[char]?.radical || item[char] || '')
+      }
+    }
   } catch (e) { /* plugin not available */ }
 
   try {
@@ -34,14 +42,26 @@ export function getCharInfo(char: string): CharDetail | null {
   } catch (e) { /* plugin not available */ }
 
   try {
+    var order = cnchar.stroke(char, 'order', 'shape')
+    if (order && Array.isArray(order) && order.length > 0) {
+      var shapes = order[0]
+      if (Array.isArray(shapes)) strokeOrder = shapes
+    }
+  } catch (e) { /* plugin not available */ }
+
+  try {
     var ex = cnchar.explain(char)
-    if (ex) explain = String(ex)
+    if (ex) {
+      if (typeof ex === 'string') explain = ex
+      else if (Array.isArray(ex)) explain = ex.map(function(e: any) { return typeof e === 'string' ? e : String(e[char] || '') }).filter(Boolean).join('；')
+    }
   } catch (e) { /* plugin not available */ }
 
   return {
     char,
     pinyin: p,
     strokeCount: typeof stroke === 'number' ? stroke : 0,
+    strokeOrder,
     radical,
     words,
     explain,
