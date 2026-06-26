@@ -39,7 +39,7 @@ export default function Home() {
       </div>
 
       {/* Quick actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4 mb-6 lg:mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6 lg:mb-8">
         <Link
           to="/study-plan"
           className="group relative overflow-hidden rounded-xl border bg-card p-4 lg:p-5 card-hover"
@@ -127,9 +127,9 @@ export default function Home() {
                 to={`/poems?grade=${grade}`}
                 className="group rounded-xl border bg-card p-4 card-hover"
               >
-                <div className={`h-1.5 rounded-full bg-gradient-to-r ${color} mb-3 opacity-70`} />
                 <p className="font-semibold text-sm">{full}</p>
-                <p className="text-xs lg:text-sm text-muted-foreground mt-1">{count} 首</p>
+                <p className="text-xs lg:text-sm text-muted-foreground mt-1 mb-3">{count} 首</p>
+                <div className={`h-1.5 rounded-full bg-gradient-to-r ${color} opacity-70`} />
               </Link>
             )
           })}

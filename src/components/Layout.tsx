@@ -1,7 +1,10 @@
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useUserStore } from '../store/user'
 import { useUIConfig } from '../store/ui'
-import { BookOpen, Home, Library, Settings, TrendingUp, Sun, Moon, GraduationCap, Wrench } from 'lucide-react'
+import { BookOpen, Home, Library, Settings, TrendingUp, Sun, Moon, GraduationCap, Wrench, PanelLeftClose, PanelLeft } from 'lucide-react'
+
+var SIDEBAR_KEY = 'layout:sidebar:collapsed'
 
 const NAV = [
   { path: '/', label: '首页', icon: Home },
@@ -17,6 +20,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { theme, setTheme } = useUIConfig()
   const currentUser = useUserStore(s => s.currentUser)
   const isDark = theme === 'dark'
+  var [collapsed, setCollapsed] = useState(function() {
+    try { return localStorage.getItem(SIDEBAR_KEY) === 'true' } catch { return false }
+  })
+
+  var toggleSidebar = function() {
+    setCollapsed(function(prev) {
+      var next = !prev
+      try { localStorage.setItem(SIDEBAR_KEY, String(next)) } catch {}
+      return next
+    })
+  }
 
   const userName = currentUser?.name || '游客'
   const userInitial = userName.charAt(0)
@@ -30,29 +44,31 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-60 lg:fixed lg:inset-y-0 lg:z-30 lg:bg-sidebar lg:border-r">
-        <div className="flex items-center gap-3 px-5 h-14 border-b border-sidebar/50">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
+      <aside className={'hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:z-30 lg:bg-sidebar lg:border-r transition-all duration-200 ' + (collapsed ? 'lg:w-16' : 'lg:w-48')}>
+        <div className={'flex items-center h-14 border-b border-sidebar/50 ' + (collapsed ? 'justify-center px-0' : 'gap-2.5 px-4')}>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm shrink-0">
             <span className="text-sm font-bold font-poem">诗</span>
           </div>
-          <div>
-            <span className="font-bold text-sm">古诗学习</span>
-            <p className="text-[10px] text-muted-foreground -mt-0.5">K12 古诗词</p>
-          </div>
+          {!collapsed && (
+            <div className="overflow-hidden">
+              <span className="font-bold text-sm whitespace-nowrap">古诗学习</span>
+              <p className="text-[10px] text-muted-foreground -mt-0.5 whitespace-nowrap">K12 古诗词</p>
+            </div>
+          )}
         </div>
 
-        <nav className="flex-1 py-2 px-3 space-y-0.5">
+        <nav className="flex-1 py-2 space-y-0.5">
           {NAV.map(function(item) {
             var active = location.pathname === item.path ||
               (item.path !== '/' && location.pathname.startsWith(item.path + '/'))
             return (
               <Link key={item.path} to={item.path}
-                className={'relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ' + (active
+                className={'relative flex items-center rounded-lg text-sm transition-colors mx-2 ' + (collapsed ? 'justify-center px-2 py-2.5 ' : 'gap-2 px-2.5 py-2 ') + (active
                   ? 'bg-white dark:bg-sidebar-item text-primary font-medium shadow-xs'
                   : 'text-muted-foreground hover:text-foreground hover:bg-sidebar-item/50')}>
-                {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-primary" />}
-                <item.icon className={'h-4 w-4 ' + (active ? 'text-primary' : '')} />
-                {item.label}
+                {active && !collapsed && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-primary" />}
+                <item.icon className={'h-4 w-4 shrink-0 ' + (active ? 'text-primary' : '')} />
+                {!collapsed && <span className="overflow-hidden whitespace-nowrap">{item.label}</span>}
               </Link>
             )
           })}
@@ -60,15 +76,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         <div className="p-3 border-t border-sidebar/50 space-y-1">
           <button onClick={toggleTheme}
-            className="flex items-center gap-3 w-full rounded-lg px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-sidebar-item/50 transition-colors">
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            {isDark ? '浅色模式' : '深色模式'}
+            className={'flex items-center w-full rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-sidebar-item/50 transition-colors ' + (collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2.5')}>
+            {isDark ? <Sun className="h-4 w-4 shrink-0" /> : <Moon className="h-4 w-4 shrink-0" />}
+            {!collapsed && <span className="overflow-hidden whitespace-nowrap">{isDark ? '浅色模式' : '深色模式'}</span>}
           </button>
         </div>
+
+        <button onClick={toggleSidebar}
+          className="flex items-center justify-center w-full h-10 border-t border-sidebar/50 text-muted-foreground hover:text-foreground hover:bg-sidebar-item/20 transition-colors shrink-0">
+          {collapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+        </button>
       </aside>
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-h-dvh lg:pl-60">
+      <div className={'flex-1 flex flex-col min-h-dvh transition-all duration-200 ' + (collapsed ? 'lg:pl-16' : 'lg:pl-48')}>
         <header className="hidden lg:flex items-center justify-between h-14 px-6 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-20">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <GraduationCap className="h-4 w-4" />

@@ -26,9 +26,9 @@ export default function StudyReciteDialog({ poem, open, onClose, onRemember, onF
       <div className="bg-background rounded-2xl shadow-xl max-w-lg w-full max-h-[85vh] overflow-y-auto">
         <div className="p-4 lg:p-5 space-y-4">
           <div className="flex items-center gap-2">
-            <button onClick={onClose} className="text-sm text-muted-foreground">&times; 关闭</button>
+            <button onClick={onClose} className="text-sm text-muted-foreground cursor-pointer">&times; 关闭</button>
             <div className="flex-1" />
-            <button onClick={function() { speak(poem.content.join('，')) }} className="inline-flex items-center gap-1 rounded-lg border bg-card px-2.5 py-1 text-xs font-medium">
+            <button onClick={function() { speak(poem.content.join('，')) }} className="inline-flex items-center gap-1 rounded-lg border bg-card px-2.5 py-1 text-xs font-medium cursor-pointer">
               <Volume2 className="h-3.5 w-3.5 text-primary" /> 朗读
             </button>
           </div>
@@ -41,11 +41,11 @@ export default function StudyReciteDialog({ poem, open, onClose, onRemember, onF
           </div>
           <div className="grid grid-cols-2 gap-3">
             <button onClick={onForget}
-              className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 py-3 text-sm text-red-600 font-medium">
+              className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 py-3 text-sm text-red-600 font-medium cursor-pointer">
               <X className="h-4 w-4 inline mr-1" /> 忘记了
             </button>
             <button onClick={onRemember}
-              className="rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/20 py-3 text-sm text-emerald-600 font-medium">
+              className="rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/20 py-3 text-sm text-emerald-600 font-medium cursor-pointer">
               <Check className="h-4 w-4 inline mr-1" /> 记住了
             </button>
           </div>

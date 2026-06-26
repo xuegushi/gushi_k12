@@ -56,14 +56,14 @@ export default function RecitationMode({
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={handleToggle}
-              className="flex items-center justify-center gap-1.5 rounded-xl border py-3 text-sm"
+              className="flex items-center justify-center gap-1.5 rounded-xl border py-3 text-sm cursor-pointer"
             >
               {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
               {isRunning ? '暂停' : '开始'}
             </button>
             <button
               onClick={handleComplete}
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 text-white py-3 text-sm"
+              className="flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 text-white py-3 text-sm cursor-pointer"
             >
               <Check className="h-4 w-4" />
               完成

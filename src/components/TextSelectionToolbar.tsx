@@ -113,43 +113,43 @@ export default function TextSelectionToolbar() {
             top: Math.max(8, selection.y - 44),
           }}
         >
-          <button
-            onClick={() => { speak(selection.text); setSelection(null) }}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-white hover:bg-white/20 transition-colors text-xs"
-            title="朗读"
-          >
-            <Volume2 className="h-3.5 w-3.5" /> 朗读
-          </button>
-          <button
-            onClick={async () => { await navigator.clipboard.writeText(selection.text); setSelection(null) }}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-white hover:bg-white/20 transition-colors text-xs"
-            title="复制"
-          >
-            <Copy className="h-3.5 w-3.5" /> 复制
-          </button>
-          <button
-            onClick={showCharInfo}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-white hover:bg-white/20 transition-colors text-xs"
-            title="拼音/字义"
-          >
-            <BookText className="h-3.5 w-3.5" /> 字典
-          </button>
-          <button
-            onClick={() => {
-              setSelectedText(selection.text)
-              useSelectionStore.getState().setAiPrompt(selection.text)
-              setSelection(null)
-            }}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-white hover:bg-white/20 transition-colors text-xs"
-            title="AI分析"
-          >
-            <Sparkles className="h-3.5 w-3.5" /> AI
-          </button>
+        <button
+          onClick={() => { speak(selection.text); setSelection(null) }}
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-white hover:bg-white/20 transition-colors text-xs cursor-pointer"
+          title="朗读"
+        >
+          <Volume2 className="h-3.5 w-3.5" /> 朗读
+        </button>
+        <button
+          onClick={async () => { await navigator.clipboard.writeText(selection.text); setSelection(null) }}
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-white hover:bg-white/20 transition-colors text-xs cursor-pointer"
+          title="复制"
+        >
+          <Copy className="h-3.5 w-3.5" /> 复制
+        </button>
+        <button
+          onClick={showCharInfo}
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-white hover:bg-white/20 transition-colors text-xs cursor-pointer"
+          title="拼音/字义"
+        >
+          <BookText className="h-3.5 w-3.5" /> 字典
+        </button>
+        <button
+          onClick={() => {
+            setSelectedText(selection.text)
+            useSelectionStore.getState().setAiPrompt(selection.text)
+            setSelection(null)
+          }}
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-white hover:bg-white/20 transition-colors text-xs cursor-pointer"
+          title="AI分析"
+        >
+          <Sparkles className="h-3.5 w-3.5" /> AI
+        </button>
         </div>
       )}
 
       {charInfo && (
-        <div ref={popupRef} className="fixed bottom-24 right-4 z-50 bg-background rounded-xl shadow-xl border p-4 min-w-[280px] max-w-[360px] space-y-3">
+        <div ref={popupRef} className="fixed bottom-24 right-4 z-50 bg-background/95 backdrop-blur-md rounded-xl shadow-2xl border border-primary/10 p-4 min-w-[280px] max-w-[360px] space-y-3">
           <div className="flex items-start gap-3">
             {charInfo.char.length === 1 && 'strokeCount' in charInfo ? (
               <>
@@ -158,7 +158,7 @@ export default function TextSelectionToolbar() {
                     className="flex items-center justify-center rounded-xl border-2 border-border bg-white dark:bg-neutral-900"
                     style={{ width: 120, height: 120 }} />
                   <button onClick={function() { writerRef.current?.animateCharacter?.() }}
-                    className="w-full rounded-lg bg-primary/10 text-primary text-xs font-medium px-3 py-1.5 hover:bg-primary/20 transition-colors">
+                    className="w-full rounded-lg bg-primary/10 text-primary text-xs font-medium px-3 py-1.5 hover:bg-primary/20 transition-colors cursor-pointer">
                     开始动画
                   </button>
                 </div>

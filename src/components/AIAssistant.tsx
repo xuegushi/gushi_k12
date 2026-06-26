@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { useStore } from '../store'
 import { useSelectionStore } from '../store/selection'
 import { db } from '../lib/db'
@@ -120,7 +121,7 @@ export default function AIAssistant() {
   if (!open) {
     return (
       <button onClick={function() { setOpen(true) }}
-        className="fixed bottom-20 right-4 z-40 lg:bottom-6 bg-primary text-primary-foreground rounded-full p-3 shadow-lg hover:bg-primary/90 transition-colors">
+        className="fixed bottom-20 right-4 z-40 lg:bottom-6 bg-primary text-primary-foreground rounded-full p-3 shadow-lg hover:bg-primary/90 transition-colors cursor-pointer">
         <Sparkles className="h-5 w-5" />
       </button>
     )
@@ -132,16 +133,18 @@ export default function AIAssistant() {
       <div className="flex items-center p-3 border-b shrink-0 gap-2">
         <span className="text-sm font-medium flex items-center gap-1.5 flex-1">
           <Sparkles className="h-4 w-4 text-primary" /> AI 助手
-          {msgs.length > 0 && <button onClick={function() { setConfirmClear(true) }} className="text-xs text-muted-foreground hover:text-destructive ml-2 flex items-center gap-0.5"><Trash2 className="h-3 w-3" /> 清空记录</button>}
+          {msgs.length > 0 && <button onClick={function() { setConfirmClear(true) }} className="text-xs text-muted-foreground hover:text-destructive ml-2 flex items-center gap-0.5 cursor-pointer"><Trash2 className="h-3 w-3" /> 清空记录</button>}
         </span>
-        <button onClick={function() { setOpen(false) }} className="text-muted-foreground hover:text-foreground text-lg leading-none">&times;</button>
+        <button onClick={function() { setOpen(false) }} className="text-muted-foreground hover:text-foreground text-lg leading-none cursor-pointer">&times;</button>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2 min-h-[400px]">
         {msgs.length === 0 && (
-          <div className="text-center text-xs text-muted-foreground py-6">
-            {configuredPlatforms.length > 0 ? '有什么想了解的吗？' : '请先在设置中配置 AI API Key'}
+          <div className="text-center text-sm text-muted-foreground py-6">
+            {configuredPlatforms.length > 0 ? '有什么想了解的吗？' : (
+              <span>请先在<Link to="/ai-settings" className="text-primary hover:underline font-medium" onClick={function() { setOpen(false) }}>设置</Link>中配置 AI API Key</span>
+            )}
           </div>
         )}
         {msgs.map(function(m, i) {
@@ -151,14 +154,14 @@ export default function AIAssistant() {
                 <div className="whitespace-pre-wrap">{m.content}</div>
                 <div className="flex gap-3 mt-1 justify-end">
                   {m.role === 'user' ? (
-                    <button onClick={function() { setDeleteTarget(i) }} className="text-white/50 hover:text-white"><X className="h-3 w-3" /></button>
+                    <button onClick={function() { setDeleteTarget(i) }} className="text-white/50 hover:text-white cursor-pointer"><X className="h-3 w-3" /></button>
                   ) : (
-                    <button onClick={function() { setDeleteTarget(i) }} className="text-muted-foreground/60 hover:text-destructive"><X className="h-3 w-3" /></button>
+                    <button onClick={function() { setDeleteTarget(i) }} className="text-muted-foreground/60 hover:text-destructive cursor-pointer"><X className="h-3 w-3" /></button>
                   )}
                   {m.role === 'assistant' && (
                     <>
-                      <button onClick={function() { speak(m.content) }} className="text-muted-foreground hover:text-foreground"><Volume2 className="h-3 w-3" /></button>
-                      <button onClick={async function() { await navigator.clipboard.writeText(m.content); setCopied(String(i)); setTimeout(function() { setCopied('') }, 1500) }} className="text-muted-foreground hover:text-foreground">
+                      <button onClick={function() { speak(m.content) }} className="text-muted-foreground hover:text-foreground cursor-pointer"><Volume2 className="h-3 w-3" /></button>
+                      <button onClick={async function() { await navigator.clipboard.writeText(m.content); setCopied(String(i)); setTimeout(function() { setCopied('') }, 1500) }} className="text-muted-foreground hover:text-foreground cursor-pointer">
                         {copied === String(i) ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
                       </button>
                     </>
@@ -188,9 +191,9 @@ export default function AIAssistant() {
             disabled={!currentCfg || loading}
             className="flex-1 px-3 py-2 rounded-lg border bg-background text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 transition-all" />
           {loading ? (
-            <button className="p-2 text-destructive"><Square className="h-4 w-4" /></button>
+            <button className="p-2 text-destructive cursor-pointer"><Square className="h-4 w-4" /></button>
           ) : (
-            <button onClick={send} disabled={!input.trim() || !currentCfg} className="p-2 bg-primary text-primary-foreground rounded-lg disabled:opacity-50 hover:bg-primary/90 transition-colors">
+            <button onClick={send} disabled={!input.trim() || !currentCfg} className="p-2 bg-primary text-primary-foreground rounded-lg disabled:opacity-50 hover:bg-primary/90 transition-colors cursor-pointer">
               <Send className="h-4 w-4" />
             </button>
           )}
@@ -225,8 +228,8 @@ export default function AIAssistant() {
             </div>
             <p className="text-sm text-muted-foreground mb-4">确定要清空所有对话记录吗？此操作不可撤销。</p>
             <div className="flex gap-2 justify-end">
-              <button onClick={function() { setConfirmClear(false) }} className="px-3 py-1.5 rounded-lg border text-sm">取消</button>
-              <button onClick={function() { clearHistory(); setConfirmClear(false) }} className="px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-sm font-medium">清空</button>
+              <button onClick={function() { setConfirmClear(false) }} className="px-3 py-1.5 rounded-lg border text-sm cursor-pointer">取消</button>
+              <button onClick={function() { clearHistory(); setConfirmClear(false) }} className="px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-sm font-medium cursor-pointer">清空</button>
             </div>
           </div>
         </div>
@@ -242,8 +245,8 @@ export default function AIAssistant() {
             </div>
             <p className="text-sm text-muted-foreground mb-4">确定要删除这条记录吗？</p>
             <div className="flex gap-2 justify-end">
-              <button onClick={function() { setDeleteTarget(null) }} className="px-3 py-1.5 rounded-lg border text-sm">取消</button>
-              <button onClick={function() { if (deleteTarget !== null) { deleteMsg(deleteTarget); setDeleteTarget(null) } }} className="px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-sm font-medium">删除</button>
+              <button onClick={function() { setDeleteTarget(null) }} className="px-3 py-1.5 rounded-lg border text-sm cursor-pointer">取消</button>
+              <button onClick={function() { if (deleteTarget !== null) { deleteMsg(deleteTarget); setDeleteTarget(null) } }} className="px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-sm font-medium cursor-pointer">删除</button>
             </div>
           </div>
         </div>
