@@ -31,7 +31,7 @@ export function getCharInfo(char: string): CharDetail | null {
       if (typeof r === 'string') radical = r
       else if (Array.isArray(r) && r.length > 0) {
         var item = r[0]
-        radical = typeof item === 'string' ? item : String(item[char]?.radical || item[char] || '')
+        radical = typeof item === 'string' ? item : String((item as any)[char]?.radical || (item as any)[char] || '')
       }
     }
   } catch (e) { /* plugin not available */ }
