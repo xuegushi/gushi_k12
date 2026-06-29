@@ -110,6 +110,26 @@ export interface TranslationLog {
   createdAt: Date
 }
 
+export interface SortRecord {
+  id?: number
+  poemTitle: string
+  poemAuthor: string
+  totalSlots: number
+  attempts: number
+  success: boolean
+  createdAt: Date
+}
+
+export interface GameRecord {
+  id?: number
+  game: string
+  poemTitle: string
+  poemAuthor: string
+  elapsed: number
+  success: boolean
+  createdAt: Date
+}
+
 class GushiDB extends Dexie {
   users!: Table<User, number>
   poems!: Table<Poem, number>
@@ -120,10 +140,12 @@ class GushiDB extends Dexie {
   chatMessages!: Table<ChatMessage, number>
   aiCallLogs!: Table<AiCallLog, number>
   translationLogs!: Table<TranslationLog, number>
+  sortRecords!: Table<SortRecord, number>
+  gameRecords!: Table<GameRecord, number>
 
   constructor() {
     super('gushi_k12')
-    this.version(10).stores({
+    this.version(12).stores({
       users: '++id, name, guest',
       poems: '++id, title, author, grade, type, difficulty',
       studyPlans: '++id, userId, grade, term',
@@ -133,6 +155,8 @@ class GushiDB extends Dexie {
       chatMessages: '++id, userId, timestamp',
       aiCallLogs: '++id, platform, createdAt',
       translationLogs: '++id, createdAt',
+      sortRecords: '++id, createdAt',
+      gameRecords: '++id, game, createdAt',
     })
   }
 }

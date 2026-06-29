@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import { useStore } from '../store'
 import { chat } from '../lib/ai'
 import { db } from '../lib/db'
-import { Wrench, Languages, Volume2, PenTool } from 'lucide-react'
+import { Wrench, Languages, Volume2, PenTool, Droplets, Puzzle, Edit3, Cherry, LayoutGrid, Grid3X3, Trophy } from 'lucide-react'
 
 type Tab = 'translate' | 'tts' | 'handwriting'
 
@@ -68,6 +68,67 @@ export default function Tools() {
           {activeTab === 'translate' && <TranslatePanel />}
           {activeTab === 'tts' && <TTSPanel />}
           {activeTab === 'handwriting' && <HandwritingPanel />}
+        </div>
+      </div>
+
+      {/* 趣味链接 */}
+      <div className="mt-8">
+        <h3 className="text-sm font-medium text-muted-foreground mb-3">趣味</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <Link to="/poem-rain" className="flex items-center gap-3 rounded-xl border bg-card p-4 card-hover">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600">
+              <Droplets className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">诗词雨</p>
+              <p className="text-xs text-muted-foreground">黑客帝国风格的诗词矩阵雨</p>
+            </div>
+          </Link>
+          <Link to="/poem-sort" className="flex items-center gap-3 rounded-xl border bg-card p-4 card-hover">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600">
+              <Puzzle className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">诗词排序</p>
+              <p className="text-xs text-muted-foreground">拖拽片段还原诗句顺序</p>
+            </div>
+          </Link>
+          <Link to="/poem-fill" className="flex items-center gap-3 rounded-xl border bg-card p-4 card-hover">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-600">
+              <Edit3 className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">诗词填空</p>
+              <p className="text-xs text-muted-foreground">选字填入诗句空白处</p>
+            </div>
+          </Link>
+          <Link to="/poem-chain" className="flex items-center gap-3 rounded-xl border bg-card p-4 card-hover">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-rose-100 dark:bg-rose-900/30 text-rose-600">
+              <Cherry className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">飞花令</p>
+              <p className="text-xs text-muted-foreground">说出包含指定字的诗句</p>
+            </div>
+          </Link>
+          <Link to="/poem-match" className="flex items-center gap-3 rounded-xl border bg-card p-4 card-hover">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600">
+              <LayoutGrid className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">诗词连连看</p>
+              <p className="text-xs text-muted-foreground">翻转卡片匹配上下句</p>
+            </div>
+          </Link>
+          <Link to="/poem-puzzle" className="flex items-center gap-3 rounded-xl border bg-card p-4 card-hover">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/30 text-teal-600">
+              <Grid3X3 className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">诗词拼图</p>
+              <p className="text-xs text-muted-foreground">交换字块还原诗句</p>
+            </div>
+          </Link>
         </div>
       </div>
     </div>

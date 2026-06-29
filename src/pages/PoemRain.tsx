@@ -28,11 +28,13 @@ export default function PoemRain() {
   return (
     <div ref={containerRef} className={'page-enter ' + (fs ? 'fixed inset-0 z-50 bg-black p-0' : '')}>
       {!fs && (
-        <div className="flex items-center gap-2 mb-4">
-          <button onClick={function() { navigate(-1) }} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="h-4 w-4" /> 返回
-          </button>
-        </div>
+          <div className="flex items-center gap-2 mb-4">
+            <button onClick={function() { navigate(-1) }} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <ArrowLeft className="h-4 w-4" /> 返回
+            </button>
+            <span className="text-sm font-bold text-foreground/70">诗词雨</span>
+            <div className="flex-1" />
+          </div>
       )}
       <RainCanvas poems={poems} fs={fs} onToggleFs={toggleFs} />
     </div>

@@ -19,6 +19,12 @@ const AiSettings = lazy(() => import('./pages/AiSettings'))
 const Users = lazy(() => import('./pages/Users'))
 const Tools = lazy(() => import('./pages/Tools'))
 const PoemRain = lazy(() => import('./pages/PoemRain'))
+const PoemSort = lazy(() => import('./pages/PoemSort'))
+const PoemFill = lazy(() => import('./pages/PoemFill'))
+const PoemChain = lazy(() => import('./pages/PoemChain'))
+const PoemMatch = lazy(() => import('./pages/PoemMatch'))
+const PoemPuzzle = lazy(() => import('./pages/PoemPuzzle'))
+const GameRecords = lazy(() => import('./pages/GameRecords'))
 
 function Loading() {
   return <div className="py-16 text-center text-sm text-muted-foreground">加载中...</div>
@@ -58,6 +64,12 @@ export default function App() {
           <Route path="/ai-settings" element={<AiSettings />} />
           <Route path="/tools" element={<Tools />} />
           <Route path="/poem-rain" element={<PoemRain />} />
+          <Route path="/poem-sort" element={<PoemSort />} />
+          <Route path="/poem-fill" element={<PoemFill />} />
+          <Route path="/poem-chain" element={<PoemChain />} />
+          <Route path="/poem-match" element={<PoemMatch />} />
+          <Route path="/poem-puzzle" element={<PoemPuzzle />} />
+          <Route path="/game-records" element={<GameRecords />} />
           <Route path="/users" element={<Users />} />
         </Routes>
       </Suspense>

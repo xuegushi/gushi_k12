@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useStore } from '../store'
-import { RotateCcw, Library, TrendingUp, ChevronRight, Wrench, Droplets } from 'lucide-react'
+import { RotateCcw, Library, TrendingUp, ChevronRight, Wrench, Droplets, Puzzle, Edit3, Cherry, LayoutGrid, Grid3X3, Gamepad2 } from 'lucide-react'
 
 const GRADE_MAP = [
   { grade: 1, name: '一', full: '一年级', color: 'from-emerald-400 to-emerald-500' },
@@ -107,22 +107,73 @@ export default function Home() {
           </div>
           <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/20 group-hover:text-muted-foreground/50 transition-colors" />
         </Link>
+      </div>
 
-        <Link
-          to="/poem-rain"
-          className="group relative overflow-hidden rounded-xl border bg-card p-4 lg:p-5 card-hover"
-        >
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600">
-              <Droplets className="h-6 w-6" />
+      {/* Games */}
+      <div className="mb-6 lg:mb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-purple-100 dark:bg-purple-900/30 text-purple-600">
+            <Gamepad2 className="h-3.5 w-3.5" />
+          </div>
+          <h2 className="text-sm font-medium">诗词游戏</h2>
+          <span className="text-xs text-muted-foreground">趣味学诗词</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <Link to="/poem-sort" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600">
+              <Puzzle className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-semibold">诗词雨</p>
-              <p className="text-xs lg:text-sm text-muted-foreground mt-0.5">黑客帝国风格的诗词展示</p>
+              <p className="text-sm font-semibold">诗词排序</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">拖拽还原诗句</p>
             </div>
-          </div>
-          <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/20 group-hover:text-muted-foreground/50 transition-colors" />
-        </Link>
+          </Link>
+          <Link to="/poem-fill" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-600">
+              <Edit3 className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">诗词填空</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">选字填空白</p>
+            </div>
+          </Link>
+          <Link to="/poem-chain" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-100 dark:bg-rose-900/30 text-rose-600">
+              <Cherry className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">飞花令</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">含指定字的诗句</p>
+            </div>
+          </Link>
+          <Link to="/poem-match" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600">
+              <LayoutGrid className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">连连看</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">上下句配对</p>
+            </div>
+          </Link>
+          <Link to="/poem-puzzle" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/30 text-teal-600">
+              <Grid3X3 className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">诗词拼图</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">字块还原</p>
+            </div>
+          </Link>
+          <Link to="/poem-rain" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600">
+              <Droplets className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">诗词雨</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">矩阵雨动画</p>
+            </div>
+          </Link>
+        </div>
       </div>
 
       {/* Grade grid */}
