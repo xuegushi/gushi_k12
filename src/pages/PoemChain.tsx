@@ -55,21 +55,22 @@ export default function PoemChain() {
     if (!line || !themeChar) return
     if (matched.includes(line)) { setHint('这句已经说过了！'); return }
 
-    var found = false
+    var inLibrary = false
     for (var i = 0; i < poems.length; i++) {
       for (var j = 0; j < poems[i].content.length; j++) {
-        if (poems[i].content[j] === line) { found = true; break }
+        if (poems[i].content[j] === line) { inLibrary = true; break }
       }
-      if (found) break
+      if (inLibrary) break
     }
-    if (!found) { setHint('诗库中没有这句诗哦'); return }
 
     if (!line.includes(themeChar)) { setHint('这句诗不包含「' + themeChar + '」字'); return }
+
+    if (!inLibrary) { setHint('诗库未收录，请自行判断是否正确') }
 
     setMatched(function(prev) { return [line, ...prev] })
     setScore(function(p) { return p + 1 })
     setInput('')
-    setHint('')
+    setTimeout(function() { setHint('') }, inLibrary ? 0 : 2000)
   }
 
   return (
@@ -108,7 +109,7 @@ export default function PoemChain() {
           </button>
         </div>
 
-        {hint && <div className={'text-xs text-center mb-3 ' + (hint.includes('已经') ? 'text-amber-500' : 'text-red-500')}>{hint}</div>}
+        {hint && <div className={'text-xs text-center mb-3 ' + (hint.includes('已经') || hint.includes('未收录') ? 'text-amber-500' : 'text-red-500')}>{hint}</div>}
 
         {/* Matched list */}
         <div className="rounded-xl border bg-card p-4 min-h-[120px]">

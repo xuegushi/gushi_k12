@@ -242,19 +242,19 @@ export default function PoemSort() {
         )}
 
         {/* Slots */}
-        <div className="space-y-3 mb-4">
+        <div className="space-y-2 mb-3">
           {slots.map(function(lineSlots, lineIdx) {
             var filled = getFilledCount(lineIdx)
             var total = lineSlots.length
             var allFilled = filled === total
             return (
               <div key={lineIdx}
-                className={'p-4 lg:p-5 rounded-xl border-2 transition-all ' + (allFilled ? (result === 'success' ? 'border-green-400 bg-green-50' : result === 'error' ? 'border-red-400 bg-red-50' : 'border-blue-400 bg-blue-50') : 'border-border bg-card')}>
+                className={'p-2 lg:p-3 rounded-xl border-2 transition-all ' + (allFilled ? (result === 'success' ? 'border-green-400 bg-green-50' : result === 'error' ? 'border-red-400 bg-red-50' : 'border-blue-400 bg-blue-50') : 'border-border bg-card')}>
                 <div className="flex items-stretch gap-2 flex-wrap">
                   {lineSlots.map(function(slot, slotIdx) {
                     return (
                       <div key={slotIdx}
-                        className={'flex-1 min-w-[100px] lg:min-w-[120px] h-12 lg:h-14 rounded-lg border-2 flex items-center justify-center text-sm lg:text-base font-medium transition-all cursor-pointer ' + (slot
+                        className={'flex-1 min-w-[80px] lg:min-w-[100px] h-10 lg:h-11 rounded-lg border-2 flex items-center justify-center text-sm font-medium transition-all cursor-pointer ' + (slot
                           ? 'border-solid bg-blue-50 border-blue-400 text-blue-700 px-2'
                           : selectedSeg ? 'border-dashed border-blue-400 bg-blue-50/50' : 'border-dashed border-slate-300 bg-muted')}
                         onDragOver={function(e) { e.preventDefault(); if (!slot) { (e.currentTarget as HTMLElement).classList.add('border-blue-500', 'bg-blue-100') } }}
@@ -278,15 +278,15 @@ export default function PoemSort() {
         </div>
 
         {/* Pool */}
-        <div className="mb-4">
-          <p className="text-xs text-muted-foreground mb-2 text-center">
+        <div className="mb-3">
+          <p className="text-xs text-muted-foreground mb-1.5 text-center">
             可拖拽的片段 <span className="text-primary font-medium">({pool.length})</span>
           </p>
-          <div className="flex flex-wrap gap-2 justify-center min-h-[48px] p-3 bg-muted rounded-xl">
+          <div className="flex flex-wrap gap-1.5 justify-center min-h-[32px] p-1.5 bg-muted rounded-xl">
             {pool.map(function(seg) {
               return (
                 <div key={seg.id}
-                  className={'px-5 lg:px-6 py-2.5 lg:py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm lg:text-base font-medium shadow-sm transition-all ' + (selectedSeg?.id === seg.id ? 'ring-3 ring-yellow-300 scale-105 cursor-pointer' : 'cursor-grab active:cursor-grabbing hover:shadow-md') + (draggedSeg?.id === seg.id ? ' opacity-50 scale-95' : '')}
+                  className={'px-3 lg:px-4 py-1.5 lg:py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs lg:text-sm font-medium shadow-sm transition-all ' + (selectedSeg?.id === seg.id ? 'ring-3 ring-yellow-300 scale-105 cursor-pointer' : 'cursor-grab active:cursor-grabbing hover:shadow-md') + (draggedSeg?.id === seg.id ? ' opacity-50 scale-95' : '')}
                   draggable onDragStart={function() { handleDragStart(seg, { type: 'pool' }) }}
                   onDragEnd={function() { setDraggedSeg(null); setDraggedFrom(null) }}
                   onClick={function() { handleSelectSegment(seg) }}>
@@ -294,7 +294,7 @@ export default function PoemSort() {
                 </div>
               )
             })}
-            {pool.length === 0 && <p className="text-xs text-muted-foreground py-2">全部已填入</p>}
+            {pool.length === 0 && <p className="text-xs text-muted-foreground py-1">全部已填入</p>}
           </div>
         </div>
 

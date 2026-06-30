@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useStore } from '../store'
 import { db } from '../lib/db'
 import { ArrowLeft, RefreshCw, RotateCcw } from 'lucide-react'
@@ -16,6 +16,7 @@ export default function PoemMatch() {
   var [startTime, setStartTime] = useState(0)
   var [elapsed, setElapsed] = useState(0)
   var [showRecords, setShowRecords] = useState(false)
+  var doneRef = useRef(false)
 
   function initGame() {
     var pool = poems.filter(function(p) { return (p.type === '诗' || p.type === '词') && p.content.length >= 4 && p.grade >= 1 && p.grade <= 6 })
@@ -39,16 +40,17 @@ export default function PoemMatch() {
     setSelected([])
     setMatchedPairs(new Set())
     setMoves(0)
+    doneRef.current = false
     setStartTime(Date.now())
     setElapsed(0)
   }
 
   useEffect(function() { if (poems.length > 0) initGame() }, [poems.length])
   useEffect(function() {
-    if (allMatched || startTime === 0) return
-    var id = setInterval(function() { setElapsed(Math.floor((Date.now() - startTime) / 1000)) }, 1000)
+    if (startTime === 0) return
+    var id = setInterval(function() { if (!doneRef.current) setElapsed(Math.floor((Date.now() - startTime) / 1000)) }, 1000)
     return function() { clearInterval(id) }
-  }, [allMatched, startTime])
+  }, [startTime])
 
   useEffect(function() {
     if (allMatched) {
@@ -67,7 +69,7 @@ export default function PoemMatch() {
       var c1 = cards.find(function(c) { return c.id === newSelected[0] })!
       var c2 = cards.find(function(c) { return c.id === newSelected[1] })!
       if (c1.pairId === c2.pairId) {
-        setMatchedPairs(function(prev) { return new Set([...prev, c1.pairId]) })
+        setMatchedPairs(function(prev) { var next = new Set([...prev, c1.pairId]); if (next.size === cards.length / 2) doneRef.current = true; return next })
         setSelected([])
         playTone(true)
       } else {
@@ -103,7 +105,24 @@ export default function PoemMatch() {
           {startTime > 0 && <span>⏱ {elapsed}秒</span>}
         </div>
 
-        <div className="grid grid-cols-4 gap-2 mb-4">
+        {/* Matched pairs display */}
+        {matchedPairs.size > 0 && (
+          <div className="mb-4 space-y-1.5">
+            {Array.from(matchedPairs).sort().map(function(pairId) {
+              var pair = cards.filter(function(c) { return c.pairId === pairId })
+              if (pair.length !== 2) return null
+              return (
+                <div key={pairId} className="flex items-center gap-2 text-sm text-muted-foreground/70 font-poem leading-6 justify-center">
+                  <span>{pair[0].text}</span>
+                  <span className="text-muted-foreground/30">→</span>
+                  <span>{pair[1].text}</span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        <div className="grid grid-cols-4 gap-3 mb-4">
           {cards.map(function(card) {
             var isSelected = selected.includes(card.id)
             var isMatched = matchedPairs.has(card.pairId)

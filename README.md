@@ -7,8 +7,8 @@
 | 平台 | 下载地址 |
 |------|----------|
 | Web版 | https://k12.xuegushi.com |
-| macOS (Apple Silicon) | [下载 .dmg](https://github.com/xuegushi/gushi_k12/releases/tag/v0.1.1) |
-| 桌面版 (v0.1.1) | [GitHub Releases](https://github.com/xuegushi/gushi_k12/releases/tag/v0.1.0) |
+| macOS (Apple Silicon) | [下载 .dmg](https://github.com/xuegushi/gushi_k12/releases/tag/v0.1.2) |
+| 桌面版 (v0.1.2) | [GitHub Releases](https://github.com/xuegushi/gushi_k12/releases/tag/v0.1.0) |
 
 ## 页面预览
 
@@ -50,6 +50,13 @@
 | 知识点 | AI 生成的问答知识点，支持折叠/展开/筛选 |
 | 学习统计 | 按类型/学段统计完成率，周学习柱状图，连续天数，历史记录 |
 | 工具箱 | 文言文翻译（AI 双向）、文本朗读（音色/语速/音调可配置）、字迹演练（笔顺动画） |
+| 诗词雨 | Canvas 矩阵雨动画，逐列飘落诗句，悬停展示详情 |
+| 诗词排序 | 拖拽标点切分的片段，还原诗句顺序 |
+| 诗词填空 | 从候选字池选字填入诗句空白处 |
+| 飞花令 | 输入包含指定主题字的诗句（8 类 158 个字库） |
+| 诗词连连看 | 翻转卡片配对上下句 |
+| 诗词拼图 | 点击两个字块交换位置，还原正确字序 |
+| 游戏记录 | 所有游戏自动计时、音效、记录保存与查看 |
 | 主题 | 5 套配色方案 + 深色/浅色模式 |
 | 多用户 | 游客模式 + 创建用户，数据自动继承 |
 | AI 调用统计 | 各平台调用次数/tokens/耗时记录 |
@@ -91,8 +98,8 @@ npm run tauri:build  # 构建桌面端应用
 ```
 gushi_k12/
 ├── src/
-│   ├── pages/          # 页面组件（Home/PoemList/PoemDetail/StudyPlan/Review/Progress/AiSettings/Tools等）
-│   ├── components/     # 通用组件（Layout/AIAssistant/PoemContent/PinyinText/RecitationDialog/TextSelectionToolbar等）
+│   ├── pages/          # 页面组件（Home/PoemList/PoemDetail/StudyPlan/Review/Progress/AiSettings/Tools/PoemRain/PoemSort/PoemFill/PoemChain/PoemMatch/PoemPuzzle/GameRecords等）
+│   ├── components/     # 通用组件（Layout/AIAssistant/PoemContent/PinyinText/RecitationDialog/TextSelectionToolbar/RecordsModal等）
 │   ├── store/          # Zustand 状态（index/selection/ui/user）
 │   ├── lib/            # 工具库（db.ts/ai.ts/poems.ts/recitation.ts/studyPlan.ts/character.ts）
 │   ├── hooks/          # 自定义 Hooks
