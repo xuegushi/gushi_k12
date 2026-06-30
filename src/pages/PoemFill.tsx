@@ -116,11 +116,11 @@ export default function PoemFill() {
 
         {/* Poem with blanks */}
         <div className="rounded-xl bg-gradient-to-b from-muted/50 to-muted/30 p-6 mb-4">
-          {poem && poem.content.map(function(line, li) {
+          {poem && poem.content.map(function(line: string, li: number) {
             var chars = line.split('')
             return (
               <p key={li} className="text-center text-lg leading-8 lg:text-xl lg:leading-10 font-poem tracking-wide mb-1">
-                {chars.map(function(ch, ci) {
+                {chars.map(function(ch: string, ci: number) {
                   var blank = blanks.find(function(b) { return b.lineIdx === li && b.charIdx === ci })
                   if (!blank) return <span key={ci} className="inline-flex items-center justify-center align-middle w-7 h-8 lg:w-8 lg:h-9 text-base lg:text-lg">{ch}</span>
                   var key = li + '-' + ci

@@ -85,7 +85,7 @@ function RainCanvas({ poems, fs, onToggleFs }: { poems: Poem[]; fs: boolean; onT
     var colorLUT = new Array(COLOR_STEPS)
     var dimLUT = new Array(COLOR_STEPS)
     ;(function() {
-      var stops = [
+      var stops: [number, [number, number, number], number][] = [
         [0.00, [236, 255, 243], 1.00],
         [0.07, [130, 255, 178], 1.00],
         [0.22, [50,  236, 110], 0.98],
@@ -145,6 +145,7 @@ function RainCanvas({ poems, fs, onToggleFs }: { poems: Poem[]; fs: boolean; onT
     }
 
     function resize() {
+      if (!canvas) return
       DPR = Math.min(window.devicePixelRatio || 1, 2)
       var parent = canvas.parentElement
       if (!parent) return
@@ -173,8 +174,10 @@ function RainCanvas({ poems, fs, onToggleFs }: { poems: Poem[]; fs: boolean; onT
     }
     function onLeave() { mouseInside = false; activeCol = -1; setHoveredPoem(null) }
 
-    canvas.addEventListener('mousemove', onMove as any)
-    canvas.addEventListener('mouseleave', onLeave)
+    if (canvas) {
+      canvas.addEventListener('mousemove', onMove as any)
+      canvas.addEventListener('mouseleave', onLeave)
+    }
     window.addEventListener('touchmove', function(e: TouchEvent) { if (e.touches.length) onMove(e.touches[0]) }, { passive: true })
     window.addEventListener('touchstart', function(e: TouchEvent) { if (e.touches.length) onMove(e.touches[0]) }, { passive: true })
     window.addEventListener('touchend', function() { mouseInside = false; activeCol = -1; setHoveredPoem(null) })
@@ -278,8 +281,10 @@ function RainCanvas({ poems, fs, onToggleFs }: { poems: Poem[]; fs: boolean; onT
 
     return function() {
       cancelAnimationFrame(animId)
-      canvas.removeEventListener('mousemove', onMove as any)
-      canvas.removeEventListener('mouseleave', onLeave as any)
+      if (canvas) {
+        canvas.removeEventListener('mousemove', onMove as any)
+        canvas.removeEventListener('mouseleave', onLeave as any)
+      }
       window.removeEventListener('resize', resize)
     }
   }, [poems])
@@ -316,15 +321,6 @@ function RainCanvas({ poems, fs, onToggleFs }: { poems: Poem[]; fs: boolean; onT
   )
 }
 
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  ctx.beginPath()
-  ctx.moveTo(x + r, y)
-  ctx.arcTo(x + w, y, x + w, y + h, r)
-  ctx.arcTo(x + w, y + h, x, y + h, r)
-  ctx.arcTo(x, y + h, x, y, r)
-  ctx.arcTo(x, y, x + w, y, r)
-  ctx.closePath()
-}
 
 function PoemPopup({ poem, mousePos, canvasRef }: { poem: Poem; mousePos: { x: number; y: number }; canvasRef: React.RefObject<HTMLCanvasElement | null> }) {
   var rect = canvasRef.current?.getBoundingClientRect()

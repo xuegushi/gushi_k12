@@ -3,7 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { useStore } from '../store'
 import { chat } from '../lib/ai'
 import { db } from '../lib/db'
-import { Wrench, Languages, Volume2, PenTool, Droplets, Puzzle, Edit3, Cherry, LayoutGrid, Grid3X3, Trophy } from 'lucide-react'
+import { Wrench, Languages, Volume2, PenTool, Droplets, Puzzle, Edit3, Cherry, LayoutGrid, Grid3X3 } from 'lucide-react'
 
 type Tab = 'translate' | 'tts' | 'handwriting'
 

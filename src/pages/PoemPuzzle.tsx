@@ -11,7 +11,6 @@ export default function PoemPuzzle() {
   var [pool, setPool] = useState<string[]>([])
   var [target, setTarget] = useState<string[]>([])
   var [filled, setFilled] = useState<(string | null)[]>([])
-  var [moves, setMoves] = useState(0)
   var [completed, setCompleted] = useState(false)
   var [poem, setPoem] = useState<any>(null)
   var [startTime, setStartTime] = useState(0)
@@ -41,7 +40,6 @@ export default function PoemPuzzle() {
       shuffled = shuffle([...chars])
     }
     setPool(shuffled)
-    setMoves(0)
     setCompleted(false)
     setStartTime(Date.now())
     setElapsed(0)
@@ -63,14 +61,13 @@ export default function PoemPuzzle() {
     var next = [...filled]
     next[idx] = ch
     setFilled(next)
-    setPool(function(prev) { var a = [...prev]; var fi = a.indexOf(ch); if (fi >= 0) a.splice(fi, 1); return a })
+    setPool(function(prev) { var idx = prev.indexOf(ch); return idx >= 0 ? prev.filter(function(_: string, i: number) { return i !== idx }) : prev })
 
     // Check if all filled
     if (next.indexOf(null) === -1) {
       var correct = next.every(function(c, i) { return c === target[i] })
       setCompleted(correct)
       if (correct) { playTone(true); if (poem) db.gameRecords.add({ game: '拼图', poemTitle: poem.title, poemAuthor: poem.author, elapsed: elapsed, success: true, createdAt: new Date() }) }
-      setMoves(function(p) { return p + 1 })
     }
   }
 
@@ -81,7 +78,7 @@ export default function PoemPuzzle() {
     var next = [...filled]
     next[idx] = null
     setFilled(next)
-    setPool(function(prev) { return [...prev, ch] })
+    setPool(function(prev) { return ch ? [...prev, ch] : prev })
   }
 
   function undo() {
@@ -116,15 +113,15 @@ export default function PoemPuzzle() {
           <div className="mb-4">
             <p className="text-xs text-muted-foreground text-center mb-2">点击下方汉字填入正确位置</p>
             <div className="flex flex-wrap justify-center gap-x-1 gap-y-2">
-              {poem.content.map(function(line, li) {
+              {poem.content.map(function(line: string, li: number) {
                 var startIdx = 0
                 for (var si = 0; si < li; si++) {
-                  startIdx += poem.content[si].split('').filter(function(c) { return /[\u4e00-\u9fff]/.test(c) }).length
+                  startIdx += poem.content[si].split('').filter(function(c: string) { return /[\u4e00-\u9fff]/.test(c) }).length
                 }
-                var chars = line.split('').filter(function(c) { return /[\u4e00-\u9fff]/.test(c) })
+                var chars = line.split('').filter(function(c: string) { return /[\u4e00-\u9fff]/.test(c) })
                 return (
                   <div key={li} className="flex items-center gap-0.5">
-                    {chars.map(function(ch, ci) {
+                    {chars.map(function(_ch: string, ci: number) {
                       var idx = startIdx + ci
                       var val = filled[idx]
                       var isCorrect = completed || (val && val === target[idx])

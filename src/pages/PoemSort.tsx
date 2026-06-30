@@ -131,12 +131,12 @@ export default function PoemSort() {
 
     if (existing) {
       if (draggedFrom?.type === 'pool') {
-        setPool(function(prev) { return [...prev, existing] })
+        setPool(function(prev) { return [...prev, existing!] })
       } else if (draggedFrom?.type === 'slot' && draggedFrom.lineIdx !== undefined && draggedFrom.slotIdx !== undefined) {
         newSlots[draggedFrom.lineIdx][draggedFrom.slotIdx] = existing
       }
-    } else if (draggedFrom?.type === 'pool') {
-      setPool(function(prev) { return prev.filter(function(s) { return s.id !== draggedSeg.id }) })
+    } else if (draggedFrom?.type === 'pool' && draggedSeg) {
+      setPool(function(prev) { return prev.filter(function(s) { return s.id !== draggedSeg!.id }) })
     }
 
     setSlots(newSlots)
@@ -154,14 +154,14 @@ export default function PoemSort() {
       var newSlots = slots.map(function(line) { return [...line] })
       newSlots[lineIdx][slotIdx] = null
       setSlots(newSlots)
-      setPool(function(prev) { return [...prev, existing] })
+      setPool(function(prev) { return [...prev, existing!] })
       return
     }
     if (!selectedSeg) return
     var newSlots = slots.map(function(line) { return [...line] })
     newSlots[lineIdx][slotIdx] = selectedSeg
     setSlots(newSlots)
-    setPool(function(prev) { return prev.filter(function(s) { return s.id !== selectedSeg.id }) })
+    setPool(function(prev) { return prev.filter(function(s) { return s.id !== selectedSeg!.id }) })
     setSelectedSeg(null)
   }
 

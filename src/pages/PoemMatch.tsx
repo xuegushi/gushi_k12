@@ -17,6 +17,7 @@ export default function PoemMatch() {
   var [elapsed, setElapsed] = useState(0)
   var [showRecords, setShowRecords] = useState(false)
   var doneRef = useRef(false)
+  var allMatched = false
 
   function initGame() {
     var pool = poems.filter(function(p) { return (p.type === '诗' || p.type === '词') && p.content.length >= 4 && p.grade >= 1 && p.grade <= 6 })
@@ -81,7 +82,7 @@ export default function PoemMatch() {
     }
   }
 
-  var allMatched = cards.length > 0 && matchedPairs.size === cards.length / 2
+  allMatched = cards.length > 0 && matchedPairs.size === cards.length / 2
 
   return (
     <div className="page-enter">

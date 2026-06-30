@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { db } from '../lib/db'
-import { ArrowLeft, Trophy, Clock, RotateCcw } from 'lucide-react'
+import { ArrowLeft, Clock } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 var GAME_LABELS: Record<string, string> = {
