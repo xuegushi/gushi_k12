@@ -16,6 +16,7 @@ export default defineConfig({
     hmr: host ? { protocol: 'ws', host, port: 1421 } : undefined,
   },
   build: {
+    chunkSizeWarningLimit: 5000,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -27,6 +28,7 @@ export default defineConfig({
           if (id.includes('node_modules/lucide-react')) return 'vendor-icons'
           if (id.includes('node_modules/cnchar')) return 'vendor-cnchar'
           if (id.includes('node_modules/pinyin-pro')) return 'vendor-pinyin'
+          if (id.includes('kris2808__similar-chinese-characters')) return 'vendor-similar-chars'
         },
       },
     },

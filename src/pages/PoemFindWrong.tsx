@@ -292,6 +292,13 @@ export default function PoemFindWrong() {
 
   function nextRound() { initGame() }
 
+  function resetRound() {
+    setSelected(new Set())
+    setResult('idle')
+    setStartTime(Date.now())
+    setElapsed(0)
+  }
+
   function isWrongPos(lineIdx: number, charIdx: number) {
     return wrongChars.some(function(w) { return w.lineIdx === lineIdx && w.charIdx === charIdx })
   }
@@ -360,7 +367,7 @@ export default function PoemFindWrong() {
 
         {/* Controls */}
         <div className="flex gap-3 justify-center">
-          <button onClick={initGame} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted text-foreground text-sm font-medium hover:bg-muted/70 transition-colors card-hover">
+          <button onClick={resetRound} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted text-foreground text-sm font-medium hover:bg-muted/70 transition-colors card-hover">
             <RotateCcw className="h-3.5 w-3.5" /> 重来
           </button>
           <button onClick={nextRound} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted text-foreground text-sm font-medium hover:bg-muted/70 transition-colors card-hover">
