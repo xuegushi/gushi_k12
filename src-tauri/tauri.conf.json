@@ -27,9 +27,8 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["deb", "appimage", "dmg", "app", "nsis"],
     "windows": {
-      "wix": null,
       "nsis": {
         "installMode": "currentUser"
       }
