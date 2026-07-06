@@ -109,7 +109,7 @@ export default function PoemChain() {
           </button>
         </div>
 
-        {hint && <div className={'text-xs text-center mb-3 ' + (hint.includes('已经') || hint.includes('未收录') ? 'text-amber-500' : 'text-red-500')}>{hint}</div>}
+        {hint && <div className={'text-xs text-center mb-3 ' + (hint.includes('已经') || hint.includes('未收录') ? 'text-amber-500 dark:text-amber-400' : 'text-red-500 dark:text-red-400')}>{hint}</div>}
 
         {/* Matched list */}
         <div className="rounded-xl border bg-card p-4 min-h-[120px]">

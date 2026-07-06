@@ -9,6 +9,8 @@ var GAME_LABELS: Record<string, string> = {
   '连连看': '诗词连连看',
   '飞花令': '飞花令',
   '拼图': '诗词拼图',
+  '找茬': '诗词找茬',
+  '接龙': '诗词接龙',
 }
 
 export default function GameRecords() {
@@ -64,7 +66,7 @@ export default function GameRecords() {
           {records.map(function(r, i) {
             return (
               <div key={r.id || i} className="flex items-center gap-3 rounded-xl border bg-card p-3 text-sm">
-                <div className={'shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ' + (r.success ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600')}>
+                <div className={'shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ' + (r.success ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400')}>
                   {r.success ? '✓' : '✗'}
                 </div>
                 <div className="flex-1 min-w-0">

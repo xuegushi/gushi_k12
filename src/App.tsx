@@ -25,6 +25,8 @@ const PoemFill = lazy(() => import('./pages/PoemFill'))
 const PoemChain = lazy(() => import('./pages/PoemChain'))
 const PoemMatch = lazy(() => import('./pages/PoemMatch'))
 const PoemPuzzle = lazy(() => import('./pages/PoemPuzzle'))
+const PoemFindWrong = lazy(() => import('./pages/PoemFindWrong'))
+const PoemChainLink = lazy(() => import('./pages/PoemChainLink'))
 const GameRecords = lazy(() => import('./pages/GameRecords'))
 
 function Loading() {
@@ -71,6 +73,8 @@ export default function App() {
           <Route path="/games/poem-chain" element={<PoemChain />} />
           <Route path="/games/poem-match" element={<PoemMatch />} />
           <Route path="/games/poem-puzzle" element={<PoemPuzzle />} />
+          <Route path="/games/poem-find-wrong" element={<PoemFindWrong />} />
+          <Route path="/games/poem-chain-link" element={<PoemChainLink />} />
           <Route path="/game-records" element={<GameRecords />} />
           <Route path="/users" element={<Users />} />
         </Routes>

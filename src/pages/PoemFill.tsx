@@ -197,7 +197,7 @@ export default function PoemFill() {
                   var val = filled[key]
                   var isWrong = result === 'error' && val && val !== blank.answer
                   return (
-                    <span key={ci} className={'inline-flex items-center justify-center align-middle mx-[1px] w-7 h-8 lg:w-8 lg:h-9 rounded text-base lg:text-lg border-2 leading-none ' + (val ? (isWrong ? 'border-red-400 bg-red-50 text-red-500' : 'border-emerald-400 bg-emerald-50 text-emerald-600') : 'border-dashed border-muted-foreground/80 bg-muted/30')}>
+                    <span key={ci} className={'inline-flex items-center justify-center align-middle mx-[1px] w-7 h-8 lg:w-8 lg:h-9 rounded text-base lg:text-lg border-2 leading-none ' + (val ? (isWrong ? 'border-red-400 bg-red-50 text-red-500 dark:border-red-600 dark:bg-red-900/30 dark:text-red-400' : 'border-emerald-400 bg-emerald-50 text-emerald-600 dark:border-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400') : 'border-dashed border-muted-foreground/80 bg-muted/30')}>
                       {val || ''}
                     </span>
                   )
@@ -223,7 +223,7 @@ export default function PoemFill() {
 
         {/* Result */}
         {result && (
-          <div className={'px-4 py-2 text-center font-semibold rounded-lg mb-4 ' + (result === 'success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600')}>
+          <div className={'px-4 py-2 text-center font-semibold rounded-lg mb-4 ' + (result === 'success' ? 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400')}>
             {result === 'success' ? '🎉 全部正确！用时 ' + elapsed + '秒' : '❌ 有些字不对哦'}
           </div>
         )}

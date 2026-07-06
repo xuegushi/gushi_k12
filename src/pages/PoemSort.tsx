@@ -249,14 +249,14 @@ export default function PoemSort() {
             var allFilled = filled === total
             return (
               <div key={lineIdx}
-                className={'p-2 lg:p-3 rounded-xl border-2 transition-all ' + (allFilled ? (result === 'success' ? 'border-green-400 bg-green-50' : result === 'error' ? 'border-red-400 bg-red-50' : 'border-blue-400 bg-blue-50') : 'border-border bg-card')}>
+                className={'p-2 lg:p-3 rounded-xl border-2 transition-all ' + (allFilled ? (result === 'success' ? 'border-green-400 bg-green-50 dark:border-green-600 dark:bg-green-900/30' : result === 'error' ? 'border-red-400 bg-red-50 dark:border-red-600 dark:bg-red-900/30' : 'border-blue-400 bg-blue-50 dark:border-blue-600 dark:bg-blue-900/30') : 'border-border bg-card')}>
                 <div className="flex items-stretch gap-2 flex-wrap">
                   {lineSlots.map(function(slot, slotIdx) {
                     return (
                       <div key={slotIdx}
                         className={'flex-1 min-w-[80px] lg:min-w-[100px] h-10 lg:h-11 rounded-lg border-2 flex items-center justify-center text-sm font-medium transition-all cursor-pointer ' + (slot
-                          ? 'border-solid bg-blue-50 border-blue-400 text-blue-700 px-2'
-                          : selectedSeg ? 'border-dashed border-blue-400 bg-blue-50/50' : 'border-dashed border-slate-300 bg-muted')}
+                          ? 'border-solid bg-blue-50 border-blue-400 text-blue-700 dark:bg-blue-900/30 dark:border-blue-600 dark:text-blue-300 px-2'
+                          : selectedSeg ? 'border-dashed border-blue-400 bg-blue-50/50 dark:border-blue-600 dark:bg-blue-950/30' : 'border-dashed border-slate-300 bg-muted')}
                         onDragOver={function(e) { e.preventDefault(); if (!slot) { (e.currentTarget as HTMLElement).classList.add('border-blue-500', 'bg-blue-100') } }}
                         onDragLeave={function(e) { if (!slot) { (e.currentTarget as HTMLElement).classList.remove('border-blue-500', 'bg-blue-100') } }}
                         onDrop={function(e) { e.preventDefault(); (e.currentTarget as HTMLElement).classList.remove('border-blue-500', 'bg-blue-100'); handleDrop(lineIdx, slotIdx) }}
@@ -286,7 +286,7 @@ export default function PoemSort() {
             {pool.map(function(seg) {
               return (
                 <div key={seg.id}
-                  className={'px-3 lg:px-4 py-1.5 lg:py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs lg:text-sm font-medium shadow-sm transition-all ' + (selectedSeg?.id === seg.id ? 'ring-3 ring-yellow-300 scale-105 cursor-pointer' : 'cursor-grab active:cursor-grabbing hover:shadow-md') + (draggedSeg?.id === seg.id ? ' opacity-50 scale-95' : '')}
+                  className={'px-3 lg:px-4 py-1.5 lg:py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs lg:text-sm font-medium shadow-sm transition-all ' + (selectedSeg?.id === seg.id ? 'ring-3 ring-yellow-300 dark:ring-yellow-500 scale-105 cursor-pointer' : 'cursor-grab active:cursor-grabbing hover:shadow-md') + (draggedSeg?.id === seg.id ? ' opacity-50 scale-95' : '')}
                   draggable onDragStart={function() { handleDragStart(seg, { type: 'pool' }) }}
                   onDragEnd={function() { setDraggedSeg(null); setDraggedFrom(null) }}
                   onClick={function() { handleSelectSegment(seg) }}>
@@ -300,7 +300,7 @@ export default function PoemSort() {
 
         {/* Result */}
         {result && (
-          <div className={'px-4 py-2 text-center font-semibold rounded-lg mb-4 ' + (result === 'success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600')}>
+          <div className={'px-4 py-2 text-center font-semibold rounded-lg mb-4 ' + (result === 'success' ? 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400')}>
             {result === 'success' ? '🎉 太棒了！回答正确！' : '❌ 有些片段位置不对哦，再试试吧！'}
           </div>
         )}
@@ -347,7 +347,7 @@ export default function PoemSort() {
               {historyRecords.map(function(r, i) {
                 return (
                   <div key={r.id || i} className="flex items-center gap-3 rounded-xl border bg-card p-3 text-sm">
-                    <div className={'shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ' + (r.success ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600')}>
+                    <div className={'shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ' + (r.success ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400')}>
                       {r.success ? '✓' : '✗'}
                     </div>
                     <div className="flex-1 min-w-0">

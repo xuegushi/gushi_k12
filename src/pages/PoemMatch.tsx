@@ -149,7 +149,7 @@ export default function PoemMatch() {
             var isMatched = matchedPairs.has(card.pairId)
             return (
               <button key={card.id} onClick={function() { if (!isMatched) selectCard(card.id) }}
-                className={'h-20 rounded-xl text-sm font-poem tracking-wide transition-all duration-200 cursor-pointer ' + (isMatched ? 'border-2 border-emerald-300 bg-emerald-50 text-emerald-700 opacity-60' : isSelected ? 'ring-2 ring-offset-1 ring-primary scale-105 shadow-md text-white' : 'text-white hover:brightness-110 shadow-sm')}
+                className={'h-20 rounded-xl text-sm font-poem tracking-wide transition-all duration-200 cursor-pointer ' + (isMatched ? 'border-2 border-emerald-300 bg-emerald-50 text-emerald-700 opacity-60 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : isSelected ? 'ring-2 ring-offset-1 ring-primary scale-105 shadow-md text-white' : 'text-white hover:brightness-110 shadow-sm')}
                 style={isMatched ? {} : { backgroundColor: COLORS[card.id % COLORS.length], border: '2px solid ' + COLORS[card.id % COLORS.length] }}>
                 {card.text}
               </button>
@@ -158,7 +158,7 @@ export default function PoemMatch() {
         </div>
 
         {allMatched && (
-          <div className="text-center text-sm font-semibold text-emerald-600 mb-4">🎉 全部匹配！共用 {moves} 步</div>
+          <div className="text-center text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-4">🎉 全部匹配！共用 {moves} 步</div>
         )}
 
         <div className="flex gap-2 justify-center">

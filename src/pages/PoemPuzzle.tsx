@@ -131,7 +131,7 @@ export default function PoemPuzzle() {
           </div>
         )}
 
-        {completed && <div className="text-center text-sm font-semibold text-emerald-600 mb-3">🎉 完成！用时 {elapsed} 秒</div>}
+        {completed && <div className="text-center text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-3">🎉 完成！用时 {elapsed} 秒</div>}
 
         <p className="text-xs text-muted-foreground text-center mb-3">
           从下方 {poolSize}×{poolSize} 字矩阵中选出正确文字填入诗句
@@ -156,7 +156,7 @@ export default function PoemPuzzle() {
                       var isWrong = val && val !== target[idx]
                       return (
                         <button key={idx} onClick={function() { if (val) removeChar(idx) }}
-                          className={'w-8 h-8 lg:w-10 lg:h-10 rounded-lg border-2 text-sm lg:text-base font-poem font-medium transition-all cursor-pointer flex items-center justify-center ' + (val ? (isCorrect ? 'border-emerald-400 bg-emerald-50 text-emerald-700' : isWrong ? 'border-red-400 bg-red-50 text-red-600' : 'border-primary bg-primary/10 text-foreground') : 'border-dashed border-muted-foreground/40 bg-muted/30')}>
+                          className={'w-8 h-8 lg:w-10 lg:h-10 rounded-lg border-2 text-sm lg:text-base font-poem font-medium transition-all cursor-pointer flex items-center justify-center ' + (val ? (isCorrect ? 'border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : isWrong ? 'border-red-400 bg-red-50 text-red-600 dark:border-red-600 dark:bg-red-900/30 dark:text-red-400' : 'border-primary bg-primary/10 text-foreground') : 'border-dashed border-muted-foreground/40 bg-muted/30')}>
                           {val || ''}
                         </button>
                       )
