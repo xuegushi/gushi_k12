@@ -13,6 +13,7 @@
     "tauri:build": "tauri build"
   },
   "dependencies": {
+    "@leonsilicon/kris2808__similar-chinese-characters": "^0.0.0",
     "@tailwindcss/vite": "^4.3.1",
     "@tauri-apps/api": "^2.11.1",
     "cnchar": "^3.2.6",

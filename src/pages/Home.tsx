@@ -119,7 +119,7 @@ export default function Home() {
           <span className="text-xs text-muted-foreground">趣味学诗词</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <Link to="/poem-sort" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
+          <Link to="/games/poem-sort" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600">
               <Puzzle className="h-5 w-5" />
             </div>
@@ -128,7 +128,7 @@ export default function Home() {
               <p className="text-[10px] text-muted-foreground mt-0.5">拖拽还原诗句</p>
             </div>
           </Link>
-          <Link to="/poem-fill" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
+          <Link to="/games/poem-fill" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-600">
               <Edit3 className="h-5 w-5" />
             </div>
@@ -137,7 +137,7 @@ export default function Home() {
               <p className="text-[10px] text-muted-foreground mt-0.5">选字填空白</p>
             </div>
           </Link>
-          <Link to="/poem-chain" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
+          <Link to="/games/poem-chain" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-100 dark:bg-rose-900/30 text-rose-600">
               <Cherry className="h-5 w-5" />
             </div>
@@ -146,7 +146,7 @@ export default function Home() {
               <p className="text-[10px] text-muted-foreground mt-0.5">含指定字的诗句</p>
             </div>
           </Link>
-          <Link to="/poem-match" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
+          <Link to="/games/poem-match" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600">
               <LayoutGrid className="h-5 w-5" />
             </div>
@@ -155,7 +155,7 @@ export default function Home() {
               <p className="text-[10px] text-muted-foreground mt-0.5">上下句配对</p>
             </div>
           </Link>
-          <Link to="/poem-puzzle" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
+          <Link to="/games/poem-puzzle" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/30 text-teal-600">
               <Grid3X3 className="h-5 w-5" />
             </div>
@@ -164,7 +164,7 @@ export default function Home() {
               <p className="text-[10px] text-muted-foreground mt-0.5">字块还原</p>
             </div>
           </Link>
-          <Link to="/poem-rain" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
+          <Link to="/games/poem-rain" className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 card-hover text-center">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600">
               <Droplets className="h-5 w-5" />
             </div>

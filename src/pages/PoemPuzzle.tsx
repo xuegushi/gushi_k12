@@ -5,6 +5,8 @@ import { db } from '../lib/db'
 import { ArrowLeft, RefreshCw, RotateCcw } from 'lucide-react'
 import RecordsModal from '../components/RecordsModal'
 
+var COMMON_CHARS = '天地人日月星辰风云雨雪山河水火木金花鸟虫鱼春夏秋冬东西南北中大长高远近来去古往今声色光影梦魂心意情愁恨爱思知见闻说读写歌吟叹喜怒哀乐悲欢离合生死安危冷暖清浊深浅明暗'
+
 export default function PoemPuzzle() {
   var poems = useStore(function(s) { return s.poems })
   var navigate = useNavigate()
@@ -16,30 +18,55 @@ export default function PoemPuzzle() {
   var [startTime, setStartTime] = useState(0)
   var [elapsed, setElapsed] = useState(0)
   var [showRecords, setShowRecords] = useState(false)
+  var [poolSize, setPoolSize] = useState(4)
 
   function initGame() {
-    var filtered = poems.filter(function(p) { return (p.type === '诗' || p.type === '词') && p.content.length >= 2 && p.content.join('').replace(/[，。！？、\s]/g, '').length <= 30 })
+    var filtered = poems.filter(function(p) {
+      if (p.type !== '诗' && p.type !== '词') return false
+      if (p.content.length < 2) return false
+      var count = 0
+      for (var i = 0; i < p.content.length; i++) {
+        for (var j = 0; j < p.content[i].length; j++) {
+          if (/[\u4e00-\u9fff]/.test(p.content[i][j])) count++
+        }
+      }
+      return count >= 6 && count <= 30
+    })
     if (filtered.length === 0) return
+
     var p = filtered[Math.floor(Math.random() * filtered.length)]
     setPoem(p)
 
-    var chars: string[] = []
+    var poemChars: string[] = []
     for (var i = 0; i < p.content.length; i++) {
       var line = p.content[i]
       for (var j = 0; j < line.length; j++) {
-        if (/[\u4e00-\u9fff]/.test(line[j])) chars.push(line[j])
+        if (/[\u4e00-\u9fff]/.test(line[j])) poemChars.push(line[j])
       }
     }
 
-    setTarget(chars)
-    setFilled(new Array(chars.length).fill(null))
+    // Target = poem characters only (in order)
+    setTarget(poemChars)
+    setFilled(new Array(poemChars.length).fill(null))
 
-    var shuffled = shuffle([...chars])
-    // Ensure not identical to target
-    if (shuffled.every(function(c, idx) { return c === chars[idx] })) {
-      shuffled = shuffle([...chars])
+    // Pool = poem chars + filler chars, arranged in N×N matrix
+    var N = Math.ceil(Math.sqrt(poemChars.length + Math.min(poemChars.length, 12)))
+    if (N < 4) N = 4
+    var totalPool = N * N
+    var fillerCount = totalPool - poemChars.length
+
+    var commonArr = COMMON_CHARS.split('')
+    var fillerChars: string[] = []
+    for (var i = 0; i < fillerCount; i++) {
+      fillerChars.push(commonArr[Math.floor(Math.random() * commonArr.length)])
+    }
+
+    var shuffled = shuffle([...poemChars, ...fillerChars])
+    if (shuffled.slice(0, poemChars.length).every(function(c, idx) { return c === poemChars[idx] })) {
+      shuffled = shuffle([...poemChars, ...fillerChars])
     }
     setPool(shuffled)
+    setPoolSize(N)
     setCompleted(false)
     setStartTime(Date.now())
     setElapsed(0)
@@ -47,7 +74,6 @@ export default function PoemPuzzle() {
 
   useEffect(function() { if (poems.length > 0) initGame() }, [poems.length])
 
-  // Timer
   useEffect(function() {
     if (completed || startTime === 0) return
     var id = setInterval(function() { setElapsed(Math.floor((Date.now() - startTime) / 1000)) }, 1000)
@@ -63,11 +89,10 @@ export default function PoemPuzzle() {
     setFilled(next)
     setPool(function(prev) { var idx = prev.indexOf(ch); return idx >= 0 ? prev.filter(function(_: string, i: number) { return i !== idx }) : prev })
 
-    // Check if all filled
     if (next.indexOf(null) === -1) {
       var correct = next.every(function(c, i) { return c === target[i] })
       setCompleted(correct)
-      if (correct) { playTone(true); if (poem) db.gameRecords.add({ game: '拼图', poemTitle: poem.title, poemAuthor: poem.author, elapsed: elapsed, success: true, createdAt: new Date() }) }
+      if (correct) { playTone(); if (poem) db.gameRecords.add({ game: '拼图', poemTitle: poem.title, poemAuthor: poem.author, elapsed: elapsed, success: true, createdAt: new Date() }) }
     }
   }
 
@@ -100,7 +125,7 @@ export default function PoemPuzzle() {
 
       <div className="flex flex-col max-w-3xl mx-auto w-full">
         {poem && (
-          <div className="text-center mb-3">
+          <div className="text-center mb-2">
             <h2 className="text-lg font-bold text-primary">{poem.title}</h2>
             <p className="text-sm text-muted-foreground">{poem.author} · {poem.dynasty}</p>
           </div>
@@ -108,10 +133,13 @@ export default function PoemPuzzle() {
 
         {completed && <div className="text-center text-sm font-semibold text-emerald-600 mb-3">🎉 完成！用时 {elapsed} 秒</div>}
 
-        {/* Hint display - target squares */}
+        <p className="text-xs text-muted-foreground text-center mb-3">
+          从下方 {poolSize}×{poolSize} 字矩阵中选出正确文字填入诗句
+        </p>
+
+        {/* Filled slots in poem line layout */}
         {poem && (
           <div className="mb-4">
-            <p className="text-xs text-muted-foreground text-center mb-2">点击下方汉字填入正确位置</p>
             <div className="flex flex-wrap justify-center gap-x-1 gap-y-2">
               {poem.content.map(function(line: string, li: number) {
                 var startIdx = 0
@@ -133,6 +161,7 @@ export default function PoemPuzzle() {
                         </button>
                       )
                     })}
+                    {li < poem.content.length - 1 && <span className="text-muted-foreground/20 mx-0.5 select-none">|</span>}
                   </div>
                 )
               })}
@@ -140,16 +169,19 @@ export default function PoemPuzzle() {
           </div>
         )}
 
-        {/* Pool */}
-        <div className="flex flex-wrap justify-center gap-1.5 mb-4 min-h-[40px]">
-          {pool.map(function(ch, i) {
-            return (
-              <button key={i} onClick={function() { selectChar(ch) }}
-                className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg border-2 border-primary/30 bg-primary/5 text-foreground text-sm lg:text-base font-poem font-medium hover:bg-primary/10 transition-colors cursor-pointer">
-                {ch}
-              </button>
-            )
-          })}
+        {/* Pool matrix grid */}
+        <p className="text-xs text-muted-foreground text-center mb-2">候选字</p>
+        <div className="flex justify-center mb-4">
+          <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(' + poolSize + ', minmax(0, 1fr))' }}>
+            {pool.map(function(ch, i) {
+              return (
+                <button key={i} onClick={function() { selectChar(ch) }}
+                  className="w-10 h-10 lg:w-12 lg:h-12 rounded-lg border-2 border-primary/30 bg-primary/5 text-foreground text-sm lg:text-base font-poem font-medium hover:bg-primary/10 hover:border-primary/50 transition-colors cursor-pointer">
+                  {ch}
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         {/* Controls */}
@@ -180,7 +212,7 @@ export default function PoemPuzzle() {
 
 function shuffle<T>(a: T[]) { var arr = [...a]; for (var i = arr.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]] }; return arr }
 
-function playTone(_correct: boolean) {
+function playTone() {
   try {
     var ctx = new AudioContext()
     var osc = ctx.createOscillator()

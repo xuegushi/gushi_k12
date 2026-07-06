@@ -18,6 +18,7 @@ const Settings = lazy(() => import('./pages/Settings'))
 const AiSettings = lazy(() => import('./pages/AiSettings'))
 const Users = lazy(() => import('./pages/Users'))
 const Tools = lazy(() => import('./pages/Tools'))
+const Games = lazy(() => import('./pages/Games'))
 const PoemRain = lazy(() => import('./pages/PoemRain'))
 const PoemSort = lazy(() => import('./pages/PoemSort'))
 const PoemFill = lazy(() => import('./pages/PoemFill'))
@@ -63,12 +64,13 @@ export default function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/ai-settings" element={<AiSettings />} />
           <Route path="/tools" element={<Tools />} />
-          <Route path="/poem-rain" element={<PoemRain />} />
-          <Route path="/poem-sort" element={<PoemSort />} />
-          <Route path="/poem-fill" element={<PoemFill />} />
-          <Route path="/poem-chain" element={<PoemChain />} />
-          <Route path="/poem-match" element={<PoemMatch />} />
-          <Route path="/poem-puzzle" element={<PoemPuzzle />} />
+          <Route path="/games" element={<Games />} />
+          <Route path="/games/poem-rain" element={<PoemRain />} />
+          <Route path="/games/poem-sort" element={<PoemSort />} />
+          <Route path="/games/poem-fill" element={<PoemFill />} />
+          <Route path="/games/poem-chain" element={<PoemChain />} />
+          <Route path="/games/poem-match" element={<PoemMatch />} />
+          <Route path="/games/poem-puzzle" element={<PoemPuzzle />} />
           <Route path="/game-records" element={<GameRecords />} />
           <Route path="/users" element={<Users />} />
         </Routes>

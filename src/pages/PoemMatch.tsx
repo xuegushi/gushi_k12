@@ -5,14 +5,16 @@ import { ArrowLeft, RefreshCw, RotateCcw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import RecordsModal from '../components/RecordsModal'
 
+var COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#a855f7', '#06b6d4', '#f97316', '#ec4899', '#14b8a6', '#84cc16']
+
 export default function PoemMatch() {
   var poems = useStore(function(s) { return s.poems })
   var navigate = useNavigate()
-  var [cards, setCards] = useState<{ id: number; text: string; pairId: number }[]>([])
+  var [cards, setCards] = useState<{ id: number; text: string; pairId: number; poemTitle: string }[]>([])
   var [selected, setSelected] = useState<number[]>([])
   var [matchedPairs, setMatchedPairs] = useState<Set<number>>(new Set())
   var [moves, setMoves] = useState(0)
-  var [poem, setPoem] = useState<any>(null)
+  var [gamePoems, setGamePoems] = useState<any[]>([])
   var [startTime, setStartTime] = useState(0)
   var [elapsed, setElapsed] = useState(0)
   var [showRecords, setShowRecords] = useState(false)
@@ -20,22 +22,37 @@ export default function PoemMatch() {
   var allMatched = false
 
   function initGame() {
-    var pool = poems.filter(function(p) { return (p.type === '诗' || p.type === '词') && p.content.length >= 4 && p.grade >= 1 && p.grade <= 6 })
-    if (pool.length === 0) return
+    var pool = poems.filter(function(p) { return (p.type === '诗' || p.type === '词') && p.content.length >= 4 })
+    if (pool.length < 2) return
 
-    var p = pool[Math.floor(Math.random() * pool.length)]
-    setPoem(p)
-    var lines = p.content.slice(0, Math.min(p.content.length, 6))
-    if (lines.length < 4 || lines.length % 2 !== 0) { initGame(); return }
-
-    // Pair consecutive lines (1↔2, 3↔4, ...)
-    var cardList: { id: number; text: string; pairId: number }[] = []
-    var pairIdx = 0
-    for (var i = 0; i < lines.length; i += 2) {
-      cardList.push({ id: pairIdx * 2, text: lines[i], pairId: pairIdx })
-      cardList.push({ id: pairIdx * 2 + 1, text: lines[i + 1], pairId: pairIdx })
-      pairIdx++
+    // Pick 2-3 poems
+    var poemCount = Math.random() < 0.4 ? 2 : 3
+    var selected: any[] = []
+    var shuffled = shuffle(pool)
+    for (var i = 0; i < shuffled.length && selected.length < poemCount; i++) {
+      selected.push(shuffled[i])
     }
+    if (selected.length < 2) return
+    setGamePoems(selected)
+
+    var cardList: { id: number; text: string; pairId: number; poemTitle: string }[] = []
+    var globalPairIdx = 0
+
+    for (var pi = 0; pi < selected.length; pi++) {
+      var p = selected[pi]
+      var lines = p.content.slice(0, Math.min(p.content.length, 8))
+      var maxPairs = Math.min(Math.floor(lines.length / 2), 3)
+
+      var taken = 0
+      for (var li = 0; li < lines.length - 1 && taken < maxPairs; li += 2) {
+        cardList.push({ id: globalPairIdx * 2, text: lines[li], pairId: globalPairIdx, poemTitle: p.title })
+        cardList.push({ id: globalPairIdx * 2 + 1, text: lines[li + 1], pairId: globalPairIdx, poemTitle: p.title })
+        globalPairIdx++
+        taken++
+      }
+    }
+
+    if (cardList.length < 4) { initGame(); return }
 
     setCards(shuffle(cardList))
     setSelected([])
@@ -54,9 +71,9 @@ export default function PoemMatch() {
   }, [startTime])
 
   useEffect(function() {
-    if (allMatched) {
+    if (allMatched && gamePoems.length > 0) {
       setTimeout(function() { playTone(true); playTone(true) }, 300)
-      if (poem) db.gameRecords.add({ game: '连连看', poemTitle: poem.title, poemAuthor: poem.author, elapsed: elapsed, success: true, createdAt: new Date() })
+      db.gameRecords.add({ game: '连连看', poemTitle: gamePoems.map(function(p) { return p.title }).join('、'), poemAuthor: gamePoems.map(function(p) { return p.author }).join('、'), elapsed: elapsed, success: true, createdAt: new Date() })
     }
   }, [allMatched])
 
@@ -113,23 +130,27 @@ export default function PoemMatch() {
               var pair = cards.filter(function(c) { return c.pairId === pairId })
               if (pair.length !== 2) return null
               return (
-                <div key={pairId} className="flex items-center gap-2 text-sm text-muted-foreground/70 font-poem leading-6 justify-center">
-                  <span>{pair[0].text}</span>
-                  <span className="text-muted-foreground/30">→</span>
-                  <span>{pair[1].text}</span>
+                <div key={pairId} className="flex flex-col items-center gap-0.5">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground/70 font-poem leading-6 justify-center">
+                    <span>{pair[0].text}</span>
+                    <span className="text-muted-foreground/30">→</span>
+                    <span>{pair[1].text}</span>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground/40">{pair[0].poemTitle}</span>
                 </div>
               )
             })}
           </div>
         )}
 
-        <div className="grid grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
           {cards.map(function(card) {
             var isSelected = selected.includes(card.id)
             var isMatched = matchedPairs.has(card.pairId)
             return (
               <button key={card.id} onClick={function() { if (!isMatched) selectCard(card.id) }}
-                className={'h-20 rounded-xl border-2 text-sm font-poem tracking-wide transition-all duration-200 cursor-pointer ' + (isMatched ? 'border-emerald-300 bg-emerald-50 text-emerald-700 opacity-60' : isSelected ? 'border-primary bg-primary/10 text-foreground shadow-md' : 'border-border bg-card text-muted-foreground hover:border-primary/30')}>
+                className={'h-20 rounded-xl text-sm font-poem tracking-wide transition-all duration-200 cursor-pointer ' + (isMatched ? 'border-2 border-emerald-300 bg-emerald-50 text-emerald-700 opacity-60' : isSelected ? 'ring-2 ring-offset-1 ring-primary scale-105 shadow-md text-white' : 'text-white hover:brightness-110 shadow-sm')}
+                style={isMatched ? {} : { backgroundColor: COLORS[card.id % COLORS.length], border: '2px solid ' + COLORS[card.id % COLORS.length] }}>
                 {card.text}
               </button>
             )

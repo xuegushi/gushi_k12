@@ -5,6 +5,75 @@ import { ArrowLeft, Undo2, RefreshCw, RotateCcw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import RecordsModal from '../components/RecordsModal'
 
+var OPTION_POOL = '天地人日月星辰风云雨雪山河水火木金花鸟虫鱼春夏秋冬东西南北中大长高远近来去古往今声色光影梦魂心意情愁恨爱思知见闻说读写歌吟叹喜怒哀乐悲欢离合生死安危冷暖清浊深浅明暗阳阴晴圆缺晨暮昼夜朝夕朝暮夕照光辉芒炎凉温热冷寒枯荣兴衰成败得失望归去来兮止行立卧坐起走奔跃飞浮沉潜飘落洒满盈空虚无实真假善恶美丑智愚巧拙雅俗贵贱贫富尊卑主仆臣君官民贼寇盗匪兵将帅士卒'
+
+var similarCache: Record<string, { lookalikes: string[]; homophones: string[] }> | null = null
+
+function shuffle<T>(a: T[]) { var arr = [...a]; for (var i = arr.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]] }; return arr }
+
+async function getLookalikeDistractors(answerChars: string[], count: number): Promise<string[]> {
+  if (!similarCache) {
+    similarCache = {}
+    var cnchar = (await import('cnchar')).default
+    await import('cnchar-trad')
+    var mod: any = await import('@leonsilicon/kris2808__similar-chinese-characters')
+    var rows: any[][] = mod.default.rows
+
+    for (var r of rows) {
+      var tradChar = r[0]
+      var laList = r[3] ? r[3].split(';') : []
+      var hpList = r[4] ? r[4].split(';') : []
+      similarCache[tradChar] = { lookalikes: laList, homophones: hpList }
+      // Also map simplified version if different
+      try {
+        var simpleChar = cnchar.convert.tradToSimple(tradChar)
+        if (simpleChar && simpleChar !== tradChar) {
+          if (!similarCache[simpleChar]) similarCache[simpleChar] = { lookalikes: [], homophones: [] }
+          similarCache[simpleChar].lookalikes.push(...laList)
+          similarCache[simpleChar].homophones.push(...hpList)
+        }
+      } catch (e) { /* skip */ }
+    }
+  }
+
+  var result: string[] = []
+  var cncharLocal: any = null
+
+  for (var char of answerChars) {
+    var entry = similarCache[char]
+    if (!entry) {
+      if (!cncharLocal) { var c = (await import('cnchar')).default; await import('cnchar-trad'); cncharLocal = c }
+      try {
+        var trad = cncharLocal.convert.simpleToTrad(char)
+        if (trad !== char) entry = similarCache[trad]
+      } catch (e) { /* skip */ }
+    }
+    if (entry) {
+      var laArr = entry.lookalikes.filter(function(c) { return c !== char && !result.includes(c) && !answerChars.includes(c) })
+      for (var la of laArr) {
+        if (result.length >= count) break
+        if (cncharLocal) {
+          try {
+            var s = cncharLocal.convert.tradToSimple(la)
+            if (!result.includes(s) && !answerChars.includes(s)) { result.push(s); continue }
+          } catch (e) { /* skip */ }
+        }
+        if (!result.includes(la) && !answerChars.includes(la)) result.push(la)
+      }
+    }
+    if (result.length >= count) break
+  }
+
+  // Fallback to random chars if not enough lookalikes
+  while (result.length < count) {
+    var extra = OPTION_POOL.split('').filter(function(c) { return !answerChars.includes(c) && !result.includes(c) })
+    if (extra.length === 0) break
+    result.push(extra[Math.floor(Math.random() * extra.length)])
+  }
+
+  return shuffle(result)
+}
+
 export default function PoemFill() {
   var poems = useStore(function(s) { return s.poems })
   var navigate = useNavigate()
@@ -20,9 +89,7 @@ export default function PoemFill() {
   var [elapsed, setElapsed] = useState(0)
   var [showRecords, setShowRecords] = useState(false)
 
-  function shuffle<T>(a: T[]) { var arr = [...a]; for (var i = arr.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]] }; return arr }
-
-  function initGame() {
+  async function initGame() {
     if (pool.length === 0) return
     var p = pool[Math.floor(Math.random() * pool.length)]
     setPoem(p)
@@ -45,9 +112,12 @@ export default function PoemFill() {
     var selected = shuffle(allBlanks).slice(0, 5)
     selected.sort(function(a, b) { return a.lineIdx !== b.lineIdx ? a.lineIdx - b.lineIdx : a.charIdx - b.charIdx })
 
-    var wrongPool = shuffle(p.content.join('').split('').filter(function(c) { return /[\u4e00-\u9fff]/.test(c) && !selected.some(function(s) { return s.answer === c }) }))
+    var targetCount = selected.length * 2
+    var answerChars = selected.map(function(s) { return s.answer })
+    var poemDistractors = p.content.join('').split('').filter(function(c) { return /[\u4e00-\u9fff]/.test(c) && !selected.some(function(s) { return s.answer === c }) })
+    var lookalikeDistractors = await getLookalikeDistractors(answerChars, targetCount - selected.length)
 
-    var optChars = [...selected.map(function(s) { return s.answer }), ...wrongPool.slice(0, 8 - selected.length)]
+    var optChars = shuffle([...answerChars, ...poemDistractors.slice(0, Math.ceil((targetCount - selected.length) / 2)), ...lookalikeDistractors])
     setBlanks(selected)
     setOptions(shuffle(optChars))
     setFilled({})
@@ -127,7 +197,7 @@ export default function PoemFill() {
                   var val = filled[key]
                   var isWrong = result === 'error' && val && val !== blank.answer
                   return (
-                    <span key={ci} className={'inline-flex items-center justify-center align-middle mx-[1px] w-7 h-8 lg:w-8 lg:h-9 rounded text-base lg:text-lg border leading-none ' + (val ? (isWrong ? 'border-red-400 bg-red-50 text-red-500' : 'border-emerald-400 bg-emerald-50 text-emerald-600') : 'border-dashed border-muted-foreground/60 bg-muted/20')}>
+                    <span key={ci} className={'inline-flex items-center justify-center align-middle mx-[1px] w-7 h-8 lg:w-8 lg:h-9 rounded text-base lg:text-lg border-2 leading-none ' + (val ? (isWrong ? 'border-red-400 bg-red-50 text-red-500' : 'border-emerald-400 bg-emerald-50 text-emerald-600') : 'border-dashed border-muted-foreground/80 bg-muted/30')}>
                       {val || ''}
                     </span>
                   )
@@ -139,10 +209,10 @@ export default function PoemFill() {
 
         {/* Option pool */}
         <div className="flex flex-wrap gap-2 justify-center mb-4 min-h-[44px]">
-          {options.map(function(ch) {
+          {options.map(function(ch, i) {
             var used = Object.values(filled).includes(ch)
             return (
-              <button key={ch} onClick={function() { if (!used) selectChar(ch) }}
+              <button key={i} onClick={function() { if (!used) selectChar(ch) }}
                 disabled={used}
                 className={'w-9 h-9 rounded-lg text-base font-medium transition-all ' + (used ? 'bg-muted text-muted-foreground/30 line-through' : 'bg-primary text-primary-foreground hover:opacity-90 cursor-pointer')}>
                 {ch}

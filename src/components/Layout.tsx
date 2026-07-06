@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useUserStore } from '../store/user'
 import { useUIConfig } from '../store/ui'
-import { BookOpen, Home, Library, Settings, TrendingUp, Sun, Moon, GraduationCap, Wrench, PanelLeftClose, PanelLeft } from 'lucide-react'
+import { BookOpen, Home, Library, Settings, TrendingUp, Sun, Moon, GraduationCap, Wrench, Gamepad2, PanelLeftClose, PanelLeft } from 'lucide-react'
 
 var SIDEBAR_KEY = 'layout:sidebar:collapsed'
 
@@ -11,6 +11,7 @@ const NAV = [
   { path: '/poems', label: '诗词', icon: BookOpen },
   { path: '/study-plan', label: '学习', icon: Library },
   { path: '/tools', label: '工具', icon: Wrench },
+  { path: '/games', label: '游戏', icon: Gamepad2 },
   { path: '/progress', label: '进度', icon: TrendingUp },
   { path: '/settings', label: '设置', icon: Settings },
 ]
@@ -76,16 +77,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         <div className="p-3 border-t border-sidebar/50 space-y-1">
           <button onClick={toggleTheme}
-            className={'flex items-center w-full rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-sidebar-item/50 transition-colors ' + (collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2.5')}>
+            className={'flex items-center w-full rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-sidebar-item/50 transition-colors ' + (collapsed ? 'justify-center px-2 py-1' : 'gap-3 px-3 py-1')}>
             {isDark ? <Sun className="h-4 w-4 shrink-0" /> : <Moon className="h-4 w-4 shrink-0" />}
             {!collapsed && <span className="overflow-hidden whitespace-nowrap">{isDark ? '浅色模式' : '深色模式'}</span>}
           </button>
         </div>
 
-        <button onClick={toggleSidebar}
-          className="flex items-center justify-center w-full h-10 border-t border-sidebar/50 text-muted-foreground hover:text-foreground hover:bg-sidebar-item/20 transition-colors shrink-0">
-          {collapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-        </button>
+        <div className="p-3 border-t border-sidebar/50">
+          <button onClick={toggleSidebar}
+            className={'flex items-center w-full rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-item/50 transition-colors ' + (collapsed ? 'justify-center px-2 py-1' : 'gap-3 px-3 py-1')}>
+            {collapsed ? <PanelLeft className="h-4 w-4 shrink-0" /> : <PanelLeftClose className="h-4 w-4 shrink-0" />}
+            {!collapsed && <span className="overflow-hidden whitespace-nowrap">收起侧边栏</span>}
+          </button>
+        </div>
       </aside>
 
       {/* Main */}
