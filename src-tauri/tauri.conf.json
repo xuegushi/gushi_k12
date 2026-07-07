@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "K12古诗学习-离线版",
+  "productName": "K12-Poetry-Learning",
   "version": "0.1.4",
   "identifier": "com.gushi.k12",
   "build": {
