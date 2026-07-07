@@ -49,7 +49,7 @@
 | 划词工具 | 选中文字弹出朗读/复制/字典（笔顺动画演示）/AI 分析 |
 | 知识点 | AI 生成的问答知识点，支持折叠/展开/筛选 |
 | 学习统计 | 按类型/学段统计完成率，周学习柱状图，连续天数，历史记录 |
-| 工具箱 | 文言文翻译（AI 双向）、文本朗读（音色/语速/音调可配置）、字迹演练（笔顺动画） |
+| 工具箱 | 文言文翻译（AI 双向）、拼音标注、对仗韵脚分析、字词释义（本地词典+AI）、简繁转换、文本朗读、字迹演练 |
 | 游戏中心 | 游戏列表页，所有游戏统一入口 `/games` |
 | 诗词找茬 | 展示含形近字替换的诗句，找出被替换的错字（3-5 处），难度递增 |
 | 诗词接龙 | 显示上句/下句，四选一配对，顺接/逆接双模式，连击加分 |
@@ -101,7 +101,7 @@ npm run tauri:build  # 构建桌面端应用
 ```
 gushi_k12/
 ├── src/
-│   ├── pages/          # 页面组件（Home/PoemList/PoemDetail/StudyPlan/Review/Progress/AiSettings/Tools/Games/PoemRain/PoemSort/PoemFill/PoemChain/PoemChainLink/PoemMatch/PoemPuzzle/PoemFindWrong/GameRecords等）
+│   ├── pages/          # 页面组件（Home/PoemList/PoemDetail/StudyPlan/Review/Progress/AiSettings/Tools/Games/PinyinPanel/PoemAnalysisPanel/WordMeaningPanel/PoemRain/PoemSort/PoemFill/PoemChain/PoemChainLink/PoemMatch/PoemPuzzle/PoemFindWrong/GameRecords等）
 │   ├── components/     # 通用组件（Layout/AIAssistant/PoemContent/PinyinText/RecitationDialog/TextSelectionToolbar/RecordsModal等）
 │   ├── store/          # Zustand 状态（index/selection/ui/user）
 │   ├── lib/            # 工具库（db.ts/ai.ts/poems.ts/recitation.ts/studyPlan.ts/character.ts）
