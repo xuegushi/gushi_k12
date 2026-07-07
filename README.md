@@ -7,8 +7,8 @@
 | 平台 | 下载地址 |
 |------|----------|
 | Web版 | https://k12.xuegushi.com |
-| macOS (Apple Silicon) | [下载 .dmg](https://github.com/xuegushi/gushi_k12/releases/tag/v0.1.4) |
-| 桌面版 (v0.1.4) | [GitHub Releases](https://github.com/xuegushi/gushi_k12/releases/tag/v0.1.4) |
+| macOS (Apple Silicon) | [下载 .dmg](https://github.com/xuegushi/gushi_k12/releases/tag/v0.1.8) |
+| 桌面版 (v0.1.8) | [GitHub Releases](https://github.com/xuegushi/gushi_k12/releases/tag/v0.1.8) |
 
 ## 页面预览
 
