@@ -27,11 +27,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": {
-      "linux": ["deb"],
-      "macOS": ["dmg", "app"],
-      "windows": ["nsis"]
-    },
+    "targets": ["deb", "dmg", "app", "nsis"],
     "windows": {
       "nsis": {
         "installMode": "currentUser"
