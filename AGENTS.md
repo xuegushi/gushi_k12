@@ -76,3 +76,16 @@ gushi_k12/
 - 所有数据存储在浏览器IndexedDB
 - AI API Key由用户自行配置
 - 使用Web Speech API实现朗读
+
+## Commit + Release 流程
+
+每次功能完成后的标准流程：
+
+1. **Commit 功能变更** - `git commit -m "feat/fix/docs: ..."`
+2. **更新 README.md** - 同步功能说明
+3. **Bump 版本号** - 同步更新 `src-tauri/tauri.conf.json` 和 `src-tauri/Cargo.toml`
+4. **Commit 版本号** - `git commit -m "chore: bump version to x.x.x"`
+5. **创建 tag** - `git tag vx.x.x`
+6. **Push** - `git push && git push origin vx.x.x`
+
+CI 自动构建并创建 draft release，上传所有平台产物。
