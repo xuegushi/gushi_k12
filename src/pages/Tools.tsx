@@ -3,12 +3,19 @@ import { useSearchParams } from 'react-router-dom'
 import { useStore } from '../store'
 import { chat } from '../lib/ai'
 import { db } from '../lib/db'
-import { Wrench, Languages, Volume2, PenTool } from 'lucide-react'
+import { Wrench, Languages, Volume2, PenTool, ArrowLeftRight, BookOpen, SpellCheck, ScrollText } from 'lucide-react'
+import PinyinPanel from './PinyinPanel'
+import PoemAnalysisPanel from './PoemAnalysisPanel'
+import WordMeaningPanel from './WordMeaningPanel'
 
-type Tab = 'translate' | 'tts' | 'handwriting'
+type Tab = 'translate' | 'tts' | 'handwriting' | 'convert' | 'pinyin' | 'analysis' | 'meaning'
 
 const TABS: { key: Tab; label: string; icon: typeof Wrench }[] = [
   { key: 'translate', label: '文言文翻译', icon: Languages },
+  { key: 'pinyin', label: '拼音标注', icon: SpellCheck },
+  { key: 'analysis', label: '对仗韵脚', icon: BookOpen },
+  { key: 'meaning', label: '字词释义', icon: ScrollText },
+  { key: 'convert', label: '简繁转换', icon: ArrowLeftRight },
   { key: 'tts', label: '文本朗读', icon: Volume2 },
   { key: 'handwriting', label: '字迹演练', icon: PenTool },
 ]
@@ -17,7 +24,7 @@ export default function Tools() {
   var [searchParams, setSearchParams] = useSearchParams()
   var tabFromQuery = searchParams.get('tab') as Tab | null
   var [activeTab, setActiveTab] = useState<Tab>(function() {
-    if (tabFromQuery && ['translate', 'tts', 'handwriting'].includes(tabFromQuery)) return tabFromQuery
+    if (tabFromQuery && ['translate', 'tts', 'handwriting', 'convert', 'pinyin', 'analysis', 'meaning'].includes(tabFromQuery)) return tabFromQuery
     return 'translate'
   })
 
@@ -32,7 +39,7 @@ export default function Tools() {
         <Wrench className="h-5 w-5 text-primary" />
         <h1 className="text-xl lg:text-2xl font-bold">工具箱</h1>
       </div>
-      <p className="text-sm text-muted-foreground mb-6">文言文翻译 · 文本朗读 · 字迹演练</p>
+      <p className="text-sm text-muted-foreground mb-6">文言文翻译 · 拼音标注 · 对仗韵脚 · 字词释义 · 简繁转换 · 文本朗读 · 字迹演练</p>
 
       <div className="flex gap-6">
         <nav className="hidden md:flex w-44 shrink-0 flex-col gap-1 rounded-xl bg-muted/40 p-2">
@@ -66,6 +73,10 @@ export default function Tools() {
           </div>
 
           {activeTab === 'translate' && <TranslatePanel />}
+          {activeTab === 'pinyin' && <PinyinPanel />}
+          {activeTab === 'analysis' && <PoemAnalysisPanel />}
+          {activeTab === 'meaning' && <WordMeaningPanel />}
+          {activeTab === 'convert' && <ConvertPanel />}
           {activeTab === 'tts' && <TTSPanel />}
           {activeTab === 'handwriting' && <HandwritingPanel />}
         </div>
@@ -210,6 +221,100 @@ function TranslatePanel() {
               })}
             </div>
           )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ==================== 简繁转换面板 ====================
+
+function ConvertPanel() {
+  var [text, setText] = useState('')
+  var [result, setResult] = useState('')
+  var [direction, setDirection] = useState<'s2t' | 't2s'>('s2t')
+  var [loading, setLoading] = useState(false)
+  var [copied, setCopied] = useState(false)
+
+  var handleConvert = useCallback(async function() {
+    if (!text.trim()) return
+    setLoading(true)
+    try {
+      var cnchar = (await import('cnchar')).default
+      await import('cnchar-trad')
+      var converted = direction === 's2t'
+        ? cnchar.convert.simpleToTrad(text)
+        : cnchar.convert.tradToSimple(text)
+      setResult(converted)
+    } catch {
+      setResult('转换失败，请重试')
+    } finally {
+      setLoading(false)
+    }
+  }, [text, direction])
+
+  var handleSwap = function() {
+    setText(result || text)
+    setResult('')
+    setDirection(function(d) { return d === 's2t' ? 't2s' : 's2t' })
+  }
+
+  var handleCopy = function() {
+    if (!result) return
+    navigator.clipboard.writeText(result)
+    setCopied(true)
+    setTimeout(function() { setCopied(false) }, 1500)
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-xl bg-muted/50 px-4 py-3 text-xs text-muted-foreground leading-relaxed">
+        使用 cnchar 库进行简体和繁体中文的转换，本地处理无需联网。文字限制 5000 字以内。
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button onClick={function() { setDirection('s2t') }}
+          className={'rounded-full px-4 py-1.5 text-sm transition-colors ' + (direction === 's2t'
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-muted text-muted-foreground hover:text-foreground')}>
+          简 → 繁
+        </button>
+        <button onClick={function() { setDirection('t2s') }}
+          className={'rounded-full px-4 py-1.5 text-sm transition-colors ' + (direction === 't2s'
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-muted text-muted-foreground hover:text-foreground')}>
+          繁 → 简
+        </button>
+      </div>
+
+      <div>
+        <textarea value={text} onChange={function(e) { setText(e.target.value.slice(0, 5000)) }}
+          placeholder={direction === 's2t' ? '输入简体中文...' : '输入繁体中文...'}
+          className="min-h-[160px] w-full resize-y rounded-xl border border-input bg-background p-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20" />
+        <div className="mt-1 text-right text-xs text-muted-foreground">{text.length}/5000</div>
+      </div>
+
+      <div className="flex gap-2">
+        <button onClick={handleConvert} disabled={loading || !text.trim()}
+          className="flex-1 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50">
+          {loading ? '转换中...' : '转换'}
+        </button>
+        <button onClick={handleSwap} disabled={!text && !result}
+          className="rounded-xl bg-muted px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:opacity-80 disabled:opacity-50">
+          交换
+        </button>
+      </div>
+
+      {result && (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/20">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="text-xs font-medium text-emerald-600 dark:text-emerald-400">转换结果</div>
+            <button onClick={handleCopy}
+              className="text-xs text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300">
+              {copied ? '已复制' : '复制'}
+            </button>
+          </div>
+          <div className="whitespace-pre-wrap text-sm leading-relaxed">{result}</div>
         </div>
       )}
     </div>
