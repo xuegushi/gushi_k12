@@ -153,9 +153,10 @@ export default function PoemMatch() {
           {cards.map(function(card) {
             var isSelected = selected.includes(card.id)
             var isMatched = matchedPairs.has(card.pairId)
+            var isLong = card.text.length > 10
             return (
               <button key={card.id} onClick={function() { if (!isMatched) selectCard(card.id) }}
-                className={'h-20 rounded-xl text-sm font-poem tracking-wide transition-all duration-200 cursor-pointer ' + (isMatched ? 'border-2 border-emerald-300 bg-emerald-50 text-emerald-700 opacity-60 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : isSelected ? 'ring-2 ring-offset-1 ring-primary scale-105 shadow-md text-white' : 'text-white hover:brightness-110 shadow-sm')}
+                className={'min-h-[5rem] rounded-xl font-poem tracking-wide transition-all duration-200 cursor-pointer flex items-center justify-center px-2 py-3 ' + (isLong ? 'text-xs' : 'text-sm') + ' ' + (isMatched ? 'border-2 border-emerald-300 bg-emerald-50 text-emerald-700 opacity-60 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : isSelected ? 'ring-2 ring-offset-1 ring-primary scale-105 shadow-md text-white' : 'text-white hover:brightness-110 shadow-sm')}
                 style={isMatched ? {} : { backgroundColor: COLORS[card.id % COLORS.length], border: '2px solid ' + COLORS[card.id % COLORS.length] }}>
                 {card.text}
               </button>
