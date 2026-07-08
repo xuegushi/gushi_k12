@@ -139,8 +139,23 @@ export default function PoemPuzzle() {
         {completed && <div className="text-center text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-3">🎉 完成！用时 {elapsed} 秒</div>}
 
         <p className="text-xs text-muted-foreground text-center mb-3">
-          从下方 {poolSize}×{poolSize} 字矩阵中选出正确文字填入诗句
+          从 {poolSize}×{poolSize} 字矩阵中选出正确文字填入下方诗句
         </p>
+
+        {/* Pool matrix grid */}
+        <p className="text-xs text-muted-foreground text-center mb-2">候选字</p>
+        <div className="flex justify-center mb-4">
+          <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(' + poolSize + ', minmax(0, 1fr))' }}>
+            {pool.map(function(ch, i) {
+              return (
+                <button key={i} onClick={function() { selectChar(ch) }}
+                  className="w-10 h-10 lg:w-12 lg:h-12 rounded-lg border-2 border-primary/30 bg-primary/5 text-foreground text-sm lg:text-base font-poem font-medium hover:bg-primary/10 hover:border-primary/50 transition-colors cursor-pointer">
+                  {ch}
+                </button>
+              )
+            })}
+          </div>
+        </div>
 
         {/* Filled slots in poem line layout */}
         {poem && (
@@ -173,21 +188,6 @@ export default function PoemPuzzle() {
             </div>
           </div>
         )}
-
-        {/* Pool matrix grid */}
-        <p className="text-xs text-muted-foreground text-center mb-2">候选字</p>
-        <div className="flex justify-center mb-4">
-          <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(' + poolSize + ', minmax(0, 1fr))' }}>
-            {pool.map(function(ch, i) {
-              return (
-                <button key={i} onClick={function() { selectChar(ch) }}
-                  className="w-10 h-10 lg:w-12 lg:h-12 rounded-lg border-2 border-primary/30 bg-primary/5 text-foreground text-sm lg:text-base font-poem font-medium hover:bg-primary/10 hover:border-primary/50 transition-colors cursor-pointer">
-                  {ch}
-                </button>
-              )
-            })}
-          </div>
-        </div>
 
         {/* Controls */}
         <div className="flex gap-3 justify-center">
