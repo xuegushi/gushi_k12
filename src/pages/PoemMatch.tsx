@@ -129,6 +129,21 @@ export default function PoemMatch() {
           {startTime > 0 && <span>⏱ {elapsed}秒</span>}
         </div>
 
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          {cards.map(function(card) {
+            var isSelected = selected.includes(card.id)
+            var isMatched = matchedPairs.has(card.pairId)
+            var isLong = card.text.length > 10
+            return (
+              <button key={card.id} onClick={function() { if (!isMatched) selectCard(card.id) }}
+                className={'min-h-[5rem] rounded-xl font-poem tracking-wide transition-all duration-200 cursor-pointer flex items-center justify-center px-2 py-3 ' + (isLong ? 'text-xs' : 'text-sm') + ' ' + (isMatched ? 'border-2 border-emerald-300 bg-emerald-50 text-emerald-700 opacity-60 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : isSelected ? 'ring-2 ring-offset-1 ring-primary scale-105 shadow-md text-white' : 'text-white hover:brightness-110 shadow-sm')}
+                style={isMatched ? {} : { backgroundColor: COLORS[card.id % COLORS.length], border: '2px solid ' + COLORS[card.id % COLORS.length] }}>
+                {card.text}
+              </button>
+            )
+          })}
+        </div>
+
         {/* Matched pairs display */}
         {matchedPairs.size > 0 && (
           <div className="mb-4 space-y-1.5">
@@ -148,21 +163,6 @@ export default function PoemMatch() {
             })}
           </div>
         )}
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-          {cards.map(function(card) {
-            var isSelected = selected.includes(card.id)
-            var isMatched = matchedPairs.has(card.pairId)
-            var isLong = card.text.length > 10
-            return (
-              <button key={card.id} onClick={function() { if (!isMatched) selectCard(card.id) }}
-                className={'min-h-[5rem] rounded-xl font-poem tracking-wide transition-all duration-200 cursor-pointer flex items-center justify-center px-2 py-3 ' + (isLong ? 'text-xs' : 'text-sm') + ' ' + (isMatched ? 'border-2 border-emerald-300 bg-emerald-50 text-emerald-700 opacity-60 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : isSelected ? 'ring-2 ring-offset-1 ring-primary scale-105 shadow-md text-white' : 'text-white hover:brightness-110 shadow-sm')}
-                style={isMatched ? {} : { backgroundColor: COLORS[card.id % COLORS.length], border: '2px solid ' + COLORS[card.id % COLORS.length] }}>
-                {card.text}
-              </button>
-            )
-          })}
-        </div>
 
         {allMatched && (
           <div className="text-center text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-4">🎉 全部匹配！共用 {moves} 步</div>
