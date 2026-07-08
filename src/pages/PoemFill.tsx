@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useStore } from '../store'
 import { db } from '../lib/db'
+import { playTone } from '../lib/audio'
 import { ArrowLeft, Undo2, RefreshCw, RotateCcw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import RecordsModal from '../components/RecordsModal'
 import Celebration from '../components/Celebration'
+import MuteButton from '../components/MuteButton'
 
 var OPTION_POOL = '天地人日月星辰风云雨雪山河水火木金花鸟虫鱼春夏秋冬东西南北中大长高远近来去古往今声色光影梦魂心意情愁恨爱思知见闻说读写歌吟叹喜怒哀乐悲欢离合生死安危冷暖清浊深浅明暗阳阴晴圆缺晨暮昼夜朝夕朝暮夕照光辉芒炎凉温热冷寒枯荣兴衰成败得失望归去来兮止行立卧坐起走奔跃飞浮沉潜飘落洒满盈空虚无实真假善恶美丑智愚巧拙雅俗贵贱贫富尊卑主仆臣君官民贼寇盗匪兵将帅士卒'
 
@@ -174,6 +176,7 @@ export default function PoemFill() {
         </button>
         <span className="text-sm font-bold text-foreground/70">诗词填空</span>
         <div className="flex-1" />
+        <MuteButton />
       </div>
 
       <div className="flex flex-col max-w-3xl mx-auto w-full">
@@ -260,17 +263,4 @@ export default function PoemFill() {
       <Celebration show={showConfetti} />
     </div>
   )
-}
-
-function playTone(correct: boolean) {
-  try {
-    var ctx = new AudioContext()
-    var osc = ctx.createOscillator()
-    var gain = ctx.createGain()
-    osc.connect(gain); gain.connect(ctx.destination); gain.gain.value = 0.15
-    if (correct) { osc.frequency.setValueAtTime(523, ctx.currentTime); osc.frequency.setValueAtTime(659, ctx.currentTime + 0.12); osc.frequency.setValueAtTime(784, ctx.currentTime + 0.24) }
-    else { osc.frequency.setValueAtTime(400, ctx.currentTime); osc.frequency.setValueAtTime(300, ctx.currentTime + 0.2) }
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + (correct ? 0.4 : 0.35))
-    setTimeout(function() { ctx.close() }, 500)
-  } catch (e) { /* silent */ }
 }

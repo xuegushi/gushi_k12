@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store'
 import { db } from '../lib/db'
+import { playTone } from '../lib/audio'
 import { ArrowLeft, RefreshCw, RotateCcw, ArrowRight, ArrowLeft as ArrowLeftIcon } from 'lucide-react'
 import RecordsModal from '../components/RecordsModal'
 import Celebration from '../components/Celebration'
+import MuteButton from '../components/MuteButton'
 
 function shuffle<T>(a: T[]) { var arr = [...a]; for (var i = arr.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]] }; return arr }
 
@@ -110,6 +112,7 @@ export default function PoemChainLink() {
         </button>
         <span className="text-sm font-bold text-foreground/70">诗词接龙</span>
         <div className="flex-1" />
+        <MuteButton />
       </div>
 
       <div className="flex flex-col max-w-3xl mx-auto w-full">
@@ -192,17 +195,4 @@ export default function PoemChainLink() {
       <Celebration show={showConfetti} />
     </div>
   )
-}
-
-function playTone(correct: boolean) {
-  try {
-    var ctx = new AudioContext()
-    var osc = ctx.createOscillator()
-    var gain = ctx.createGain()
-    osc.connect(gain); gain.connect(ctx.destination); gain.gain.value = 0.15
-    if (correct) { osc.frequency.setValueAtTime(523, ctx.currentTime); osc.frequency.setValueAtTime(659, ctx.currentTime + 0.12); osc.frequency.setValueAtTime(784, ctx.currentTime + 0.24) }
-    else { osc.frequency.setValueAtTime(400, ctx.currentTime); osc.frequency.setValueAtTime(300, ctx.currentTime + 0.2) }
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + (correct ? 0.4 : 0.35))
-    setTimeout(function() { ctx.close() }, 500)
-  } catch (e) { /* silent */ }
 }

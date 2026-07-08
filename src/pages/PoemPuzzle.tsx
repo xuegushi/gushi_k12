@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store'
 import { db } from '../lib/db'
+import { playTone } from '../lib/audio'
 import { ArrowLeft, RefreshCw, RotateCcw } from 'lucide-react'
 import RecordsModal from '../components/RecordsModal'
 import Celebration from '../components/Celebration'
+import MuteButton from '../components/MuteButton'
 
 var COMMON_CHARS = '天地人日月星辰风云雨雪山河水火木金花鸟虫鱼春夏秋冬东西南北中大长高远近来去古往今声色光影梦魂心意情愁恨爱思知见闻说读写歌吟叹喜怒哀乐悲欢离合生死安危冷暖清浊深浅明暗'
 
@@ -94,7 +96,7 @@ export default function PoemPuzzle() {
     if (next.indexOf(null) === -1) {
       var correct = next.every(function(c, i) { return c === target[i] })
       setCompleted(correct)
-      if (correct) { playTone(); setShowConfetti(true); setTimeout(function() { setShowConfetti(false) }, 3000); if (poem) db.gameRecords.add({ game: '拼图', poemTitle: poem.title, poemAuthor: poem.author, elapsed: elapsed, success: true, createdAt: new Date() }) }
+      if (correct) { playTone(true); setShowConfetti(true); setTimeout(function() { setShowConfetti(false) }, 3000); if (poem) db.gameRecords.add({ game: '拼图', poemTitle: poem.title, poemAuthor: poem.author, elapsed: elapsed, success: true, createdAt: new Date() }) }
     }
   }
 
@@ -123,6 +125,7 @@ export default function PoemPuzzle() {
         </button>
         <span className="text-sm font-bold text-foreground/70">诗词拼图</span>
         <div className="flex-1" />
+        <MuteButton />
       </div>
 
       <div className="flex flex-col max-w-3xl mx-auto w-full">
@@ -214,15 +217,3 @@ export default function PoemPuzzle() {
 }
 
 function shuffle<T>(a: T[]) { var arr = [...a]; for (var i = arr.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]] }; return arr }
-
-function playTone() {
-  try {
-    var ctx = new AudioContext()
-    var osc = ctx.createOscillator()
-    var gain = ctx.createGain()
-    osc.connect(gain); gain.connect(ctx.destination); gain.gain.value = 0.15
-    osc.frequency.setValueAtTime(523, ctx.currentTime); osc.frequency.setValueAtTime(659, ctx.currentTime + 0.12); osc.frequency.setValueAtTime(784, ctx.currentTime + 0.24)
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4)
-    setTimeout(function() { ctx.close() }, 500)
-  } catch (e) { /* silent */ }
-}
