@@ -4,6 +4,7 @@ import { useStore } from '../store'
 import { db } from '../lib/db'
 import { ArrowLeft, RefreshCw, RotateCcw } from 'lucide-react'
 import RecordsModal from '../components/RecordsModal'
+import Celebration from '../components/Celebration'
 
 var COMMON_CHARS = '天地人日月星辰风云雨雪山河水火木金花鸟虫鱼春夏秋冬东西南北中大长高远近来去古往今声色光影梦魂心意情愁恨爱思知见闻说读写歌吟叹喜怒哀乐悲欢离合生死安危冷暖清浊深浅明暗'
 
@@ -18,6 +19,7 @@ export default function PoemPuzzle() {
   var [startTime, setStartTime] = useState(0)
   var [elapsed, setElapsed] = useState(0)
   var [showRecords, setShowRecords] = useState(false)
+  var [showConfetti, setShowConfetti] = useState(false)
   var [poolSize, setPoolSize] = useState(4)
 
   function initGame() {
@@ -92,7 +94,7 @@ export default function PoemPuzzle() {
     if (next.indexOf(null) === -1) {
       var correct = next.every(function(c, i) { return c === target[i] })
       setCompleted(correct)
-      if (correct) { playTone(); if (poem) db.gameRecords.add({ game: '拼图', poemTitle: poem.title, poemAuthor: poem.author, elapsed: elapsed, success: true, createdAt: new Date() }) }
+      if (correct) { playTone(); setShowConfetti(true); setTimeout(function() { setShowConfetti(false) }, 3000); if (poem) db.gameRecords.add({ game: '拼图', poemTitle: poem.title, poemAuthor: poem.author, elapsed: elapsed, success: true, createdAt: new Date() }) }
     }
   }
 
@@ -206,6 +208,7 @@ export default function PoemPuzzle() {
         </div>
       </div>
       {showRecords && <RecordsModal game="拼图" open={true} onClose={function() { setShowRecords(false) }} />}
+      <Celebration show={showConfetti} />
     </div>
   )
 }

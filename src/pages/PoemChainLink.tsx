@@ -4,6 +4,7 @@ import { useStore } from '../store'
 import { db } from '../lib/db'
 import { ArrowLeft, RefreshCw, RotateCcw, ArrowRight, ArrowLeft as ArrowLeftIcon } from 'lucide-react'
 import RecordsModal from '../components/RecordsModal'
+import Celebration from '../components/Celebration'
 
 function shuffle<T>(a: T[]) { var arr = [...a]; for (var i = arr.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]] }; return arr }
 
@@ -24,6 +25,7 @@ export default function PoemChainLink() {
   var [startTime, setStartTime] = useState(0)
   var [elapsed, setElapsed] = useState(0)
   var [showRecords, setShowRecords] = useState(false)
+  var [showConfetti, setShowConfetti] = useState(false)
 
   function pickQuestion() {
     var filtered = poems.filter(function(p) { return (p.type === '诗' || p.type === '词') && p.content.length >= 4 })
@@ -82,6 +84,7 @@ export default function PoemChainLink() {
     setResult(isCorrect ? 'correct' : 'wrong')
     if (isCorrect) {
       playTone(true)
+      setShowConfetti(true); setTimeout(function() { setShowConfetti(false) }, 3000)
       setScore(function(p) { return p + 10 + streak * 2 })
       setStreak(function(p) { return p + 1 })
       setMaxStreak(function(prev) { return Math.max(prev, streak + 1) })
@@ -186,6 +189,7 @@ export default function PoemChainLink() {
         <p className="text-center text-xs text-muted-foreground mt-4">💡 每题 10 分，连击额外加分</p>
       </div>
       {showRecords && <RecordsModal game="接龙" open={true} onClose={function() { setShowRecords(false) }} />}
+      <Celebration show={showConfetti} />
     </div>
   )
 }

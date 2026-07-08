@@ -4,6 +4,7 @@ import { db } from '../lib/db'
 import { ArrowLeft, RefreshCw, RotateCcw, Trophy, Clock } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import RecordsModal from '../components/RecordsModal'
+import Celebration from '../components/Celebration'
 
 interface Segment {
   id: string
@@ -331,7 +332,7 @@ export default function PoemSort() {
       </div>
 
       {/* Confetti */}
-      {showConfetti && <Confetti />}
+      <Celebration show={showConfetti} />
       <RecordsModal game="排序" open={showRecords} onClose={function() { setShowRecords(false) }} />
 
       {/* History Modal */}
@@ -371,36 +372,6 @@ export default function PoemSort() {
           </div>
         </div>
       )}
-    </div>
-  )
-}
-
-function Confetti() {
-  var [particles, setParticles] = useState<{ id: number; x: number; color: string; delay: number; size: number }[]>([])
-
-  useEffect(function() {
-    var colors = ['#e74c3c', '#3498db', '#f39c12', '#2ecc71', '#9b59b6', '#1abc9c']
-    var items = Array.from({ length: 50 }, function(_, i) {
-      return { id: i, x: Math.random() * 100, color: colors[Math.floor(Math.random() * colors.length)], delay: Math.random() * 500, size: Math.random() * 8 + 4 }
-    })
-    setParticles(items)
-    var timer = setTimeout(function() { setParticles([]) }, 3500)
-    return function() { clearTimeout(timer) }
-  }, [])
-
-  if (particles.length === 0) return null
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-      {particles.map(function(p) {
-        return <div key={p.id} className="absolute animate-bounce" style={{
-          left: p.x + '%', top: '-20px', width: p.size, height: p.size,
-          backgroundColor: p.color,
-          borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-          animationDuration: (2 + Math.random()) + 's',
-          animationDelay: p.delay + 'ms', opacity: 0,
-        }} />
-      })}
     </div>
   )
 }

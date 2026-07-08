@@ -4,6 +4,7 @@ import { useStore } from '../store'
 import { db } from '../lib/db'
 import { ArrowLeft, RefreshCw, RotateCcw } from 'lucide-react'
 import RecordsModal from '../components/RecordsModal'
+import Celebration from '../components/Celebration'
 
 var CONFUSABLE: Record<string, string[]> = {
   '人': ['入', '八'],
@@ -211,6 +212,7 @@ export default function PoemFindWrong() {
   var [startTime, setStartTime] = useState(0)
   var [elapsed, setElapsed] = useState(0)
   var [showRecords, setShowRecords] = useState(false)
+  var [showConfetti, setShowConfetti] = useState(false)
 
   async function initGame() {
     var filtered = poems.filter(function(p) {
@@ -287,6 +289,7 @@ export default function PoemFindWrong() {
     var roundScore = Math.max(0, correctFinds * 10 - falsePositives * 5 - missed * 10)
     setScore(function(prev) { return prev + roundScore })
     setResult('checked')
+    if (missed === 0 && falsePositives === 0) { setShowConfetti(true); setTimeout(function() { setShowConfetti(false) }, 3000) }
     if (poem) db.gameRecords.add({ game: '找茬', poemTitle: poem.title, poemAuthor: poem.author, elapsed: elapsed, success: missed === 0 && falsePositives === 0, createdAt: new Date() })
   }
 
@@ -388,6 +391,7 @@ export default function PoemFindWrong() {
         </div>
       </div>
       {showRecords && <RecordsModal game="找茬" open={true} onClose={function() { setShowRecords(false) }} />}
+      <Celebration show={showConfetti} />
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { db } from '../lib/db'
 import { ArrowLeft, RefreshCw, RotateCcw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import RecordsModal from '../components/RecordsModal'
+import Celebration from '../components/Celebration'
 
 var COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#a855f7', '#06b6d4', '#f97316', '#ec4899', '#14b8a6', '#84cc16']
 
@@ -18,6 +19,7 @@ export default function PoemMatch() {
   var [startTime, setStartTime] = useState(0)
   var [elapsed, setElapsed] = useState(0)
   var [showRecords, setShowRecords] = useState(false)
+  var [showConfetti, setShowConfetti] = useState(false)
   var doneRef = useRef(false)
   var allMatched = false
 
@@ -73,6 +75,7 @@ export default function PoemMatch() {
   useEffect(function() {
     if (allMatched && gamePoems.length > 0) {
       setTimeout(function() { playTone(true); playTone(true) }, 300)
+      setShowConfetti(true); setTimeout(function() { setShowConfetti(false) }, 3000)
       db.gameRecords.add({ game: '连连看', poemTitle: gamePoems.map(function(p) { return p.title }).join('、'), poemAuthor: gamePoems.map(function(p) { return p.author }).join('、'), elapsed: elapsed, success: true, createdAt: new Date() })
     }
   }, [allMatched])
@@ -179,6 +182,7 @@ export default function PoemMatch() {
         <p className="text-center text-xs text-muted-foreground mt-4">💡 点击两句配对，匹配的两句会保留高亮</p>
       </div>
       {showRecords && <RecordsModal game="连连看" open={true} onClose={function() { setShowRecords(false) }} />}
+      <Celebration show={showConfetti} />
     </div>
   )
 }

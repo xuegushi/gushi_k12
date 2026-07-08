@@ -4,6 +4,7 @@ import { db } from '../lib/db'
 import { ArrowLeft, Undo2, RefreshCw, RotateCcw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import RecordsModal from '../components/RecordsModal'
+import Celebration from '../components/Celebration'
 
 var OPTION_POOL = '天地人日月星辰风云雨雪山河水火木金花鸟虫鱼春夏秋冬东西南北中大长高远近来去古往今声色光影梦魂心意情愁恨爱思知见闻说读写歌吟叹喜怒哀乐悲欢离合生死安危冷暖清浊深浅明暗阳阴晴圆缺晨暮昼夜朝夕朝暮夕照光辉芒炎凉温热冷寒枯荣兴衰成败得失望归去来兮止行立卧坐起走奔跃飞浮沉潜飘落洒满盈空虚无实真假善恶美丑智愚巧拙雅俗贵贱贫富尊卑主仆臣君官民贼寇盗匪兵将帅士卒'
 
@@ -88,6 +89,7 @@ export default function PoemFill() {
   var [startTime, setStartTime] = useState(0)
   var [elapsed, setElapsed] = useState(0)
   var [showRecords, setShowRecords] = useState(false)
+  var [showConfetti, setShowConfetti] = useState(false)
 
   async function initGame() {
     if (pool.length === 0) return
@@ -145,7 +147,7 @@ export default function PoemFill() {
     if (Object.keys(newFilled).length === blanks.length) {
       var correct = blanks.every(function(b) { return newFilled[b.lineIdx + '-' + b.charIdx] === b.answer })
       setResult(correct ? 'success' : 'error')
-      if (correct) { playTone(true); if (poem) db.gameRecords.add({ game: '填空', poemTitle: poem.title, poemAuthor: poem.author, elapsed: elapsed, success: true, createdAt: new Date() }) }
+      if (correct) { playTone(true); setShowConfetti(true); setTimeout(function() { setShowConfetti(false) }, 3000); if (poem) db.gameRecords.add({ game: '填空', poemTitle: poem.title, poemAuthor: poem.author, elapsed: elapsed, success: true, createdAt: new Date() }) }
       else playTone(false)
     }
   }
@@ -255,6 +257,7 @@ export default function PoemFill() {
         </div>
       </div>
       {showRecords && <RecordsModal game="填空" open={true} onClose={function() { setShowRecords(false) }} />}
+      <Celebration show={showConfetti} />
     </div>
   )
 }
