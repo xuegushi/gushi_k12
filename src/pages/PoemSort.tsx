@@ -59,7 +59,7 @@ export default function PoemSort() {
     setCurrentPoem(p)
 
     var lineCount = Math.min(p.content.length, 6)
-    var lines = p.content.slice(0, lineCount)
+    var lines = p.content.map(function(l: string) { return l.replace(/[（(][^）)]*[）)]/g, '').trim() }).filter(function(l: string) { return l.length > 0 }).slice(0, lineCount)
     var allSegs: Segment[] = []
     var lineSegs: Segment[][] = []
 

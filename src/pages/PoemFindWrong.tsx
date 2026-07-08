@@ -242,7 +242,7 @@ export default function PoemFindWrong() {
     setTotalWrong(chars.length)
 
     // Build display with wrong chars substituted
-    var lines = p.content.map(function(line: string) { return line.split('') })
+    var lines = p.content.map(function(line: string) { return line.replace(/[（(][^）)]*[）)]/g, '').trim().split('') }).filter(function(l: string[]) { return l.length > 0 })
     for (var wc of chars) {
       if (lines[wc.lineIdx] && lines[wc.lineIdx][wc.charIdx]) {
         lines[wc.lineIdx][wc.charIdx] = wc.wrong

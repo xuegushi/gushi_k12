@@ -43,7 +43,7 @@ export default function PoemPuzzle() {
 
     var poemChars: string[] = []
     for (var i = 0; i < p.content.length; i++) {
-      var line = p.content[i]
+      var line = p.content[i].replace(/[（(][^）)]*[）)]/g, '').trim()
       for (var j = 0; j < line.length; j++) {
         if (/[\u4e00-\u9fff]/.test(line[j])) poemChars.push(line[j])
       }
@@ -161,11 +161,14 @@ export default function PoemPuzzle() {
           <div className="mb-4">
             <div className="flex flex-wrap justify-center gap-x-1 gap-y-2">
               {poem.content.map(function(line: string, li: number) {
+                var cleanLine = line.replace(/[（(][^）)]*[）)]/g, '').trim()
+                if (cleanLine.length === 0) return null
                 var startIdx = 0
                 for (var si = 0; si < li; si++) {
-                  startIdx += poem.content[si].split('').filter(function(c: string) { return /[\u4e00-\u9fff]/.test(c) }).length
+                  var prevLine = poem.content[si].replace(/[（(][^）)]*[）)]/g, '').trim()
+                  startIdx += prevLine.split('').filter(function(c: string) { return /[\u4e00-\u9fff]/.test(c) }).length
                 }
-                var chars = line.split('').filter(function(c: string) { return /[\u4e00-\u9fff]/.test(c) })
+                var chars = cleanLine.split('').filter(function(c: string) { return /[\u4e00-\u9fff]/.test(c) })
                 return (
                   <div key={li} className="flex items-center gap-0.5">
                     {chars.map(function(_ch: string, ci: number) {

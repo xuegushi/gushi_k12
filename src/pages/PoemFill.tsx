@@ -101,7 +101,8 @@ export default function PoemFill() {
     var allBlanks: { lineIdx: number; charIdx: number; answer: string }[] = []
 
     for (var li = 0; li < p.content.length; li++) {
-      var line = p.content[li]
+      var line = p.content[li].replace(/[（(][^）)]*[）)]/g, '').trim()
+      if (line.length === 0) continue
       var chars = line.split('')
       for (var ci = 0; ci < chars.length; ci++) {
         if (/[\u4e00-\u9fff]/.test(chars[ci]) && Math.random() < 0.25) {

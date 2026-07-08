@@ -36,11 +36,13 @@ export default function PoemChainLink() {
     var p = filtered[Math.floor(Math.random() * filtered.length)]
 
     // Pick a consecutive line pair
-    var maxPair = Math.floor(p.content.length / 2)
+    var cleanContent = p.content.map(function(l: string) { return l.replace(/[（(][^）)]*[）)]/g, '').trim() }).filter(function(l: string) { return l.length > 0 })
+    if (cleanContent.length < 2) { pickQuestion(); return }
+    var maxPair = Math.floor(cleanContent.length / 2)
     var pairIdx = Math.floor(Math.random() * maxPair)
     var lineIdx = pairIdx * 2
-    var upper = p.content[lineIdx]
-    var lower = p.content[lineIdx + 1]
+    var upper = cleanContent[lineIdx]
+    var lower = cleanContent[lineIdx + 1]
 
     var isForward = mode === 'forward'
     setGivenLine(isForward ? upper : lower)
