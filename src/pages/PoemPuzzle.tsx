@@ -143,7 +143,6 @@ export default function PoemPuzzle() {
         </p>
 
         {/* Pool matrix grid */}
-        <p className="text-xs text-muted-foreground text-center mb-2">候选字</p>
         <div className="flex justify-center mb-4">
           <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(' + poolSize + ', minmax(0, 1fr))' }}>
             {pool.map(function(ch, i) {
