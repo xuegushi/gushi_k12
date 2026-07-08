@@ -44,7 +44,7 @@ export default function PoemMatch() {
 
     for (var pi = 0; pi < selected.length; pi++) {
       var p = selected[pi]
-      var lines = p.content.slice(0, Math.min(p.content.length, 8))
+      var lines = p.content.filter(function(l: string) { return l.trim().length > 0 }).slice(0, 8)
       var maxPairs = Math.min(Math.floor(lines.length / 2), 3)
 
       var taken = 0
