@@ -162,7 +162,7 @@ export default function PoemPuzzle() {
         {/* Filled slots in poem line layout */}
         {poem && (
           <div className="mb-4">
-            <div className="flex flex-wrap justify-center gap-x-1 gap-y-2">
+              <div className="flex flex-col items-center gap-y-2">
               {poem.content.map(function(line: string, li: number) {
                 var cleanLine = line.replace(/[（(][^）)]*[）)]/g, '').trim()
                 if (cleanLine.length === 0) return null
