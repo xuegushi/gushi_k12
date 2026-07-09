@@ -29,7 +29,7 @@ export default function PoemMatch() {
   function initGame() {
     var pool = poems.filter(function(p) {
       if (p.type !== '诗' && p.type !== '词') return false
-      var lines = p.content.filter(function(l: string) { return l.replace(/[（(][^）)]*[）)]/g, '').trim().length > 0 })
+      var lines = p.content.filter(function(l: string) { return l.replace(/[（(][^）)]*[）)]/g, '').trim().length >= 5 })
       return lines.length >= 4
     })
     if (pool.length < 2) return
@@ -49,7 +49,7 @@ export default function PoemMatch() {
 
     for (var pi = 0; pi < selected.length; pi++) {
       var p = selected[pi]
-      var lines = p.content.filter(function(l: string) { return l.trim().length > 0 }).map(function(l: string) { return l.replace(/[（(][^）)]*[）)]/g, '').trim() }).filter(function(l: string) { return l.length > 0 }).slice(0, 8)
+      var lines = p.content.filter(function(l: string) { return l.trim().length > 0 }).map(function(l: string) { return l.replace(/[（(][^）)]*[）)]/g, '').trim() }).filter(function(l: string) { return l.length >= 5 }).slice(0, 8)
       var maxPairs = Math.min(Math.floor(lines.length / 2), 3)
 
       var taken = 0
