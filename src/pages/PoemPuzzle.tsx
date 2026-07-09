@@ -245,18 +245,18 @@ export default function PoemPuzzle() {
           <div className="rounded-2xl bg-background p-6 shadow-xl mx-4 flex flex-col items-center gap-4" style={{ width: 360 }}>
             {/* Share content to capture */}
             <div ref={shareRef} style={{ width: 320, height: 427, aspectRatio: '3/4', backgroundColor: '#ffffff', borderRadius: 12, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 4 }}>诗词拼图</div>
-              <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 24 }}>点击上方汉字矩阵，填入诗句空白处</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(' + poolSize + ', 1fr)', gap: 6 }}>
+              <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 4, fontFamily: 'sans-serif' }}>诗词拼图</div>
+              <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 24, fontFamily: 'sans-serif' }}>点击上方汉字矩阵，填入诗句空白处</div>
+              {function() { var gap = 4; var containerW = 272; var cellW = Math.floor((containerW - gap * (poolSize - 1)) / poolSize); return (<div style={{ display: 'flex', flexWrap: 'wrap', width: containerW, gap: gap }}>
                 {pool.map(function(ch, i) {
                   return (
-                    <span key={i}
-                      style={{ width: 36, height: 36, borderRadius: 8, border: '2px solid #e5e7eb', backgroundColor: '#ffffff', color: '#111827', fontSize: 14, fontFamily: 'serif', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                    <div key={i}
+                      style={{ width: cellW, height: cellW, borderRadius: 8, border: '2px solid #e5e7eb', backgroundColor: '#ffffff', color: '#111827', fontSize: 13, fontFamily: 'serif', textAlign: 'center', lineHeight: cellW + 'px' }}>
                       {ch}
-                    </span>
+                    </div>
                   )
                 })}
-              </div>
+              </div>) }()}
             </div>
             <div className="flex gap-3">
               <button onClick={async function() {
