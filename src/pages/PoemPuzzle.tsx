@@ -184,7 +184,6 @@ export default function PoemPuzzle() {
                         </button>
                       )
                     })}
-                    {li < poem.content.length - 1 && <span className="text-muted-foreground/20 mx-0.5 select-none">|</span>}
                   </div>
                 )
               })}
