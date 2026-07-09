@@ -251,7 +251,7 @@ export default function PoemPuzzle() {
                 {pool.map(function(ch, i) {
                   return (
                     <span key={i}
-                      style={{ width: 36, height: 36, borderRadius: 8, border: '2px solid #e5e7eb', backgroundColor: '#ffffff', color: '#111827', fontSize: 14, fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: '36px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                      style={{ width: 36, height: 36, borderRadius: 8, border: '2px solid #e5e7eb', backgroundColor: '#ffffff', color: '#111827', fontSize: 14, fontWeight: 500, display: 'inline-block', lineHeight: '36px', textAlign: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
                       {ch}
                     </span>
                   )
@@ -262,7 +262,7 @@ export default function PoemPuzzle() {
               <button onClick={async function() {
                 try {
                   var html2canvas = (await import('html2canvas')).default
-                  var canvas = await html2canvas(shareRef.current!, { backgroundColor: '#ffffff', scale: 2 })
+                  var canvas = await html2canvas(shareRef.current!, { backgroundColor: '#ffffff', scale: 3 })
                   var link = document.createElement('a')
                   link.download = '诗词拼图.png'
                   link.href = canvas.toDataURL()
