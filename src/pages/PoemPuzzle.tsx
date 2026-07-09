@@ -247,7 +247,7 @@ export default function PoemPuzzle() {
             <div ref={shareRef} style={{ width: 320, height: 427, aspectRatio: '3/4', backgroundColor: '#ffffff', borderRadius: 12, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 4 }}>诗词拼图</div>
               <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 24 }}>点击上方汉字矩阵，填入诗句空白处</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(' + poolSize + ', 1fr)', gap: 4 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(' + poolSize + ', 1fr)', gap: 6 }}>
                 {pool.map(function(ch, i) {
                   return (
                     <span key={i}
