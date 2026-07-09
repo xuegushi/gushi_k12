@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store'
 import { db } from '../lib/db'
 import { playTone } from '../lib/audio'
-import { ArrowLeft, RefreshCw, RotateCcw } from 'lucide-react'
+import { ArrowLeft, RefreshCw, RotateCcw, Lightbulb } from 'lucide-react'
 import RecordsModal from '../components/RecordsModal'
 import Celebration from '../components/Celebration'
 import MuteButton from '../components/MuteButton'
@@ -23,6 +23,7 @@ export default function PoemPuzzle() {
   var [showRecords, setShowRecords] = useState(false)
   var [showConfetti, setShowConfetti] = useState(false)
   var [poolSize, setPoolSize] = useState(4)
+  var [showHint, setShowHint] = useState(false)
 
   function initGame() {
     var filtered = poems.filter(function(p) {
@@ -129,7 +130,7 @@ export default function PoemPuzzle() {
       </div>
 
       <div className="flex flex-col max-w-3xl mx-auto w-full">
-        {poem && (
+        {poem && completed && (
           <div className="text-center mb-2">
             <h2 className="text-lg font-bold text-primary">{poem.title}</h2>
             <p className="text-sm text-muted-foreground">{poem.author} · {poem.dynasty}</p>
@@ -139,7 +140,7 @@ export default function PoemPuzzle() {
         {completed && <div className="text-center text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-3">🎉 完成！用时 {elapsed} 秒</div>}
 
         <p className="text-xs text-muted-foreground text-center mb-3">
-          从 {poolSize}×{poolSize} 字矩阵中选出正确文字填入下方诗句
+          点击上方矩阵中的汉字，填入下方诗句的空白处
         </p>
 
         {/* Pool matrix grid */}
@@ -192,13 +193,19 @@ export default function PoemPuzzle() {
         )}
 
         {/* Controls */}
-        <div className="flex gap-3 justify-center">
+        <div className="flex gap-3 justify-center flex-wrap">
           <button onClick={initGame} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted text-foreground text-sm font-medium hover:bg-muted/70 transition-colors card-hover">
             <RotateCcw className="h-3.5 w-3.5" /> 再来一次
           </button>
           <button onClick={initGame} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted text-foreground text-sm font-medium hover:bg-muted/70 transition-colors card-hover">
             <RefreshCw className="h-3.5 w-3.5" /> 换一首
           </button>
+          {poem && !completed && (
+            <button onClick={function() { setShowHint(true) }}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted text-foreground text-sm font-medium hover:bg-muted/70 transition-colors card-hover">
+              <Lightbulb className="h-3.5 w-3.5" /> 提示
+            </button>
+          )}
           {filled.some(function(f) { return f !== null }) && !completed && (
             <button onClick={undo} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted text-foreground text-sm font-medium hover:bg-muted/70 transition-colors card-hover">
               撤回一步
@@ -212,6 +219,18 @@ export default function PoemPuzzle() {
           </button>
         </div>
       </div>
+      {showHint && poem && (
+        <div onClick={function() { setShowHint(false) }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div onClick={function(e) { e.stopPropagation() }} className="rounded-xl bg-card p-6 shadow-xl max-w-sm mx-4 text-center">
+            <h3 className="text-lg font-bold text-primary mb-1">{poem.title}</h3>
+            <p className="text-sm text-muted-foreground">{poem.author} · {poem.dynasty}</p>
+            <button onClick={function() { setShowHint(false) }}
+              className="mt-4 px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">
+              知道了
+            </button>
+          </div>
+        </div>
+      )}
       {showRecords && <RecordsModal game="拼图" open={true} onClose={function() { setShowRecords(false) }} />}
       <Celebration show={showConfetti} />
     </div>
