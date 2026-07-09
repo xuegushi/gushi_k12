@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store'
 import { db } from '../lib/db'
 import { playTone } from '../lib/audio'
-import { ArrowLeft, RefreshCw, RotateCcw, Lightbulb } from 'lucide-react'
+import { ArrowLeft, RefreshCw, RotateCcw, Lightbulb, Share2 } from 'lucide-react'
 import RecordsModal from '../components/RecordsModal'
 import Celebration from '../components/Celebration'
 import MuteButton from '../components/MuteButton'
@@ -24,6 +24,8 @@ export default function PoemPuzzle() {
   var [showConfetti, setShowConfetti] = useState(false)
   var [poolSize, setPoolSize] = useState(4)
   var [showHint, setShowHint] = useState(false)
+  var [showShare, setShowShare] = useState(false)
+  var shareRef = useRef<HTMLDivElement>(null)
 
   function initGame() {
     var filtered = poems.filter(function(p) {
@@ -216,6 +218,10 @@ export default function PoemPuzzle() {
             className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-muted/50 text-muted-foreground text-xs hover:text-foreground transition-colors cursor-pointer">
             🏆 记录
           </button>
+          <button onClick={function() { setShowShare(true) }}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-muted/50 text-muted-foreground text-xs hover:text-foreground transition-colors cursor-pointer ml-2">
+            <Share2 className="h-3 w-3" /> 分享
+          </button>
         </div>
       </div>
       {showHint && poem && (
@@ -232,6 +238,47 @@ export default function PoemPuzzle() {
       )}
       {showRecords && <RecordsModal game="拼图" open={true} onClose={function() { setShowRecords(false) }} />}
       <Celebration show={showConfetti} />
+
+      {/* Share modal */}
+      {showShare && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="rounded-2xl bg-background p-6 shadow-xl mx-4 flex flex-col items-center gap-4" style={{ width: 360 }}>
+            {/* Share content to capture */}
+            <div ref={shareRef} className="rounded-xl bg-gradient-to-b from-primary/5 to-background p-8 flex flex-col items-center justify-center" style={{ width: 320, height: 426, aspectRatio: '3/4' }}>
+              <h2 className="text-2xl font-bold text-primary mb-1">诗词拼图</h2>
+              <p className="text-xs text-muted-foreground mb-6">点击上方汉字矩阵，填入诗句空白处</p>
+              <div className="grid gap-1.5" style={{ gridTemplateColumns: 'repeat(' + poolSize + ', minmax(0, 1fr))' }}>
+                {pool.map(function(ch, i) {
+                  return (
+                    <span key={i}
+                      className="w-9 h-9 rounded-lg border-2 border-border bg-card text-foreground text-sm font-poem font-medium flex items-center justify-center shadow-sm">
+                      {ch}
+                    </span>
+                  )
+                })}
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={async function() {
+                var html2canvas = (await import('html2canvas')).default
+                var canvas = await html2canvas(shareRef.current!, { backgroundColor: '#ffffff' })
+                var link = document.createElement('a')
+                link.download = '诗词拼图.png'
+                link.href = canvas.toDataURL()
+                link.click()
+                setShowShare(false)
+              }}
+                className="px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">
+                保存图片
+              </button>
+              <button onClick={function() { setShowShare(false) }}
+                className="px-5 py-2 rounded-full bg-muted text-foreground text-sm font-medium hover:bg-muted/70">
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
