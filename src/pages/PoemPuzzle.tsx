@@ -264,7 +264,7 @@ export default function PoemPuzzle() {
                   var html2canvas = (await import('html2canvas')).default
                   var canvas = await html2canvas(shareRef.current!, { backgroundColor: '#ffffff', scale: 3 })
                   var link = document.createElement('a')
-                  link.download = '诗词拼图.png'
+                  link.download = '诗词拼图-' + (poem?.title || '未知') + '.png'
                   link.href = canvas.toDataURL()
                   link.click()
                   setShowShare(false)
