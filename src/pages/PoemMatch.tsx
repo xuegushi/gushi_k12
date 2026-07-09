@@ -27,7 +27,11 @@ export default function PoemMatch() {
   var allMatched = false
 
   function initGame() {
-    var pool = poems.filter(function(p) { return (p.type === '诗' || p.type === '词') && p.content.length >= 4 })
+    var pool = poems.filter(function(p) {
+      if (p.type !== '诗' && p.type !== '词') return false
+      var lines = p.content.filter(function(l: string) { return l.replace(/[（(][^）)]*[）)]/g, '').trim().length > 0 })
+      return lines.length >= 4
+    })
     if (pool.length < 2) return
 
     // Pick 2-3 poems
