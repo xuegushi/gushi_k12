@@ -145,7 +145,7 @@ export default function PoemPuzzle() {
 
         {/* Pool matrix grid */}
         <div className="flex justify-center mb-4">
-          <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(' + poolSize + ', minmax(0, 1fr))' }}>
+          <div className="grid gap-1.5" style={{ gridTemplateColumns: 'repeat(' + poolSize + ', minmax(0, 1fr))' }}>
             {pool.map(function(ch, i) {
               return (
                 <button key={i} onClick={function() { selectChar(ch) }}
@@ -171,7 +171,7 @@ export default function PoemPuzzle() {
                 }
                 var chars = cleanLine.split('').filter(function(c: string) { return /[\u4e00-\u9fff]/.test(c) })
                 return (
-                  <div key={li} className="flex items-center gap-0.5">
+                  <div key={li} className="flex items-center gap-1.5">
                     {chars.map(function(_ch: string, ci: number) {
                       var idx = startIdx + ci
                       var val = filled[idx]
