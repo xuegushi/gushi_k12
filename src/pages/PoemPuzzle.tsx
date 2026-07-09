@@ -251,7 +251,11 @@ export default function PoemPuzzle() {
                 {pool.map(function(ch, i) {
                   return (
                     <div key={i}
-                      style={{ width: cellW, height: cellW, borderRadius: 8, border: '2px solid #e5e7eb', backgroundColor: '#ffffff', boxSizing: 'border-box', textAlign: 'center', lineHeight: cellW + 'px', fontSize: 13, fontFamily: 'serif', color: '#111827' }}>{ch}</div>
+                      style={{ width: cellW, height: cellW, borderRadius: 8, border: '2px solid #e5e7eb', backgroundColor: '#ffffff', boxSizing: 'border-box', overflow: 'hidden' }}>
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontFamily: 'serif', color: '#111827' }}>
+                        {ch}
+                      </div>
+                    </div>
                   )
                 })}
               </div>) }()}
@@ -259,11 +263,11 @@ export default function PoemPuzzle() {
             <div className="flex gap-3">
               <button onClick={async function() {
                 try {
-                  var html2canvas = (await import('html2canvas')).default
-                  var canvas = await html2canvas(shareRef.current!, { backgroundColor: '#ffffff', scale: 3 })
+                  var domtoimage = (await import('dom-to-image-more')).default
+                  var dataUrl = await domtoimage.toPng(shareRef.current!, { bgcolor: '#ffffff', scale: 3 })
                   var link = document.createElement('a')
                   link.download = '诗词拼图-' + (poem?.title || '未知') + '.png'
-                  link.href = canvas.toDataURL()
+                  link.href = dataUrl
                   link.click()
                   setShowShare(false)
                 } catch (e) { console.error(e) }

@@ -24,6 +24,7 @@
     "cnchar-trad": "^3.2.6",
     "cnchar-words": "^3.2.6",
     "dexie": "^4.4.3",
+    "dom-to-image-more": "^3.10.0",
     "hanzi-writer": "^3.7.3",
     "html2canvas": "^1.4.1",
     "lucide-react": "^1.18.0",
