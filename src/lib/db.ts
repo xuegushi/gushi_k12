@@ -130,6 +130,13 @@ export interface GameRecord {
   createdAt: Date
 }
 
+export interface AiContent {
+  id?: number
+  poemTitle: string
+  field: string
+  content: string
+}
+
 class GushiDB extends Dexie {
   users!: Table<User, number>
   poems!: Table<Poem, number>
@@ -142,6 +149,7 @@ class GushiDB extends Dexie {
   translationLogs!: Table<TranslationLog, number>
   sortRecords!: Table<SortRecord, number>
   gameRecords!: Table<GameRecord, number>
+  aiContents!: Table<AiContent, number>
 
   constructor() {
     super('gushi_k12')
@@ -157,6 +165,8 @@ class GushiDB extends Dexie {
       translationLogs: '++id, createdAt',
       sortRecords: '++id, createdAt',
       gameRecords: '++id, game, createdAt',
+    }).stores({
+      aiContents: '++id, poemTitle, field',
     })
   }
 }

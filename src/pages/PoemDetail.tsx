@@ -35,6 +35,12 @@ export default function PoemDetail() {
     useSelectionStore.getState().setPoemContext({
       title: p.title, author: p.author, content: p.content.join(''),
     })
+    // Load saved AI content
+    db.aiContents.where({ poemTitle: p.title }).toArray().then(function(records) {
+      var loaded: Record<string, string> = {}
+      records.forEach(function(r) { loaded[r.field] = r.content })
+      setAiContent(loaded)
+    })
     return function() { useSelectionStore.getState().setPoemContext(null) }
   }, [poem])
 
@@ -73,6 +79,9 @@ export default function PoemDetail() {
     try {
       var fullPrompt = prompt + '\n\n诗词：《' + p.title + '》' + p.author + '\n' + p.content.join('')
       var reply = await chat(cfg.platform, cfg.apiKey, [{ role: 'user', content: fullPrompt }], cfg.model)
+      var existing = await db.aiContents.where({ poemTitle: p.title, field: field }).first()
+      if (existing && existing.id) await db.aiContents.update(existing.id, { content: reply })
+      else await db.aiContents.add({ poemTitle: p.title, field: field, content: reply })
       setAiContent(function(prev) { return { ...prev, [field]: reply } })
     } catch (err: any) {
       setAiContent(function(prev) { return { ...prev, [field]: '生成失败：' + err.message } })
