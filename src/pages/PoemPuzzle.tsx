@@ -251,9 +251,7 @@ export default function PoemPuzzle() {
                 {pool.map(function(ch, i) {
                   return (
                     <div key={i}
-                      style={{ width: cellW, height: cellW, borderRadius: 8, border: '2px solid #e5e7eb', backgroundColor: '#ffffff', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: 13, fontFamily: 'serif', color: '#111827', lineHeight: 1, display: 'block' }}>{ch}</span>
-                    </div>
+                      style={{ width: cellW, height: cellW, borderRadius: 8, border: '2px solid #e5e7eb', backgroundColor: '#ffffff', boxSizing: 'border-box', textAlign: 'center', lineHeight: cellW + 'px', fontSize: 13, fontFamily: 'serif', color: '#111827' }}>{ch}</div>
                   )
                 })}
               </div>) }()}
