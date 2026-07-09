@@ -149,7 +149,7 @@ export default function PoemPuzzle() {
             {pool.map(function(ch, i) {
               return (
                 <button key={i} onClick={function() { selectChar(ch) }}
-                  className="w-10 h-10 lg:w-12 lg:h-12 rounded-lg border-2 border-primary/30 bg-primary/5 text-foreground text-sm lg:text-base font-poem font-medium hover:bg-primary/10 hover:border-primary/50 transition-colors cursor-pointer">
+                  className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl border-2 border-border bg-card text-foreground text-sm lg:text-base font-poem font-medium shadow-sm hover:border-primary/40 hover:bg-primary/5 hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-150 cursor-pointer">
                   {ch}
                 </button>
               )
