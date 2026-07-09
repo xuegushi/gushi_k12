@@ -31,7 +31,9 @@
     "pinyin-pro": "^3.28.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.17.0",
+    "remark-gfm": "^4.0.1",
     "tailwindcss": "^4.3.1",
     "zustand": "^5.0.14"
   },

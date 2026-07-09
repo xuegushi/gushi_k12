@@ -9,6 +9,8 @@ import { PinyinText } from '../components/PinyinText'
 import { chat } from '../lib/ai'
 import { getNextReviewDate } from '../lib/recitation'
 import ReciteDialog from '../components/ReciteDialog'
+import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 const GRADE_FULL = ['', '一年级', '二年级', '三年级', '四年级', '五年级', '六年级', '七年级', '八年级', '九年级', '高一', '高二', '高三']
 
@@ -177,7 +179,7 @@ export default function PoemDetail() {
                   </button>
                 )}
               </div>
-              {aiContent.translation && <div className="text-sm text-muted-foreground whitespace-pre-wrap">{aiContent.translation}</div>}
+              {aiContent.translation && <MarkdownBlock content={aiContent.translation} />}
             </div>
           )}
           {p.annotation ? CollapseBlock(p.annotation, '注释', 'amber') : (
@@ -193,7 +195,7 @@ export default function PoemDetail() {
                 )}
                 <ChevronDown className="h-4 w-4 text-foreground/60 shrink-0" />
               </summary>
-              {aiContent.annotation && <div className="px-4 lg:px-5 pb-4 lg:pb-5 text-sm whitespace-pre-wrap text-muted-foreground">{aiContent.annotation}</div>}
+              {aiContent.annotation && <div className="px-4 lg:px-5 pb-4 lg:pb-5"><MarkdownBlock content={aiContent.annotation} /></div>}
             </details>
           )}
           {p.appreciation ? CollapseBlock(p.appreciation, '赏析', 'sky') : (
@@ -209,7 +211,7 @@ export default function PoemDetail() {
                 )}
                 <ChevronDown className="h-4 w-4 text-foreground/60 shrink-0" />
               </summary>
-              {aiContent.appreciation && <div className="px-4 lg:px-5 pb-4 lg:pb-5 text-sm whitespace-pre-wrap text-muted-foreground">{aiContent.appreciation}</div>}
+              {aiContent.appreciation && <div className="px-4 lg:px-5 pb-4 lg:pb-5"><MarkdownBlock content={aiContent.appreciation} /></div>}
             </details>
           )}
           {p.background ? CollapseBlock(p.background, '创作背景', 'purple') : (
@@ -225,7 +227,7 @@ export default function PoemDetail() {
                 )}
                 <ChevronDown className="h-4 w-4 text-foreground/60 shrink-0" />
               </summary>
-              {aiContent.background && <div className="px-4 lg:px-5 pb-4 lg:pb-5 text-sm whitespace-pre-wrap text-muted-foreground">{aiContent.background}</div>}
+              {aiContent.background && <div className="px-4 lg:px-5 pb-4 lg:pb-5"><MarkdownBlock content={aiContent.background} /></div>}
             </details>
           )}
         </div>
@@ -260,13 +262,21 @@ function AuthorInfo(poem: any) {
   )
 }
 
+function MarkdownBlock({ content }: { content: string }) {
+  return (
+    <div className="text-sm text-muted-foreground leading-relaxed [&_strong]:font-semibold [&_strong]:text-foreground [&_em]:italic [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4 [&_li]:mt-1 [&_h1]:text-lg [&_h1]:font-bold [&_h1]:text-foreground [&_h2]:text-base [&_h2]:font-semibold [&_h2]:text-foreground [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:text-foreground [&_p]:mt-2 [&_p:first-child]:mt-0 [&_code]:bg-muted [&_code]:px-1 [&_code]:rounded [&_blockquote]:border-l-2 [&_blockquote]:border-primary/30 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-muted-foreground/80 [&_hr]:border-border [&_hr]:my-3">
+      <Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown>
+    </div>
+  )
+}
+
 function TextBlock(content: string, label: string, _color: string) {
   return (
     <div className="rounded-xl border bg-card p-4 lg:p-5">
       <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5 text-muted-foreground">
         <BookOpen className="h-4 w-4 text-emerald-500" /> {label}
       </h3>
-      <div className="text-sm whitespace-pre-wrap text-muted-foreground" dangerouslySetInnerHTML={{ __html: content }} />
+      <MarkdownBlock content={content} />
     </div>
   )
 }
@@ -280,7 +290,9 @@ function CollapseBlock(content: string, label: string, _color: string) {
         </span>
         <ChevronDown className="h-4 w-4 text-foreground/60 shrink-0" />
       </summary>
-      <div className="px-4 lg:px-5 pb-4 lg:pb-5 text-sm whitespace-pre-wrap text-muted-foreground" dangerouslySetInnerHTML={{ __html: content }} />
+      <div className="px-4 lg:px-5 pb-4 lg:pb-5">
+        <MarkdownBlock content={content} />
+      </div>
     </details>
   )
 }
