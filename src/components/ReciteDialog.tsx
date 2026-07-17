@@ -6,17 +6,16 @@ export default function ReciteDialog({ poem, onResult, onClose }: { poem: any, o
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={function() { onClose() }}>
       <div className="bg-background rounded-2xl shadow-xl max-w-lg w-full max-h-[85vh] overflow-y-auto" onClick={function(e) { e.stopPropagation() }}>
-        <div className="p-4 lg:p-5 space-y-4">
-          <div className="flex items-center gap-2">
-            <button onClick={function() { onClose() }} className="text-sm text-muted-foreground cursor-pointer">&times; 关闭</button>
-            <div className="flex-1" />
-            <button onClick={function() { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(poem.content.join('，')); u.lang = 'zh-CN'; u.rate = 0.85; window.speechSynthesis.speak(u) } }} className="inline-flex items-center gap-1 rounded-lg border bg-card px-2.5 py-1 text-xs font-medium cursor-pointer">
+        <div className="p-4 lg:p-5 space-y-6">
+          <div className="flex items-center gap-2 border-b pb-3">
+            <button onClick={function() { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(poem.content.join('，')); u.lang = 'zh-CN'; u.rate = 0.85; window.speechSynthesis.speak(u) } }} className="inline-flex items-center gap-1 rounded-lg border bg-card px-2.5 py-1 text-xs font-medium cursor-pointer shrink-0">
               <Volume2 className="h-3.5 w-3.5 text-primary" /> 朗读
             </button>
-          </div>
-          <div className="text-center py-2 border-b">
-            <h2 className="text-lg font-bold font-poem">{poem.title}</h2>
-            <p className="text-xs text-muted-foreground mt-1">{poem.dynasty} · {poem.author}</p>
+            <div className="flex-1 text-center text-sm">
+              <span className="font-bold font-poem">{poem.title}</span>
+              <span className="text-muted-foreground ml-2">{poem.dynasty} · {poem.author}</span>
+            </div>
+            <button onClick={function() { onClose() }} className="text-sm text-muted-foreground cursor-pointer shrink-0">&times; 关闭</button>
           </div>
           <div className="rounded-xl bg-gradient-to-b from-muted/50 to-muted/30 p-4">
             <PoemContent content={poem.content} onModeChange={function(){}} />
