@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../store'
 import { useUserStore } from '../store/user'
+import { useUIConfig } from '../store/ui'
 import { db } from '../lib/db'
 import { ensureDefaultPlans, resetPlanProgress } from '../lib/studyPlan'
 import { getNextReviewDate } from '../lib/recitation'
@@ -19,6 +20,8 @@ export default function StudyPlan() {
   var [recitePoem, setRecitePoem] = useState<any | null>(null)
   var [tab, setTab] = useState('plan')
   var [dueReviews, setDueReviews] = useState<any[]>([])
+  var [stageStats, setStageStats] = useState<number[]>([])
+  var [reviewMap, setReviewMap] = useState<Record<string, number>>({})
   var [reviewIdx, setReviewIdx] = useState(0)
   var [reviewDone, setReviewDone] = useState(false)
 
@@ -40,6 +43,9 @@ export default function StudyPlan() {
   useEffect(function() {
     if (tab !== 'review' || !currentUser) return
     db.reviewRecords.where('userId').equals(currentUser.id!).toArray().then(function(all) {
+      var stats = [0, 0, 0, 0, 0, 0, 0]
+      for (var r of all) { if (r.stage <= 6) stats[r.stage]++ }
+      setStageStats(stats)
       var today = new Date()
       today.setHours(0, 0, 0, 0)
       var due = all.filter(function(r) { return new Date(r.nextReviewAt) <= today && r.stage <= 6 })
@@ -51,6 +57,15 @@ export default function StudyPlan() {
   }, [tab, currentUser])
 
   function pct(p: any) { return Math.round(((p.completedTitles?.length || 0) / (p.poemTitles?.length || 1)) * 100) }
+
+  useEffect(function() {
+    if (!selected || !currentUser) return
+    db.reviewRecords.where('userId').equals(currentUser.id!).toArray().then(function(all) {
+      var map: Record<string, number> = {}
+      for (var r of all) { if (r.poemTitle && r.stage !== undefined) map[r.poemTitle] = r.stage }
+      setReviewMap(map)
+    })
+  }, [selected, currentUser])
 
   async function handleReset() {
     if (!selected) return
@@ -110,6 +125,7 @@ export default function StudyPlan() {
             <Library className="h-4 w-4" />
           </div>
           <h1 className="text-lg font-bold">学习</h1>
+          <button onClick={function() { useUIConfig.getState().setStudyFlowHelpOpen(true) }} className="ml-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[11px] font-medium hover:bg-muted/70 cursor-pointer">学习流程 ?</button>
         </div>
         <div className="flex gap-1 rounded-lg bg-muted p-1 w-fit">
           <button onClick={function() { setTab('plan') }}
@@ -138,6 +154,27 @@ export default function StudyPlan() {
           })}
           </div> : null}
         {tab === 'review' ? <div className="space-y-3">
+          {/* 各阶段统计 */}
+          {stageStats.some(function(n) { return n > 0 }) ? <div className="rounded-xl border bg-card p-3">
+            <div className="text-xs font-medium text-foreground mb-2">各阶段诗词数量</div>
+            <div className="space-y-1.5">
+              {[0,1,2,3,4,5,6].map(function(s) {
+                var max = Math.max(...stageStats, 1)
+                var p = stageStats[s] / max * 100
+                var label = s === 6 ? '已掌握' : '阶段' + s + '(' + [1,2,4,7,15,30,60][s] + '天)'
+                return (
+                  <div key={s} className="flex items-center gap-2 text-xs">
+                    <span className="w-24 shrink-0 text-muted-foreground text-right">{label}</span>
+                    <div className="flex-1 h-4 rounded-full bg-muted overflow-hidden">
+                      <div className={'h-full rounded-full transition-all ' + (s === 6 ? 'bg-emerald-500' : s >= 4 ? 'bg-amber-500' : 'bg-primary')} style={{ width: p + '%' }} />
+                    </div>
+                    <span className="w-6 text-right font-medium text-foreground">{stageStats[s]}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div> : null}
+
           {reviewDone ? <div className="text-center py-8 text-sm text-muted-foreground"><p>今日复习已完成</p></div>
           : dueReviews.length === 0 ? <div className="py-8 text-center text-sm text-muted-foreground">暂无待复习</div>
           : <div className="space-y-3">
@@ -188,16 +225,15 @@ export default function StudyPlan() {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
           {selected?.poemTitles?.map(function(title: string, idx: number) {
             var done = selected?.completedTitles?.includes(title)
+            var stage = reviewMap[title]
             return (
-              <div key={title + '-' + idx} className={'rounded-xl border p-5 card-hover cursor-pointer transition-colors ' + (done ? 'bg-muted/30 border-muted' : 'bg-card')}>
+              <div key={title + '-' + idx} onClick={function() { startRecite(title) }} className={'rounded-xl border p-4 card-hover cursor-pointer transition-colors ' + (done ? 'bg-muted/30 border-muted' : 'bg-card')}>
                 <div className="flex items-center gap-3">
-                  <div className={'flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors ' + (done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-muted-foreground/30')} onClick={function() { startRecite(title) }}>
+                  <div className={'flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors ' + (done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-muted-foreground/30')}>
                     {done && <Check className="h-4 w-4" />}
                   </div>
-                  <button onClick={function() { startRecite(title) }} className={'text-base text-left truncate hover:text-primary transition-colors flex-1 ' + (done ? 'line-through text-muted-foreground/60' : '')}>{title}</button>
-                  <button onClick={function() { startRecite(title) }}>
-                    <Library className={'h-5 w-5 shrink-0 ' + (done ? 'text-muted-foreground/30' : 'text-muted-foreground/50')} />
-                  </button>
+                  <span className={'text-base truncate flex-1 ' + (done ? 'line-through text-muted-foreground/60' : '')}>{title}</span>
+                  {stage !== undefined ? <span className={'text-[10px] px-1.5 py-0.5 rounded-full font-medium ' + (stage >= 6 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>阶段{stage}</span> : null}
                 </div>
               </div>
             )

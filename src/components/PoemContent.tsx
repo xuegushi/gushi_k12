@@ -40,6 +40,7 @@ function PoemLine({ text, mode }: { text: string; mode: Mode }) {
   var parts = splitChars(text)
   var cnParts = parts.filter(function(p) { return p.cn })
   var count = cnParts.length
+  var randomIdx = mode === 'random' && count > 0 ? Math.floor(Math.random() * count) : -1
 
   var rendered = parts.map(function(p) {
     if (!p.cn) return { ch: p.ch, cn: false, hidden: false }
@@ -47,12 +48,12 @@ function PoemLine({ text, mode }: { text: string; mode: Mode }) {
     if (mode === 'hide') return { ch: p.ch, cn: true, hidden: true }
     if (mode === 'first') return { ch: p.ch, cn: true, hidden: p !== cnParts[0] }
     if (mode === 'last') return { ch: p.ch, cn: true, hidden: p !== cnParts[count - 1] }
-    if (mode === 'random') return { ch: p.ch, cn: true, hidden: p !== cnParts[Math.floor(Math.random() * count)] }
+    if (mode === 'random') return { ch: p.ch, cn: true, hidden: p !== cnParts[randomIdx] }
     return { ch: p.ch, cn: true, hidden: false }
   })
 
   return (
-    <p className={'text-lg lg:text-xl leading-loose flex flex-wrap gap-x-1 justify-center'}>
+    <p className={'text-lg lg:text-xl leading-[2.2] flex flex-wrap gap-x-1.5 justify-center'}>
       {rendered.map(function(p, i) {
         return <CharBox key={i} ch={p.ch} cn={p.cn} hidden={p.hidden} />
       })}
@@ -84,7 +85,7 @@ export default function PoemContent({ content, onModeChange }: PoemContentProps)
           {MODES.map(function(m) {
             return (
               <button key={m} onClick={function() { handleMode(m) }}
-                className={'inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium border transition-colors ' + (mode === m ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground border-border hover:text-foreground')}>
+                className={'inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium border transition-colors cursor-pointer ' + (mode === m ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground border-border hover:text-foreground')}>
                 {m === 'show' && <Eye className="h-3 w-3" />}
                 {m === 'hide' && <EyeOff className="h-3 w-3" />}
                 {m === 'show' && <span>显示</span>}
@@ -97,7 +98,7 @@ export default function PoemContent({ content, onModeChange }: PoemContentProps)
           })}
         </div>
       )}
-      <div className="space-y-1 text-center">
+      <div className="space-y-3 text-center">
         {content.map(function(line, i) {
           return <PoemLine key={i} text={line} mode={mode} />
         })}

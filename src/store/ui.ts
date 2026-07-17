@@ -5,8 +5,10 @@ export type ColorScheme = 'default' | 'ink' | 'nature' | 'vermillion' | 'playful
 interface UIConfig {
   theme: 'light' | 'dark'
   colorScheme: ColorScheme
+  studyFlowHelpOpen: boolean
   setTheme: (t: 'light' | 'dark') => void
   setColorScheme: (s: ColorScheme) => void
+  setStudyFlowHelpOpen: (v: boolean) => void
   initTheme: () => void
 }
 
@@ -20,11 +22,13 @@ export function applyColorScheme(scheme: ColorScheme) {
 export const useUIConfig = create<UIConfig>(set => ({
   theme: 'light',
   colorScheme: 'default',
+  studyFlowHelpOpen: false,
   setTheme: (t) => {
     set({ theme: t })
     localStorage.setItem('theme', t)
     document.documentElement.classList.toggle('dark', t === 'dark')
   },
+  setStudyFlowHelpOpen: (v) => set({ studyFlowHelpOpen: v }),
   setColorScheme: (s) => {
     set({ colorScheme: s })
     applyColorScheme(s)

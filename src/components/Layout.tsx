@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useUserStore } from '../store/user'
 import { useUIConfig } from '../store/ui'
-import { BookOpen, Home, Library, Settings, TrendingUp, Sun, Moon, GraduationCap, Wrench, Gamepad2, PanelLeftClose, PanelLeft } from 'lucide-react'
+import { BookOpen, Home, Library, Settings, TrendingUp, Sun, Moon, GraduationCap, Wrench, Gamepad2, PanelLeftClose, PanelLeft, HelpCircle } from 'lucide-react'
+import StudyFlowHelpDialog from './StudyFlowHelpDialog'
 
 var SIDEBAR_KEY = 'layout:sidebar:collapsed'
 
@@ -10,15 +11,15 @@ const NAV = [
   { path: '/', label: '首页', icon: Home },
   { path: '/poems', label: '诗词', icon: BookOpen },
   { path: '/study-plan', label: '学习', icon: Library },
+  { path: '/progress', label: '进度', icon: TrendingUp },
   { path: '/tools', label: '工具', icon: Wrench },
   { path: '/games', label: '游戏', icon: Gamepad2 },
-  { path: '/progress', label: '进度', icon: TrendingUp },
   { path: '/settings', label: '设置', icon: Settings },
 ]
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
-  const { theme, setTheme } = useUIConfig()
+  const { theme, setTheme, studyFlowHelpOpen, setStudyFlowHelpOpen } = useUIConfig()
   const currentUser = useUserStore(s => s.currentUser)
   const isDark = theme === 'dark'
   var [collapsed, setCollapsed] = useState(function() {
@@ -106,6 +107,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
               <span className="max-w-[80px] truncate">{userName}</span>
             </Link>
+            <button onClick={function() { useUIConfig.getState().setStudyFlowHelpOpen(true) }} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="学习流程说明">
+              <HelpCircle className="h-4 w-4" />
+            </button>
             <button onClick={toggleTheme} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title={isDark ? '浅色模式' : '深色模式'}>
               {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
@@ -133,6 +137,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           })}
         </div>
       </nav>
+      <StudyFlowHelpDialog open={studyFlowHelpOpen} onClose={function() { setStudyFlowHelpOpen(false) }} />
     </div>
   )
 }
