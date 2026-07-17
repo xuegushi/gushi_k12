@@ -25,7 +25,23 @@ export default function PoemPuzzle() {
   var [poolSize, setPoolSize] = useState(4)
   var [showHint, setShowHint] = useState(false)
   var [showShare, setShowShare] = useState(false)
+  var [shareBg, setShareBg] = useState('#ffffff')
   var shareRef = useRef<HTMLDivElement>(null)
+
+  var BG_PRESETS = [
+    { key: '素白', bg: '#ffffff' },
+    { key: '宣纸', bg: '#f5f0e8' },
+    { key: '墨韵', bg: '#1a1a2e' },
+    { key: '青瓷', bg: '#e8f5e9' },
+    { key: '绯红', bg: '#fce4ec' },
+    { key: '晴空', bg: '#e3f2fd' },
+  ]
+  function isLightBg(hex: string) {
+    var c = hex.replace('#', '')
+    var r = parseInt(c.slice(0,2), 16), g = parseInt(c.slice(2,4), 16), b = parseInt(c.slice(4,6), 16)
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55
+  }
+  var light = isLightBg(shareBg)
 
   function initGame() {
     var filtered = poems.filter(function(p) {
@@ -244,27 +260,49 @@ export default function PoemPuzzle() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="rounded-2xl bg-background p-6 shadow-xl mx-4 flex flex-col items-center gap-4" style={{ width: 360 }}>
             {/* Share content to capture */}
-            <div ref={shareRef} style={{ width: 320, height: 427, aspectRatio: '3/4', backgroundColor: '#ffffff', borderRadius: 12, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 4, fontFamily: 'sans-serif' }}>诗词拼图</div>
-              <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 24, fontFamily: 'sans-serif' }}>点击上方汉字矩阵，填入诗句空白处</div>
+            <div ref={shareRef} style={{ width: 320, height: 427, aspectRatio: '3/4', backgroundColor: shareBg, borderRadius: 12, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ fontSize: 22, fontWeight: 700, color: light ? '#111827' : '#f3f4f6', marginBottom: 4, fontFamily: 'sans-serif' }}>诗词拼图</div>
+              <div style={{ fontSize: 12, color: light ? '#6b7280' : '#d1d5db', marginBottom: 24, fontFamily: 'sans-serif' }}>从下方文字矩阵中，找出完整的诗句。</div>
               {function() { var gap = 4; var containerW = 272; var cellW = Math.floor((containerW - gap * (poolSize - 1)) / poolSize); return (<div style={{ display: 'flex', flexWrap: 'wrap', width: containerW, gap: gap }}>
                 {pool.map(function(ch, i) {
+                  var bg = light ? '#ffffff' : '#374151'
+                  var bd = light ? '#e5e7eb' : '#6b7280'
+                  var fc = light ? '#111827' : '#f3f4f6'
                   return (
                     <div key={i}
-                      style={{ width: cellW, height: cellW, borderRadius: 8, border: '2px solid #e5e7eb', backgroundColor: '#ffffff', boxSizing: 'border-box', overflow: 'hidden' }}>
-                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontFamily: 'serif', color: '#111827' }}>
+                      style={{ width: cellW, height: cellW, borderRadius: 8, border: '2px solid ' + bd, backgroundColor: bg, boxSizing: 'border-box', overflow: 'hidden' }}>
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontFamily: 'serif', color: fc }}>
                         {ch}
                       </div>
                     </div>
                   )
                 })}
               </div>) }()}
+              <div style={{ fontSize: 10, color: light ? '#9ca3af' : '#6b7280', marginTop: 20, fontFamily: 'sans-serif', textAlign: 'center' }}>学古诗 | xuegushi.com</div>
             </div>
+
+            {/* 颜色选择 */}
+            <div className="flex items-center gap-2">
+              {BG_PRESETS.map(function(p) {
+                return (
+                  <button key={p.key}
+                    onClick={function() { setShareBg(p.bg) }}
+                    style={{
+                      width: 28, height: 28, borderRadius: '50%', backgroundColor: p.bg,
+                      border: shareBg === p.bg ? '2px solid var(--color-primary)' : '2px solid #e5e7eb',
+                      cursor: 'pointer', outline: 'none', flexShrink: 0,
+                    }}
+                    title={p.key}
+                  />
+                )
+              })}
+            </div>
+
             <div className="flex gap-3">
               <button onClick={async function() {
                 try {
                   var domtoimage = (await import('dom-to-image-more')).default
-                  var dataUrl = await domtoimage.toPng(shareRef.current!, { bgcolor: '#ffffff', scale: 3 })
+                  var dataUrl = await domtoimage.toPng(shareRef.current!, { bgcolor: shareBg, scale: 3 })
                   var link = document.createElement('a')
                   link.download = '诗词拼图-' + (poem?.title || '未知') + '.png'
                   link.href = dataUrl
