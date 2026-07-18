@@ -46,9 +46,7 @@ export default function StudyPlan() {
       var stats = [0, 0, 0, 0, 0, 0, 0]
       for (var r of all) { if (r.stage <= 6) stats[r.stage]++ }
       setStageStats(stats)
-      var today = new Date()
-      today.setHours(0, 0, 0, 0)
-      var due = all.filter(function(r) { return new Date(r.nextReviewAt) <= today && r.stage <= 6 })
+      var due = all.filter(function(r) { return new Date(r.nextReviewAt) <= new Date() && r.stage <= 6 })
       due.sort(function(a, b) { return new Date(a.nextReviewAt).getTime() - new Date(b.nextReviewAt).getTime() })
       setDueReviews(due)
       setReviewIdx(0)
@@ -99,7 +97,7 @@ export default function StudyPlan() {
       reviewCount = (existing.reviewCount || 0) + 1
       await db.reviewRecords.update(existing.id!, { stage: stage, lastReviewedAt: now, nextReviewAt: getNextReviewDate(stage, now), reviewCount: reviewCount })
     } else {
-      stage = remembered ? 1 : 0
+      stage = 0
       await db.reviewRecords.add({ userId: currentUser!.id!, poemTitle: recitePoem.title, poemAuthor: recitePoem.author || '', stage: stage, lastReviewedAt: now, nextReviewAt: getNextReviewDate(stage, now), reviewCount: 1 })
     }
     if (selected && remembered) {

@@ -237,6 +237,10 @@ body {
   font-family: "Noto Serif SC", "Source Han Serif SC", "SimSun", "STSong", serif;
 }
 
+button:not(:disabled) {
+  cursor: pointer;
+}
+
 .card-hover {
   @apply transition-all duration-200;
 }

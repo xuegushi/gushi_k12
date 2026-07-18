@@ -320,7 +320,11 @@ export default function PoemGuessWho() {
         </div> : null}
 
         {/* 看提示 — 答对后隐藏 */}
-        {feedback !== 'correct' ? <div className="flex justify-end">
+        {feedback !== 'correct' ? <div className="flex justify-end gap-2">
+          <button onClick={startGame}
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-muted-foreground/30 text-muted-foreground text-xs font-medium hover:bg-muted transition-colors cursor-pointer">
+            <RotateCcw className="h-3.5 w-3.5" /> 重开一局
+          </button>
           <button onClick={function() { setShowHintModal(true) }} disabled={hintLevel >= 3}
             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-medium hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors disabled:opacity-30 cursor-pointer">
             <Lightbulb className="h-3.5 w-3.5" /> 看提示（-5分）

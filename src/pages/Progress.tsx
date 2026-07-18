@@ -306,7 +306,7 @@ export default function Progress() {
           </div>
 
           {/* Poem grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2">
             {filtered.map(function(p) {
               var done = completed.has(p.title)
               return (
@@ -334,7 +334,7 @@ export default function Progress() {
           {records.length === 0 ? (
             <div className="text-center py-16 text-sm text-muted-foreground">暂无记录</div>
           ) : (
-            <div className="space-y-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
               {records.map(function(r, i) {
                 var d = new Date(r.lastReviewedAt)
                 var month = d.getMonth() + 1
