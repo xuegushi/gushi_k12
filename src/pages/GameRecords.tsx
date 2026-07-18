@@ -11,6 +11,7 @@ var GAME_LABELS: Record<string, string> = {
   '拼图': '诗词拼图',
   '找茬': '诗词找茬',
   '接龙': '诗词接龙',
+  '猜诗人': '猜猜他是谁',
 }
 
 export default function GameRecords() {

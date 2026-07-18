@@ -245,7 +245,36 @@ export default function PoemList() {
 
           {/* Collection groups */}
           {!selectedCollection ? (
-            <div className="space-y-4">
+            search ? <div>
+              {function() {
+                var q = search.toLowerCase()
+                var results = poems.filter(function(p) { return p.grade === 0 && (p.title.includes(q) || p.author.includes(q)) })
+                return <div>
+                  <p className="text-xs text-muted-foreground mb-2">{results.length} 条结果</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                    {results.map(function(p) {
+                      return (
+                        <div key={p.title + '-' + p.author}
+                          onClick={function() { navigate('/poems/' + encodeURIComponent(p.title)) }}
+                          className="group rounded-xl border bg-card p-4 card-hover cursor-pointer">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold truncate group-hover:text-primary transition-colors">{p.title}</h3>
+                              <p className="text-xs text-muted-foreground mt-0.5">{p.dynasty} · {p.author}</p>
+                            </div>
+                            <ChevronRight className="h-4 w-4 text-muted-foreground/20 shrink-0 mt-1" />
+                          </div>
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{p.type || '诗'}</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                    {results.length === 0 && <div className="col-span-full text-center py-16 text-sm text-muted-foreground">没有匹配的诗词</div>}
+                  </div>
+                </div>
+              }()}
+            </div> : <div className="space-y-4">
               {Object.keys(collections).map(function(group) {
                 var cols = collections[group as keyof typeof collections] as Record<string, string[]>
                 var colList = Object.entries(cols)

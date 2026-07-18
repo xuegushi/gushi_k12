@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Gamepad2, Droplets, Puzzle, Edit3, Cherry, LayoutGrid, Grid3X3, Search, Link2 } from 'lucide-react'
+import { Gamepad2, Droplets, Puzzle, Edit3, Cherry, LayoutGrid, Grid3X3, Search, Link2, UserCircle } from 'lucide-react'
 
 const GAMES = [
   { path: 'poem-sort', label: '诗词排序', desc: '拖拽片段还原诗句顺序', icon: Puzzle, color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' },
@@ -10,6 +10,7 @@ const GAMES = [
   { path: 'poem-rain', label: '诗词雨', desc: '黑客帝国风格的诗词矩阵雨', icon: Droplets, color: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' },
   { path: 'poem-find-wrong', label: '诗词找茬', desc: '找出诗句中被替换的错字', icon: Search, color: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400' },
   { path: 'poem-chain-link', label: '诗词接龙', desc: '选出正确的上句或下句', icon: Link2, color: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400' },
+  { path: 'poem-guess-who', label: '猜猜他是谁', desc: '根据足迹线索猜诗人身份', icon: UserCircle, color: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' },
 ]
 
 export default function Games() {
