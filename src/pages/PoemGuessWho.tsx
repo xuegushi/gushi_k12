@@ -331,13 +331,13 @@ export default function PoemGuessWho() {
         {feedback === 'correct' && <div className="text-right">
           <div className="text-emerald-600 font-medium text-sm mb-2">✓ 正确! +{Math.max(20 - hintLevel * 5, 5)} 分</div>
           <div className="flex items-center justify-end gap-2">
-            <button onClick={nextQuestion}
-              className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium cursor-pointer">
-              下一题
-            </button>
             <button onClick={function() { setShowFullModal(true) }}
               className="inline-flex items-center gap-1 px-4 py-2 rounded-xl border border-muted-foreground/30 text-muted-foreground text-sm font-medium hover:bg-muted transition-colors cursor-pointer">
               查看全文
+            </button>
+            <button onClick={nextQuestion}
+              className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium cursor-pointer">
+              下一题
             </button>
           </div>
         </div>}
