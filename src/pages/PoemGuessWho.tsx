@@ -224,13 +224,15 @@ export default function PoemGuessWho() {
   if (filteredTL.length === 0) return <div className="py-16 text-center text-sm text-muted-foreground">暂无数据</div>
 
   return (
-    <div className="page-enter max-w-lg mx-auto space-y-4">
-      <div className="flex items-center gap-2">
+    <div className="page-enter max-w-lg mx-auto">
+      <div className="flex items-center gap-2 mb-4">
         <button onClick={function() { navigate('/games') }} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"><ArrowLeft className="h-4 w-4" /></button>
         <Gamepad2 className="h-5 w-5 text-primary" />
         <h1 className="text-lg font-bold flex-1">猜猜他是谁</h1>
         <button onClick={function() { setShowShare(true) }} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"><Share2 className="h-4 w-4" /></button>
       </div>
+
+      <div className="space-y-4 bg-gradient-to-b from-amber-50 to-orange-50 dark:from-amber-950/10 dark:to-orange-950/10 p-6 rounded-2xl">
 
       {gameOver ? <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -538,6 +540,7 @@ export default function PoemGuessWho() {
           </div>
         </div>
       }() : null}
+      </div>
     </div>
   )
 }
