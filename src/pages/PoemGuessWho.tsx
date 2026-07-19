@@ -38,6 +38,14 @@ var EN_EVENTS: Record<string, string> = {
   recommend: '举荐', prince: '亲王',
   peak: '巅峰',
 }
+
+function getRating(score: number): { label: string; emoji: string; color: string } {
+  if (score >= 80) return { label: '诗圣再世', emoji: '🏆', color: 'text-amber-500' }
+  if (score >= 60) return { label: '诗词达人', emoji: '📚', color: 'text-blue-500' }
+  if (score >= 40) return { label: '小有成就', emoji: '🌱', color: 'text-emerald-500' }
+  if (score >= 20) return { label: '初窥门径', emoji: '🔰', color: 'text-purple-500' }
+  return { label: '继续努力', emoji: '💪', color: 'text-gray-500' }
+}
 function cleanEv(s: string) {
   var lower = s.toLowerCase()
   if (EN_EVENTS[lower]) return EN_EVENTS[lower]
@@ -85,7 +93,8 @@ export default function PoemGuessWho() {
   var [showHintModal, setShowHintModal] = useState(false)
   var [showFullModal, setShowFullModal] = useState(false)
   var [showShare, setShowShare] = useState(false)
-  var [shareBg, setShareBg] = useState('#ffffff')
+  var [showResult, setShowResult] = useState(false)
+  var [shareBg, setShareBg] = useState('#f5f0e8')
   var [copyOk, setCopyOk] = useState(false)
   var shareRef = useRef<HTMLDivElement>(null)
 
@@ -197,7 +206,6 @@ export default function PoemGuessWho() {
       setTimeout(function() { setShowConfetti(false) }, 1500)
     } else {
       setFeedback('wrong')
-      setTimeout(function() { setFeedback('') }, 1000)
     }
   }
 
@@ -224,16 +232,35 @@ export default function PoemGuessWho() {
         <button onClick={function() { setShowShare(true) }} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"><Share2 className="h-4 w-4" /></button>
       </div>
 
-      {gameOver ? <div className="text-center py-8 space-y-4">
-        <Sparkles className="h-12 w-12 text-primary mx-auto" />
-        <h2 className="text-xl font-bold">游戏结束!</h2>
-        <p className="text-3xl font-bold text-primary">{totalScore} 分</p>
-        <div className="flex justify-center gap-2">
+      {gameOver ? <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">已完成</span>
+          <span className="text-xs text-muted-foreground">{totalScore} 分</span>
+        </div>
+        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+          <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: '100%' }} />
+        </div>
+        <div className="rounded-xl border bg-card p-6 text-center space-y-3">
+          <Sparkles className="h-10 w-10 text-primary mx-auto" />
+          <h2 className="text-xl font-bold">游戏结束!</h2>
+          <div className="text-5xl font-bold text-primary">{totalScore} <span className="text-lg text-muted-foreground">分</span></div>
+          <div className={'text-sm font-medium ' + getRating(totalScore).color}>{getRating(totalScore).emoji} {getRating(totalScore).label}</div>
+          <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+            <span>答对 {totalCorrect}/5 题</span>
+            <span>正确率 {totalAttempts > 0 ? Math.round(totalCorrect / totalAttempts * 100) : 0}%</span>
+          </div>
+        </div>
+        <div className="flex gap-2 justify-center">
           <button onClick={startGame} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium cursor-pointer">
             <RotateCcw className="h-4 w-4" /> 再来一局
           </button>
+          <button onClick={function() { setShowResult(true) }} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-primary/30 text-primary text-sm font-medium hover:bg-primary/5 cursor-pointer">
+            <ImageDown className="h-4 w-4" /> 生成分享图
+          </button>
+          <button onClick={function() { navigate('/games') }} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-muted-foreground/30 text-muted-foreground text-sm font-medium hover:bg-muted cursor-pointer">
+            回首页
+          </button>
         </div>
-        <RecordsModal game="猜诗人" open={showRecords} onClose={function() { setShowRecords(false) }} />
       </div> : current ? <div className="space-y-4">
         {/* 进度与分数 */}
         <div className="flex items-center">
@@ -299,11 +326,11 @@ export default function PoemGuessWho() {
           </div>
         </div>}
 
-        {/* 选项 — 答对后隐藏 */}
+        {/* 选项 — 答对后隐藏，答错后展示正确答案 */}
         {feedback !== 'correct' ? <div className="grid grid-cols-2 gap-2">
           {options.map(function(name) {
             var isSelected = selectedOpt === name
-            var isCorrect = feedback === 'correct' && name === current.n
+            var isCorrect = (feedback === 'correct' || feedback === 'wrong') && name === current.n
             var isWrong = feedback === 'wrong' && isSelected
             var disabled = feedback !== ''
             return (
@@ -319,8 +346,8 @@ export default function PoemGuessWho() {
           })}
         </div> : null}
 
-        {/* 看提示 — 答对后隐藏 */}
-        {feedback !== 'correct' ? <div className="flex justify-end gap-2">
+        {/* 看提示 — 答对/答错后隐藏 */}
+        {feedback === '' ? <div className="flex justify-end gap-2">
           <button onClick={startGame}
             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-muted-foreground/30 text-muted-foreground text-xs font-medium hover:bg-muted transition-colors cursor-pointer">
             <RotateCcw className="h-3.5 w-3.5" /> 重开一局
@@ -345,7 +372,20 @@ export default function PoemGuessWho() {
             </button>
           </div>
         </div>}
-        {feedback === 'wrong' && <div className="text-center text-red-500 font-medium text-sm">✗ 不对，再想想</div>}
+
+        {feedback === 'wrong' && <div className="text-right">
+          <div className="text-red-500 font-medium text-sm mb-2">✗ 不对，正确答案是 {current.n}</div>
+          <div className="flex items-center justify-end gap-2">
+            <button onClick={function() { setShowFullModal(true) }}
+              className="inline-flex items-center gap-1 px-4 py-2 rounded-xl border border-muted-foreground/30 text-muted-foreground text-sm font-medium hover:bg-muted transition-colors cursor-pointer">
+              查看全文
+            </button>
+            <button onClick={nextQuestion}
+              className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium cursor-pointer">
+              下一题
+            </button>
+          </div>
+        </div>}
 
         <Celebration show={showConfetti} />
 
@@ -407,104 +447,97 @@ export default function PoemGuessWho() {
           </div>
         }() : null}
 
-        {/* 分享弹窗 */}
-        {showShare ? function() {
-          var BG_PRESETS = [
-            { key: '素白', bg: '#ffffff' },
-            { key: '宣纸', bg: '#f5f0e8' },
-            { key: '青瓷', bg: '#e8f5e9' },
-            { key: '绯红', bg: '#fce4ec' },
-            { key: '晴空', bg: '#e3f2fd' },
-            { key: '墨韵', bg: '#1a1a2e' },
-          ]
-          function isLight(hex: string) {
-            var c = hex.replace('#', '')
-            var r = parseInt(c.slice(0,2), 16), g = parseInt(c.slice(2,4), 16), b = parseInt(c.slice(4,6), 16)
-            return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55
-          }
-          var light = isLight(shareBg)
-          var c = current
-          var travelPicks: any[] = []
-          if (c) {
-            var ae = c.p.flatMap(function(ph) { return ph.es || [] })
-            var te = ae.filter(function(e) { return e.loc?.t === 'travel' })
-            var third = Math.ceil(ae.length / 3)
-            var pp = [[0, third], [third, third * 2], [third * 2, ae.length]]
-            travelPicks = pp.map(function(r) {
-              var pool = te.filter(function(e) { var idx = ae.indexOf(e); return idx >= r[0] && idx < r[1] })
-              return pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null
-            }).filter(Boolean) as any[]
-            if (travelPicks.length < 3) {
-              var others = ae.filter(function(e: any) { return travelPicks.indexOf(e) === -1 })
-              for (var e of others) { if (travelPicks.length >= 3) break; travelPicks.push(e) }
-            }
-            travelPicks.sort(function(a: any, b: any) { return a.y - b.y })
-          }
-          return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={function() { setShowShare(false) }}>
-            <div className="bg-background rounded-2xl shadow-xl max-w-sm w-full p-5 space-y-4" onClick={function(e) { e.stopPropagation() }}>
-              {/* 分享卡片 */}
-              <div ref={shareRef} style={{ width: 320, minHeight: 427, backgroundColor: shareBg, borderRadius: 12, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
-                <div style={{ textAlign: 'center', fontSize: 16, fontWeight: 700, color: light ? '#111827' : '#f3f4f6', fontFamily: 'sans-serif' }}>猜猜他是谁</div>
-                <div style={{ textAlign: 'center', fontSize: 11, color: light ? '#6b7280' : '#d1d5db', fontFamily: 'sans-serif', marginBottom: 4 }}>根据以下线索猜出诗人名字</div>
-                {c ? <div style={{ fontSize: 12, color: light ? '#374151' : '#e5e7eb', fontFamily: 'sans-serif', lineHeight: 1.6, width: '100%' }}>
-                  <div style={{ marginBottom: 8 }}>📅 <span style={{ color: light ? '#6b7280' : '#9ca3af' }}>人生足迹</span><br/>{hideName(getInfo(c))}</div>
-                  <div style={{ marginBottom: 8 }}>🗺️ <span style={{ color: light ? '#6b7280' : '#9ca3af' }}>游历记录</span>
-                    {travelPicks.map(function(e: any, i: number) {
-                      var ev = hideName(cleanEv(e.ev))
-                      var l = e.loc?.h || ''
-                      if (l && ev.indexOf(l) !== -1) l = ''
-                      var pv = e.loc?.pv || ''
-                      var dt = e.d ? hideName(e.d) : ''
-                      return <div key={i} style={{ marginTop: 4 }}>
-                        <span style={{ fontWeight: 500, fontSize: 12 }}>{ev}</span>
-                        <span style={{ color: light ? '#6b7280' : '#9ca3af', fontSize: 10, marginLeft: 4 }}>{e.y}年{pv ? ' · ' + pv : ''}{l ? ' ' + l : ''}</span>
-                        {dt ? <div style={{ color: light ? '#6b7280' : '#9ca3af', fontSize: 11, marginTop: 1 }}>{dt}</div> : null}
-                      </div>
-                    })}
-                  </div>
-                  {c.s?.route ? <div>🛤️ <span style={{ color: light ? '#6b7280' : '#9ca3af' }}>漫游路线</span><br/>{c.s.route}</div> : null}
-                </div> : <div style={{ textAlign: 'center', fontSize: 12, color: light ? '#9ca3af' : '#6b7280' }}>暂无题目</div>}
-                <div style={{ textAlign: 'center', fontSize: 10, color: light ? '#9ca3af' : '#6b7280', fontFamily: 'sans-serif', marginTop: 4 }}>学古诗 · xuegushi.com</div>
-              </div>
-
-              {/* 颜色选择 */}
-              <div className="flex items-center justify-center gap-2">
-                {BG_PRESETS.map(function(p) {
-                  return <button key={p.key} onClick={function() { setShareBg(p.bg) }}
-                    style={{ width: 24, height: 24, borderRadius: '50%', backgroundColor: p.bg, border: shareBg === p.bg ? '2px solid var(--color-primary)' : '2px solid #e5e7eb', cursor: 'pointer' }}
-                    title={p.key} />
-                })}
-              </div>
-
-              <div className="flex gap-2">
-                <button onClick={async function() {
-                  try {
-                    var domtoimage = (await import('dom-to-image-more')).default
-                    var dataUrl = await domtoimage.toPng(shareRef.current!, { bgcolor: shareBg, scale: 3 })
-                    var link = document.createElement('a')
-                    link.download = '猜猜他是谁-' + (current?.n || '未知') + '.png'
-                    link.href = dataUrl
-                    link.click()
-                  } catch (e) { console.error(e) }
-                }} className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-medium cursor-pointer">
-                  <ImageDown className="h-3.5 w-3.5" /> 保存图片
-                </button>
-                <button onClick={async function() {
-                  try {
-                    await navigator.clipboard.writeText(window.location.href)
-                    setCopyOk(true)
-                    setTimeout(function() { setCopyOk(false) }, 2000)
-                  } catch (e) { console.error(e) }
-                }} className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl border border-muted-foreground/30 text-muted-foreground text-xs font-medium hover:bg-muted transition-colors cursor-pointer">
-                  {copyOk ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <LinkIcon className="h-3.5 w-3.5" />}
-                  {copyOk ? '已复制' : '复制链接'}
-                </button>
-              </div>
-              <button onClick={function() { setShowShare(false) }} className="w-full py-2 rounded-xl bg-muted text-muted-foreground text-xs font-medium cursor-pointer">关闭</button>
+      </div> : null}
+      {showShare ? function() {
+        var BG_PRESETS = [
+          { key: '素白', bg: '#ffffff' }, { key: '宣纸', bg: '#f5f0e8' }, { key: '青瓷', bg: '#e8f5e9' },
+          { key: '绯红', bg: '#fce4ec' }, { key: '晴空', bg: '#e3f2fd' }, { key: '墨韵', bg: '#1a1a2e' },
+        ]
+        function isLight(hex: string) { var c = hex.replace('#', ''); var r = parseInt(c.slice(0,2), 16), g = parseInt(c.slice(2,4), 16), b = parseInt(c.slice(4,6), 16); return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55 }
+        var light = isLight(shareBg)
+        var c = current
+        var travelPicks: any[] = []
+        if (c) {
+          var ae = c.p.flatMap(function(ph) { return ph.es || [] })
+          var te = ae.filter(function(e) { return e.loc?.t === 'travel' })
+          var third = Math.ceil(ae.length / 3)
+          var pp = [[0, third], [third, third * 2], [third * 2, ae.length]]
+          travelPicks = pp.map(function(r) { var pool = te.filter(function(e) { var idx = ae.indexOf(e); return idx >= r[0] && idx < r[1] }); return pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null }).filter(Boolean) as any[]
+          if (travelPicks.length < 3) { var others = ae.filter(function(e: any) { return travelPicks.indexOf(e) === -1 }); for (var e of others) { if (travelPicks.length >= 3) break; travelPicks.push(e) } }
+          travelPicks.sort(function(a: any, b: any) { return a.y - b.y })
+        }
+        return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={function() { setShowShare(false) }}>
+          <div className="bg-background rounded-2xl shadow-xl max-w-sm w-full p-5 space-y-4" onClick={function(e) { e.stopPropagation() }}>
+            <div ref={shareRef} style={{ width: 320, margin: '0 auto', backgroundColor: shareBg, borderRadius: 12, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+              <div style={{ textAlign: 'center', fontSize: 16, fontWeight: 700, color: light ? '#111827' : '#f3f4f6', fontFamily: 'sans-serif' }}>猜猜他是谁</div>
+              <div style={{ textAlign: 'center', fontSize: 11, color: light ? '#6b7280' : '#d1d5db', fontFamily: 'sans-serif', marginBottom: 4 }}>根据以下线索猜出诗人名字</div>
+              {c ? <div style={{ fontSize: 12, color: light ? '#374151' : '#e5e7eb', fontFamily: 'sans-serif', lineHeight: 1.6, width: '100%' }}>
+                <div style={{ marginBottom: 8 }}>📅 <span style={{ color: light ? '#6b7280' : '#9ca3af' }}>人生足迹</span><br/>{hideName(getInfo(c))}</div>
+                <div style={{ marginBottom: 8 }}>🗺️ <span style={{ color: light ? '#6b7280' : '#9ca3af' }}>游历记录</span>
+                  {travelPicks.map(function(e: any, i: number) {
+                    var ev = hideName(cleanEv(e.ev)); var l = e.loc?.h || ''; if (l && ev.indexOf(l) !== -1) l = ''; var pv = e.loc?.pv || ''; var dt = e.d ? hideName(e.d) : ''
+                    return <div key={i} style={{ marginTop: 4 }}>
+                      <span style={{ fontWeight: 500, fontSize: 12 }}>{ev}</span>
+                      <span style={{ color: light ? '#6b7280' : '#9ca3af', fontSize: 10, marginLeft: 4 }}>{e.y}年{pv ? ' · ' + pv : ''}{l ? ' ' + l : ''}</span>
+                      {dt ? <div style={{ color: light ? '#6b7280' : '#9ca3af', fontSize: 11, marginTop: 1 }}>{dt}</div> : null}
+                    </div>
+                  })}
+                </div>
+                {c.s?.route ? <div>🛤️ <span style={{ color: light ? '#6b7280' : '#9ca3af' }}>漫游路线</span><br/>{c.s.route}</div> : null}
+              </div> : <div style={{ textAlign: 'center', fontSize: 12, color: light ? '#9ca3af' : '#6b7280' }}>暂无题目</div>}
+              <div style={{ textAlign: 'center', fontSize: 10, color: light ? '#9ca3af' : '#6b7280', fontFamily: 'sans-serif', marginTop: 4 }}>学古诗 · xuegushi.com</div>
+            </div>
+            <div className="flex items-center justify-center gap-2 mt-3">
+              {BG_PRESETS.map(function(p) { return <button key={p.key} onClick={function() { setShareBg(p.bg) }} style={{ width: 24, height: 24, borderRadius: '50%', backgroundColor: p.bg, border: shareBg === p.bg ? '2px solid var(--color-primary)' : '2px solid #e5e7eb', cursor: 'pointer' }} title={p.key} /> })}
+            </div>
+            <div className="flex gap-2">
+              <button onClick={async function() { try { var domtoimage = (await import('dom-to-image-more')).default; var dataUrl = await domtoimage.toPng(shareRef.current!, { bgcolor: shareBg, scale: 3 }); var link = document.createElement('a'); link.download = '猜猜他是谁-' + (c?.n || '未知') + '.png'; link.href = dataUrl; link.click() } catch (e) { console.error(e) } }} className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-medium cursor-pointer"><ImageDown className="h-3.5 w-3.5" /> 保存图片</button>
+              <button onClick={function() { setShowShare(false) }} className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl border border-muted-foreground/30 text-muted-foreground text-xs font-medium hover:bg-muted cursor-pointer">关闭</button>
             </div>
           </div>
-        }() : null}
-      </div> : null}
+        </div>
+      }() : null}
+
+      {showResult ? function() {
+        var BG_PRESETS = [
+          { key: '素白', bg: '#ffffff' }, { key: '宣纸', bg: '#f5f0e8' }, { key: '青瓷', bg: '#e8f5e9' },
+          { key: '绯红', bg: '#fce4ec' }, { key: '晴空', bg: '#e3f2fd' }, { key: '墨韵', bg: '#1a1a2e' },
+        ]
+        function isLight(hex: string) { var c = hex.replace('#', ''); var r = parseInt(c.slice(0,2), 16), g = parseInt(c.slice(2,4), 16), b = parseInt(c.slice(4,6), 16); return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55 }
+        var light = isLight(shareBg)
+        var correctRate = totalAttempts > 0 ? Math.round(totalCorrect / totalAttempts * 100) : 0
+        return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={function() { setShowResult(false) }}>
+          <div className="bg-background rounded-2xl shadow-xl max-w-sm w-full p-5 space-y-4" onClick={function(e) { e.stopPropagation() }}>
+            <div ref={shareRef} style={{ width: 320, margin: '0 auto', backgroundColor: shareBg, borderRadius: 12, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+              <div style={{ textAlign: 'center', fontSize: 18, fontWeight: 700, color: light ? '#111827' : '#f3f4f6', fontFamily: 'sans-serif' }}>猜猜他是谁</div>
+              <div style={{ textAlign: 'center', fontSize: 11, color: light ? '#6b7280' : '#d1d5db', fontFamily: 'sans-serif' }}>根据诗人足迹线索猜出诗人名字</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 42, fontWeight: 700, color: light ? '#2563eb' : '#60a5fa', fontFamily: 'sans-serif', margin: '4px 0' }}>{totalScore}<span style={{ fontSize: 16, color: light ? '#6b7280' : '#9ca3af', marginLeft: 4 }}>分</span></div>
+              <div style={{ textAlign: 'center', fontSize: 13, color: light ? '#d97706' : '#fbbf24', fontFamily: 'sans-serif', marginBottom: 8 }}>{getRating(totalScore).emoji} {getRating(totalScore).label}</div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 40, fontFamily: 'sans-serif' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 11, color: light ? '#6b7280' : '#9ca3af' }}>答对</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: light ? '#374151' : '#e5e7eb', marginTop: 2 }}>{totalCorrect}/5</div>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 11, color: light ? '#6b7280' : '#9ca3af' }}>正确率</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: light ? '#374151' : '#e5e7eb', marginTop: 2 }}>{correctRate}%</div>
+                </div>
+              </div>
+              <div style={{ width: '100%', height: 1, background: light ? '#e5e7eb' : '#4b5563', margin: '8px 0' }} />
+              <div style={{ textAlign: 'center', fontSize: 11, color: light ? '#6b7280' : '#9ca3af', fontFamily: 'sans-serif' }}>在游戏中学习古诗词，猜诗人、记名句</div>
+              <div style={{ textAlign: 'center', fontSize: 10, color: light ? '#9ca3af' : '#6b7280', fontFamily: 'sans-serif', marginTop: 4 }}>学古诗 | xuegushi.com/games</div>
+            </div>
+            <div className="flex items-center justify-center gap-2 mt-3">
+              {BG_PRESETS.map(function(p) { return <button key={p.key} onClick={function() { setShareBg(p.bg) }} style={{ width: 24, height: 24, borderRadius: '50%', backgroundColor: p.bg, border: shareBg === p.bg ? '2px solid var(--color-primary)' : '2px solid #e5e7eb', cursor: 'pointer' }} title={p.key} /> })}
+            </div>
+            <div className="flex gap-2">
+              <button onClick={async function() { try { var domtoimage = (await import('dom-to-image-more')).default; var dataUrl = await domtoimage.toPng(shareRef.current!, { bgcolor: shareBg, scale: 3 }); var link = document.createElement('a'); link.download = '猜猜他是谁-' + totalScore + '分.png'; link.href = dataUrl; link.click() } catch (e) { console.error(e) } }} className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-medium cursor-pointer"><ImageDown className="h-3.5 w-3.5" /> 下载图片</button>
+              <button onClick={async function() { try { await navigator.clipboard.writeText(window.location.href); setCopyOk(true); setTimeout(function() { setCopyOk(false) }, 2000) } catch (e) { console.error(e) } }} className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl border border-muted-foreground/30 text-muted-foreground text-xs font-medium hover:bg-muted transition-colors cursor-pointer">{copyOk ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <LinkIcon className="h-3.5 w-3.5" />}{copyOk ? '已复制' : '分享链接'}</button>
+            </div>
+            <button onClick={function() { setShowResult(false) }} className="w-full py-2 rounded-xl bg-muted text-muted-foreground text-xs font-medium cursor-pointer">关闭</button>
+          </div>
+        </div>
+      }() : null}
     </div>
   )
 }
