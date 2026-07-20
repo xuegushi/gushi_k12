@@ -296,7 +296,7 @@ export default function PoemChain() {
           <button onClick={function() { initGame() }} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted text-foreground text-sm font-medium hover:bg-muted/70 transition-colors card-hover">
             <RotateCcw className="h-3.5 w-3.5" /> {mode === 'practice' ? '再来一次' : '换一个字'}
           </button>
-          {mode === 'practice' && <button onClick={initGame} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted text-foreground text-sm font-medium hover:bg-muted/70 transition-colors card-hover">
+          {mode === 'practice' && <button onClick={function() { initGame() }} className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-muted text-foreground text-sm font-medium hover:bg-muted/70 transition-colors card-hover">
             <RefreshCw className="h-3.5 w-3.5" /> 换一个字
           </button>}
         </div>)}

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store'
 import { Gamepad2, Lightbulb, Sparkles, RotateCcw, X, ArrowLeft, Share2, Link as LinkIcon, ImageDown, Check } from 'lucide-react'
 import Celebration from '../components/Celebration'
-import RecordsModal from '../components/RecordsModal'
 import poetTimelines from '../data/poetTimelines'
 
 interface TimelineEntry {
@@ -33,10 +32,8 @@ var EN_EVENTS: Record<string, string> = {
   masterpiece: '代表作', creative: '创作', contribution: '贡献',
   reclusion: '归隐', recommend: '举荐', refused: '辞不就',
   wuxu: '戊戌变法', jingkang: '靖康之变', tang: '唐代',
-  song: '宋代', beijing: '北京', southern: '南渡',
+  beijing: '北京', southern: '南渡', prince: '亲王',
   dasheng: '大晟府', gongche: '宫车', jinglue: '经略',
-  recommend: '举荐', prince: '亲王',
-  peak: '巅峰',
 }
 
 function getRating(score: number): { label: string; emoji: string; color: string } {
@@ -85,7 +82,6 @@ export default function PoemGuessWho() {
   var [feedback, setFeedback] = useState<'correct' | 'wrong' | ''>('')
   var [selectedOpt, setSelectedOpt] = useState('')
   var [showConfetti, setShowConfetti] = useState(false)
-  var [showRecords, setShowRecords] = useState(false)
   var [gameOver, setGameOver] = useState(false)
   var [totalScore, setTotalScore] = useState(0)
   var [totalCorrect, setTotalCorrect] = useState(0)
@@ -211,7 +207,7 @@ export default function PoemGuessWho() {
 
   function nextQuestion() {
     var nextRound = round + 1
-    if (nextRound >= 5) { setGameOver(true); setShowRecords(true); return }
+    if (nextRound >= 5) { setGameOver(true); return }
     setRound(nextRound)
     var next = queue[nextRound]
     setCurrent(next)
@@ -332,7 +328,7 @@ export default function PoemGuessWho() {
         {feedback !== 'correct' ? <div className="grid grid-cols-2 gap-2">
           {options.map(function(name) {
             var isSelected = selectedOpt === name
-            var isCorrect = (feedback === 'correct' || feedback === 'wrong') && name === current.n
+            var isCorrect = (feedback === 'correct' || feedback === 'wrong') && name === current!.n
             var isWrong = feedback === 'wrong' && isSelected
             var disabled = feedback !== ''
             return (
