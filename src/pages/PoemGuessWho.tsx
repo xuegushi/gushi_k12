@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store'
 import { Gamepad2, Lightbulb, Sparkles, RotateCcw, X, ArrowLeft, Share2, Link as LinkIcon, ImageDown, Check } from 'lucide-react'
 import Celebration from '../components/Celebration'
+import RecordsModal from '../components/RecordsModal'
 import poetTimelines from '../data/poetTimelines'
 
 interface TimelineEntry {
@@ -83,6 +84,7 @@ export default function PoemGuessWho() {
   var [selectedOpt, setSelectedOpt] = useState('')
   var [showConfetti, setShowConfetti] = useState(false)
   var [gameOver, setGameOver] = useState(false)
+  var [showRecords, setShowRecords] = useState(false)
   var [totalScore, setTotalScore] = useState(0)
   var [totalCorrect, setTotalCorrect] = useState(0)
   var [totalAttempts, setTotalAttempts] = useState(0)
@@ -121,12 +123,12 @@ export default function PoemGuessWho() {
     if (!current) return []
     var works = poetWorks[normName(current.n)] || []
     if (works.length > 0) {
-      return works.slice(0, 3).map(function(w) { return '《' + w.title + '》：' + w.lines.join('') })
+      return works.slice(0, 3).map(function(w) { return { title: '《' + w.title + '》', content: w.lines.join('') } })
     }
     var skip = ['出生', 'birth', '逝世', 'death']
     var events = current.p ? current.p.flatMap(function(ph) { return ph.es || [] }) : []
     var good = events.filter(function(e) { return skip.indexOf(cleanEv(e.ev)) === -1 && e.d && e.d.length > 10 })
-    return good.slice(0, 3).map(function(e) { return hideName(cleanEv(e.ev)) + '：' + hideName(e.d).replace(/[。！？；]/g, '。').split('。')[0] + '。' })
+    return good.slice(0, 3).map(function(e) { return { title: cleanEv(e.ev), content: hideName(e.d).replace(/[。！？；]/g, '。').split('。')[0] + '。' } })
   }, [current, poetWorks])
 
   // 游历数据 — 只在切换题目时重新计算
@@ -255,6 +257,9 @@ export default function PoemGuessWho() {
           <button onClick={function() { setShowResult(true) }} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-primary/30 text-primary text-sm font-medium hover:bg-primary/5 cursor-pointer">
             <ImageDown className="h-4 w-4" /> 生成分享图
           </button>
+          <button onClick={function() { setShowRecords(true) }} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-muted-foreground/30 text-muted-foreground text-sm font-medium hover:bg-muted cursor-pointer">
+            🏆 记录
+          </button>
           <button onClick={function() { navigate('/games') }} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-muted-foreground/30 text-muted-foreground text-sm font-medium hover:bg-muted cursor-pointer">
             回首页
           </button>
@@ -354,6 +359,10 @@ export default function PoemGuessWho() {
             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-medium hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors disabled:opacity-30 cursor-pointer">
             <Lightbulb className="h-3.5 w-3.5" /> 看提示（-5分）
           </button>
+          <button onClick={function() { setShowRecords(true) }}
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-muted-foreground/30 text-muted-foreground text-xs font-medium hover:bg-muted transition-colors cursor-pointer">
+            🏆 记录
+          </button>
         </div> : null}
 
         {/* 反馈 */}
@@ -394,9 +403,10 @@ export default function PoemGuessWho() {
               <h3 className="font-bold text-sm">提示</h3>
               <button onClick={function() { setShowHintModal(false) }} className="text-muted-foreground hover:text-foreground cursor-pointer"><X className="h-4 w-4" /></button>
             </div>
-            <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 p-4 text-center">
-              <p className={'text-base leading-relaxed ' + (currentHintLines[hintLevel]?.length > 10 ? 'font-poem' : '')}>
-                {currentHintLines[hintLevel] || '暂无提示'}
+            <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 p-4 text-left space-y-1">
+              <div className="text-sm font-medium">{currentHintLines[hintLevel]?.title || ''}</div>
+              <p className={'text-base leading-relaxed ' + ((currentHintLines[hintLevel]?.content?.length || 0) > 10 ? 'font-poem' : '')}>
+                {currentHintLines[hintLevel]?.content || '暂无提示'}
               </p>
             </div>
             <button onClick={function() { nextHint(); setShowHintModal(false) }}
@@ -446,6 +456,7 @@ export default function PoemGuessWho() {
         }() : null}
 
       </div> : null}
+      <RecordsModal game="猜诗人" open={showRecords} onClose={function() { setShowRecords(false) }} />
       {showShare ? function() {
         var BG_PRESETS = [
           { key: '素白', bg: '#ffffff' }, { key: '宣纸', bg: '#f5f0e8' }, { key: '青瓷', bg: '#e8f5e9' },
